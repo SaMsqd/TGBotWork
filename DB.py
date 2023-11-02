@@ -2,16 +2,16 @@ import sqlite3
 
 
 # Класс для взаимодействия с базами данных
-class DB:
+class DataBase:
     def __init__(self, file_name="database.db"):
         self.file_name = file_name  # Запоминаем имя файла
-        self.connection = sqlite3.connect(file_name)    # Создаём соединение
+        self.connection = sqlite3.connect(file_name, check_same_thread=False)    # Создаём соединение
         self.cursor = self.connection.cursor()  # Создаём курсор
         self.tables = self.__get_tables()     # Запоминаем все колонки в каждой таблице в виде списка
 
     # Нужен только для __init__ возвращает словарь {имя таблицы: [колонка1], [колонка2]}
     def __get_tables(self):
-        table_names = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()[1:]
+        table_names = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table';").fetchall()
         res = dict()
         for table in table_names:
             res[table[0]] = [{x[1]: x[2]} for x in self.cursor.execute(f"PRAGMA table_info({table[0]})").fetchall()]
@@ -28,18 +28,14 @@ class DB:
     # распечатать результат? по дефолту 0
     def get_user_by(self, table_name, value, search_name="id", b_print=0):
         self.cursor.execute(f"SELECT * FROM {table_name} WHERE {search_name} = {value}")
-        if not b_print:
-            print(self.cursor.fetchall())
         return self.cursor.fetchall()
 
     # Внести в таблицу 1 пользователя. Аргументы: название таблицы, значения
     # Если внести на одно значение меньше, то будет заноситься всё, кроме айди. Чтобы сработало,
     # айди нужен автоинкрементированный
-    def insert_user(self, table_name, *values):
+    def insert_user(self, table_name: str, *values):
         if len(values) == len(self.tables[table_name]):
             value = " ".join([f'"{x}",' for x in values])[0:-1]     # Да-да, куча говнокода
-            print(value)
-            print(f"INSERT INTO {table_name} VALUES({value})")
             self.cursor.execute(f"INSERT INTO {table_name} VALUES({value})")
             self.connection.commit()
         elif len(values) == len(self.tables[table_name])-1:
@@ -58,7 +54,7 @@ class DB:
             self.cursor.execute(f"DELETE FROM {table_name} WHERE id={id}")
             self.connection.commit()
         except:
-            print("Ошибка, пользователя с таким id не существует")
+            return "Ошибка, пользователя с таким id не существует"
 
     # Выполняет sql запрос и пытается его распечатать. Аргументы: команда
     def exec_command(self, command):
@@ -71,7 +67,7 @@ class DB:
                 pass
             self.connection.commit()
         except:
-            print("Команда не прошла")
+            return "Команда не прошла"
 
     # Удаляет таблицу
     def delete_table(self, table_name):
@@ -88,8 +84,6 @@ class DB:
         try:
             self.cursor.execute(f"CREATE TABLE {table_name}({values})")
             self.connection.commit()
-            print(f"Таблица {table_name} успешно создана в базе {self.file_name}")
-        except:
-            if input("Эта таблица уже существует, хотите пересоздать её? y/n").lower() == "y":
-                self.delete_table(table_name)
-                self.create_table(table_name, columns)
+            return f"Таблица {table_name} успешно создана в базе {self.file_name}"
+        except Exception:
+            return False
