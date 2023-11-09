@@ -23,7 +23,6 @@ def command_start(message: telebot.types.Message) -> None:
                                                            "Обратитесь к владельцу бота")
 
 
-
 def command_help(message):
     bot.send_message(chat_id=message.chat.id, text=
     '''
@@ -38,7 +37,7 @@ def command_help(message):
 /number - количество добавленных телефонов
 
 Чтобы добавить в таблицу телефоны, просто введите их в следующем виде:
-*Серия  *Название *Объём_хранилища *Цена(можно через точку) *Страна(смайликом или текстом)
+*Серия  *Название *Объём_хранилища *Цвет_телефона *Цена(можно через точку) *Страна(смайликом или текстом)
     '''
                      )
 
@@ -67,7 +66,7 @@ def command_keyboard_off(message):
 
 
 def command_number(message: telebot.types.Message):
-    phones = db.get_user_by(table_name="id"+str(message.chat.id), value=message.chat.id)[0][1].split("\n")
+    phones = db.get_all_rows(table_name="id"+str(message.chat.id))
     phone_number = len(phones)
     if phone_number == 1 and phones[0] == "":
         phone_number = 0
@@ -77,26 +76,44 @@ def command_number(message: telebot.types.Message):
 def command_clear(message: telebot.types.Message) -> None:
     db.delete_table(table_name="id" + str(message.chat.id))
     reg_user_database(message.chat.id)
+    bot.send_message(chat_id=message.chat.id, text="Данные по телефонам были удалены из вашей базы")
 
 
-def command_table_best(message: telebot.types.Message):
-    pass
+def command_table_best(message: telebot.types.Message, ret: bool = False) -> {str: int}:
+    data = db.exec_command(f"SELECT * FROM id{str(message.chat.id)}")
+    best_values = dict()
+    for phone in data:
+        if str(phone[0]) + phone[1] + phone[2] + phone[4] not in best_values.keys():
+            best_values[f"{phone[0]} {phone[1]} {phone[2]} {phone[4]}"] = phone[3]
+        elif phone[3] < best_values[f"{phone[0]} {phone[1]} {phone[2]}"]:
+            best_values[f"{phone[0]} {phone[1]} {phone[2]} {phone[4]} {phone[5]}"] = phone[3]
+    if ret:
+        return best_values
+    answer = ""
+    for k, v in best_values.items():
+        answer += k + " = " + str(v) + "\n"
+
+    bot.send_message(chat_id=message.chat.id, text=answer)
+    bot.send_message(chat_id=message.chat.id, text="Функция ещё будет дорабатываться")
 
 
-def command_table_client(message):
-    pass
+# def command_table_client(message: telebot.types.Message):
+#     pass
 
 
-def command_table_opt(message):
-    pass
+def get_opt_prices(message: telebot.types.Message, best_values):
+    bot.send_message(chat_id=message.chat.id, text="Разрабатывается")
 
 
-def command_change_opt_prices(message):
-    pass
+def command_change_opt_prices(message: telebot.types.Message):
+    bot.send_message(chat_id=message.chat.id, text="Разрабатывается")
 
 
-def command_table(message):
-    pass
+def command_table(message: telebot.types.Message):
+    bot.send_message(chat_id=message.chat.id, text="Разрабатывается")
 
 
-from main import bot, commands, check_user, db, reg_user_database
+from main import bot, commands, check_user, reg_user_database
+from main import db as database
+
+db = database

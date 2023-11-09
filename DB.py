@@ -19,8 +19,8 @@ class DataBase:
 
     # Получает инфу о всех пользователях. Аргументы: имя таблицы, распечатать результат? по дефолоту 0
     def get_all_rows(self, table_name, b_print=0):
-        self.cursor.execute(f"GET * FROM {table_name}")
-        if not b_print:
+        self.cursor.execute(f"SELECT * FROM {table_name}")
+        if b_print:
             print(self.cursor.fetchall())
         return self.cursor.fetchall()
 
@@ -62,7 +62,7 @@ class DataBase:
             self.cursor.execute(command)
             try:
                 data = self.cursor.fetchall()
-                print(data)
+                return data
             except:
                 pass
             self.connection.commit()
@@ -73,6 +73,7 @@ class DataBase:
     def delete_table(self, table_name):
         self.cursor.execute(f"DROP TABLE {table_name}")
         self.connection.commit()
+        self.update_tables()
 
     # Создаёт таблицу в базе данных. аргументы: название таблицы, **kwargs вида "имя": "колонки её параметры"
     # Пример: create_table(users, {"id": "integer primary key autoincrement", "name": "text"})
@@ -84,6 +85,10 @@ class DataBase:
         try:
             self.cursor.execute(f"CREATE TABLE {table_name}({values})")
             self.connection.commit()
+            self.update_tables()
             return f"Таблица {table_name} успешно создана в базе {self.file_name}"
         except Exception:
             return False
+
+    def update_tables(self):
+        self.tables = self.__get_tables()
