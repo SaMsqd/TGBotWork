@@ -58,16 +58,16 @@ class DataBase:
 
     # Выполняет sql запрос и пытается его распечатать. Аргументы: команда
     def exec_command(self, command):
+        # try:
+        self.cursor.execute(command)
         try:
-            self.cursor.execute(command)
-            try:
-                data = self.cursor.fetchall()
-                return data
-            except:
-                pass
-            self.connection.commit()
+            data = self.cursor.fetchall()
+            return data
         except:
-            return "Команда не прошла"
+            pass
+        self.connection.commit()
+        # except:
+        #     return "Команда не прошла"
 
     # Удаляет таблицу
     def delete_table(self, table_name):

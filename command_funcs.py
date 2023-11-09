@@ -1,5 +1,8 @@
 import telebot
 from telebot.types import KeyboardButton
+import os
+import time
+import countryes
 
 
 def command_start(message: telebot.types.Message) -> None:
@@ -37,7 +40,7 @@ def command_help(message):
 /number - количество добавленных телефонов
 
 Чтобы добавить в таблицу телефоны, просто введите их в следующем виде:
-*Серия  *Название *Объём_хранилища *Цвет_телефона *Цена(можно через точку) *Страна(смайликом или текстом)
+*Серия  *Название *Объём_хранилища *Цвет_телефона *Цена(можно через точку) *Страна(смайликом)
     '''
                      )
 
@@ -89,29 +92,34 @@ def command_table_best(message: telebot.types.Message, ret: bool = False) -> {st
             best_values[f"{phone[0]} {phone[1]} {phone[2]} {phone[4]} {phone[5]}"] = phone[3]
     if ret:
         return best_values
-    answer = ""
-    for k, v in best_values.items():
-        answer += k + " = " + str(v) + "\n"
-
-    bot.send_message(chat_id=message.chat.id, text=answer)
-    bot.send_message(chat_id=message.chat.id, text="Функция ещё будет дорабатываться")
-
+    file_name = str(time.strftime('%H%M%S'))
+    with open(f"./files/{file_name}.csv", mode="w+", encoding="utf-8") as f:
+        f.write("Number, Name, Storage, Color, Country, Price\n")
+        for i in best_values.keys():
+            buff = i.split()
+            number = buff.pop(0)
+            storage = buff.pop(-1)
+            color = buff.pop(-1)
+            name = " ".join(buff)
+            f.write(f"""{number}, {name}, {storage}, {color}, {countryes.get_country(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and '
+                            f'phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])}, {best_values[i]}\n""")
+    bot.send_document(message.chat.id, open(f"./files/{file_name}.csv", mode="r"))
+    os.remove(f"./files/{file_name}.csv")
 
 # def command_table_client(message: telebot.types.Message):
 #     pass
 
 
-def get_opt_prices(message: telebot.types.Message, best_values):
-    bot.send_message(chat_id=message.chat.id, text="Разрабатывается")
-
-
-def command_change_opt_prices(message: telebot.types.Message):
-    bot.send_message(chat_id=message.chat.id, text="Разрабатывается")
-
-
 def command_table(message: telebot.types.Message):
-    bot.send_message(chat_id=message.chat.id, text="Разрабатывается")
-
+    data = db.exec_command(f"SELECT * FROM id{str(message.chat.id)}")
+    print(data)
+    file_name = str(time.strftime('%H%M%S'))
+    with open(f"./files/{file_name}.csv", mode="w+", encoding="utf-8") as f:
+        f.write("Number, Name, Storage, Color, Country, Price\n")
+        for el in data:
+            f.write(f"{el[0]}, {el[1]}, {el[4]}, {el[2]}, {countryes.get_country(el[5])}, {el[3]}\n")
+    bot.send_document(message.chat.id, open(f"./files/{file_name}.csv", mode="r"))
+    os.remove(f"./files/{file_name}.csv")
 
 from main import bot, commands, check_user, reg_user_database
 from main import db as database
