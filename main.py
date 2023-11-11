@@ -50,7 +50,6 @@ def command_table_opt(message: telebot.types.Message):
     os.remove(f"./files/{file_name}.csv")
 
 
-
 def __get_opt_price(message: telebot.types.Message):
     global cur_overprice
     global wait
@@ -103,7 +102,7 @@ def parse_phones(message: telebot.types.Message):
                 if phone[i].isdigit():
                     phone = phone[:i+1] + " " + phone[i+1:]
                     break
-            phone = phone.replace(".", "").replace("-", " ").replace("  ", " ")
+            phone = phone.replace(".", "").replace("-", " ").replace("  ", " ").replace(",", "")
             try:
                 data = phone.split()
                 number = data.pop(0)

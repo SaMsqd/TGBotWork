@@ -33,9 +33,7 @@ def command_help(message):
 /keyboard_off - выключить клавиатуру
 /clear - очистить таблицу
 /table_best - получить таблицу с лучшими ценами
-/table_client - что-то ещё
 /table_opt - получить таблицу с наценками на товар(наценки вы настраиваете сами в следующей функции)
-/change_opt_prices - запустить процесс смены наценок на товары
 /table - получить таблицу
 /number - количество добавленных телефонов
 
@@ -92,19 +90,33 @@ def command_table_best(message: telebot.types.Message, ret: bool = False) -> {st
             best_values[f"{phone[0]} {phone[1]} {phone[2]} {phone[4]} {phone[5]}"] = phone[3]
     if ret:
         return best_values
-    file_name = str(time.strftime('%H%M%S'))
-    with open(f"./files/{file_name}.csv", mode="w+", encoding="utf-8") as f:
-        f.write("Number, Name, Storage, Color, Country, Price\n")
-        for i in best_values.keys():
-            buff = i.split()
-            number = buff.pop(0)
-            storage = buff.pop(-1)
-            color = buff.pop(-1)
-            name = " ".join(buff)
-            f.write(f"""{number}, {name}, {storage}, {color}, {countryes.get_country(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and '
-                            f'phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])}, {best_values[i]}\n""")
-    bot.send_document(message.chat.id, open(f"./files/{file_name}.csv", mode="r"))
-    os.remove(f"./files/{file_name}.csv")
+    answer = ""
+    for i in best_values.keys():
+        buff = i.split()
+        number = buff.pop(0)
+        storage = buff.pop(-1)
+        color = buff.pop(-1)
+        name = " ".join(buff)
+        if name != "":
+            answer += f"""{number}, {name}, {storage}, {color}, {best_values[i]}, {countryes.get_country(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and '
+                        f'phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])}\n"""
+        else:
+            answer += f"""{number}, {storage}, {color}, {best_values[i]}, {countryes.get_country(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and '
+                        f'phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])}\n"""
+    bot.send_message(chat_id=message.chat.id, text=answer)
+    # file_name = str(time.strftime('%H%M%S'))
+    # with open(f"./files/{file_name}.csv", mode="w+", encoding="utf-8") as f:
+    #     f.write("Number, Name, Storage, Color, Country, Price\n")
+    #     for i in best_values.keys():
+    #         buff = i.split()
+    #         number = buff.pop(0)
+    #         storage = buff.pop(-1)
+    #         color = buff.pop(-1)
+    #         name = " ".join(buff)
+    #         f.write(f"""{number}, {name}, {storage}, {color}, {countryes.get_country(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and '
+    #                         f'phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])}, {best_values[i]}\n""")
+    # bot.send_document(message.chat.id, open(f"./files/{file_name}.csv", mode="r"))
+    # os.remove(f"./files/{file_name}.csv")
 
 # def command_table_client(message: telebot.types.Message):
 #     pass
