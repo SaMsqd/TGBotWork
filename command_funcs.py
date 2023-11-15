@@ -159,6 +159,7 @@ def command_table_best(message: telebot.types.Message, ret: bool = False) -> {st
     for el in t_data:
         data.append(list(el))
     best_values = dict()
+    previous = ""
     for phone in data:
         if str(phone[0]) + phone[1] + phone[2] + phone[4] not in best_values.keys():
             best_values[f"{phone[0]} {phone[1]} {phone[2]} {phone[4]}"] = phone[3]
@@ -173,18 +174,20 @@ def command_table_best(message: telebot.types.Message, ret: bool = False) -> {st
         storage = buff.pop(-1)
         color = buff.pop(-1)
         name = " ".join(buff)
-        if name != "":
-            price = make_price_beautiful(best_values[i])
-            try:
-                answer += f"""{number} {name} {storage} {color}{emoji.emojize(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and '
-                            f'phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])} - {price}\n"""
-            except IndexError:
-                print("Произошла ошибка IndexError и я не знаю почему")
-                bot.send_message(chat_id=message.chat.id, text=f"Телефон {phone} не будет учитываться в таблице. Это сбой")
-        else:
-            price = make_price_beautiful(best_values[i])
-            answer += f"""{number} {storage} {color}{emoji.emojize(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and '
-                        f'phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])} - {price}\n"""
+        try:
+            country = emoji.emojize(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])
+        except IndexError:
+            country = ""
+        price = make_price_beautiful(best_values[i] + 500)
+        try:
+            if previous == number + name + storage:
+                answer += f"{number} {name} {storage} {color}{country} - {price}\n"
+            else:
+                answer += f"\n{number} {name} {storage} {color}{country} - {price}\n"
+                previous = number + name + storage
+        except IndexError:
+            print("Произошла ошибка IndexError и я не знаю почему")
+            bot.send_message(chat_id=message.chat.id, text=f"Телефон {number} {name} {storage} {color}{country} - {price} не будет учитываться в таблице. Это сбой")
     bot.send_message(chat_id=message.chat.id, text=answer.replace("gb", ""))
     # file_name = str(time.strftime('%H%M%S'))
     # with open(f"./files/{file_name}.csv", mode="w+", encoding="utf-8") as f:

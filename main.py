@@ -17,20 +17,28 @@ wait = True
 def command_table_opt(message: telebot.types.Message):
     best_values = command_table_best(message, ret=True)
     answer = ""
+    previous = ""
     for i in best_values.keys():
         buff = i.split()
         number = buff.pop(0)
         storage = buff.pop(-1)
         color = buff.pop(-1)
         name = " ".join(buff)
-        country = emoji.emojize(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])
         try:
-            answer += f"{number} {name} {storage} {color}{country} - {make_price_beautiful(int(best_values[i]) + 500)}\n"
+            country = emoji.emojize(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])
+        except IndexError:
+            country = ""
+        try:
+            if previous == number + name + storage:
+                answer += f"{number} {name} {storage} {color}{country} - {make_price_beautiful(int(best_values[i]) + 500)}\n"
+            else:
+                answer += f"\n{number} {name} {storage} {color}{country} - {make_price_beautiful(int(best_values[i]) + 500)}\n"
+                previous = number + name + storage
         except IndexError:
             print("Опять ошибка IndexError. main.py-45")
             bot.send_message(chat_id=message.chat.id, text=f"Произошла ошибка, телефон {number} {name} не будет "
                                                            f"указан в таблице")
-    bot.send_message(chat_id=message.chat.id, text=answer)
+    bot.send_message(chat_id=message.chat.id, text=answer.replace("gb", ""))
 
 
 def __get_opt_price(message: telebot.types.Message):
