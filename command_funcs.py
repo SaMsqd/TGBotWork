@@ -2,7 +2,83 @@ import telebot
 from telebot.types import KeyboardButton
 import os
 import time
-import countryes
+import emoji
+import CNV
+
+
+def get_data_from_string(phone_data: str) -> dict[str: str]:
+    res_dict = dict()
+    phone_data = phone_data.lower()
+
+    for COLOR in CNV.COLORS:
+        if COLOR in phone_data.lower():
+            res_dict["color"] = COLOR.capitalize()
+            phone_data = phone_data.replace(COLOR, " ")
+            break
+    for STORAGE in CNV.STORAGE:
+        if STORAGE in phone_data[0: phone_data.find("-")]:
+            if STORAGE == "1tb":
+                res_dict["storage"] = STORAGE.upper()
+                phone_data = phone_data.replace(STORAGE, " ", 1)
+            else:
+                res_dict["storage"] = STORAGE + "GB"
+                phone_data = phone_data = phone_data.replace(STORAGE, " ", 1)
+            break
+
+    for NAME in CNV.NAMES:
+        if NAME in phone_data.lower()[0: phone_data.index("-")]:
+            res_dict["name"] = NAME.capitalize()
+            phone_data = phone_data.replace(NAME, " ", 1)
+            break
+
+    for VERSION in CNV.VERSIONS:
+        if VERSION in phone_data:
+            res_dict["version"] = VERSION.capitalize()
+            phone_data = phone_data.replace(VERSION, " ")
+            break
+    else:
+        res_dict["version"] = ""
+
+    if "iphone" in phone_data:
+        phone_data = phone_data.replace("iphone", "")
+    phone_data = phone_data.replace("  ", " ").replace("-", " ").replace(".", "").replace(",", "").split()
+    res_dict["price"] = ""
+    res_dict["country"] = ""
+    if len(phone_data) == 1:
+        try:
+            for el in phone_data[0]:
+                if el.isdigit():
+                    res_dict["price"] += el
+                else:
+                    res_dict["country"] += el
+        except IndexError:
+            return {"error": "IndexError"}
+    else:
+        try:
+            for i in phone_data:
+                for el in i:
+                    if el.isdigit():
+                        res_dict["price"] += el
+                    else:
+                        res_dict["country"] += el
+        except IndexError:
+            return {"exception": "indexError"}
+    return res_dict
+
+
+# Заказчик попросил сделать вывод цены через точку для удобства
+def make_price_beautiful(price):
+    rl_price = list(str(price))
+    rl_price.reverse()
+    res = ""
+    for i in range(len(rl_price)):
+        if (i+1) % 3 == 0:
+            res += rl_price[i] + "."
+        else:
+            res += rl_price[i]
+    if res[-1] == ".":
+        res = res[:-1]
+    return res[::-1]
 
 
 def command_start(message: telebot.types.Message) -> None:
@@ -36,9 +112,6 @@ def command_help(message):
 /table_opt - получить таблицу с наценками на товар(наценки вы настраиваете сами в следующей функции)
 /table - получить таблицу
 /number - количество добавленных телефонов
-
-Чтобы добавить в таблицу телефоны, просто введите их в следующем виде:
-*Серия  *Название *Объём_хранилища *Цвет_телефона *Цена(можно через точку) *Страна(смайликом)
     '''
                      )
 
@@ -81,7 +154,10 @@ def command_clear(message: telebot.types.Message) -> None:
 
 
 def command_table_best(message: telebot.types.Message, ret: bool = False) -> {str: int}:
-    data = db.exec_command(f"SELECT * FROM id{str(message.chat.id)}")
+    t_data = db.exec_command(f"SELECT * FROM id{str(message.chat.id)}")
+    data = []
+    for el in t_data:
+        data.append(list(el))
     best_values = dict()
     for phone in data:
         if str(phone[0]) + phone[1] + phone[2] + phone[4] not in best_values.keys():
@@ -98,12 +174,18 @@ def command_table_best(message: telebot.types.Message, ret: bool = False) -> {st
         color = buff.pop(-1)
         name = " ".join(buff)
         if name != "":
-            answer += f"""{number}, {name}, {storage}, {color}, {best_values[i]}, {countryes.get_country(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and '
-                        f'phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])}\n"""
+            price = make_price_beautiful(best_values[i])
+            try:
+                answer += f"""{number} {name} {storage} {color}{emoji.emojize(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and '
+                            f'phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])} - {price}\n"""
+            except IndexError:
+                print("Произошла ошибка IndexError и я не знаю почему")
+                bot.send_message(chat_id=message.chat.id, text=f"Телефон {phone} не будет учитываться в таблице. Это сбой")
         else:
-            answer += f"""{number}, {storage}, {color}, {best_values[i]}, {countryes.get_country(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and '
-                        f'phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])}\n"""
-    bot.send_message(chat_id=message.chat.id, text=answer)
+            price = make_price_beautiful(best_values[i])
+            answer += f"""{number} {storage} {color}{emoji.emojize(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and '
+                        f'phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])} - {price}\n"""
+    bot.send_message(chat_id=message.chat.id, text=answer.replace("gb", ""))
     # file_name = str(time.strftime('%H%M%S'))
     # with open(f"./files/{file_name}.csv", mode="w+", encoding="utf-8") as f:
     #     f.write("Number, Name, Storage, Color, Country, Price\n")
@@ -124,12 +206,11 @@ def command_table_best(message: telebot.types.Message, ret: bool = False) -> {st
 
 def command_table(message: telebot.types.Message):
     data = db.exec_command(f"SELECT * FROM id{str(message.chat.id)}")
-    print(data)
     file_name = str(time.strftime('%H%M%S'))
     with open(f"./files/{file_name}.csv", mode="w+", encoding="utf-8") as f:
         f.write("Number, Name, Storage, Color, Country, Price\n")
         for el in data:
-            f.write(f"{el[0]}, {el[1]}, {el[4]}, {el[2]}, {countryes.get_country(el[5])}, {el[3]}\n")
+            f.write(f"{el[0]}, {el[1]}, {el[4]}, {el[2]}, {emoji.emojize(el[5])}, {make_price_beautiful(el[3])}\n")
     bot.send_document(message.chat.id, open(f"./files/{file_name}.csv", mode="r"))
     os.remove(f"./files/{file_name}.csv")
 

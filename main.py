@@ -1,10 +1,8 @@
-import os
-import time
-
-import telebot.types
+import requests.exceptions as rqst
 
 from command_funcs import *
 from DB import DataBase
+
 
 TOKEN: str = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot(TOKEN)
@@ -17,37 +15,22 @@ wait = True
 
 @bot.message_handler(commands=["table_opt"])
 def command_table_opt(message: telebot.types.Message):
-    global cur_overprice
-    global wait
     best_values = command_table_best(message, ret=True)
-    old_values = best_values.copy()
-    sended_phones = dict()   # Эта переменная меняется в функции __get_opt_price
+    answer = ""
     for i in best_values.keys():
         buff = i.split()
         number = buff.pop(0)
-        buff.pop(-1)
-        buff.pop(-1)
+        storage = buff.pop(-1)
+        color = buff.pop(-1)
         name = " ".join(buff)
-        if number + name not in sended_phones.keys():
-            wait = True
-            get_opt_price(message, number + name)
-            while wait:
-                time.sleep(0.5)
-            sended_phones[number + name] = cur_overprice
-        best_values[i] += sended_phones[number + name]
-    file_name = str(time.strftime('%H%M%S'))
-    with open(f"./files/{file_name}.csv", mode="w+", encoding="utf-8") as f:
-        f.write("Number, Name, Storage, Color, Country, Price\n")
-        for i in best_values.keys():
-            buff = i.split()
-            number = buff.pop(0)
-            storage = buff.pop(-1)
-            color = buff.pop(-1)
-            name = " ".join(buff)
-            f.write(f"""{number}, {name}, {storage}, {color}, {countryes.get_country(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and '
-                            f'phone_color="{color}" and storage="{storage}" and phone_price={old_values[i]}')[0][0])}, {best_values[i]}\n""")
-    bot.send_document(message.chat.id, open(f"./files/{file_name}.csv", mode="r"))
-    os.remove(f"./files/{file_name}.csv")
+        country = emoji.emojize(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])
+        try:
+            answer += f"{number} {name} {storage} {color}{country} - {make_price_beautiful(int(best_values[i]) + 500)}\n"
+        except IndexError:
+            print("Опять ошибка IndexError. main.py-45")
+            bot.send_message(chat_id=message.chat.id, text=f"Произошла ошибка, телефон {number} {name} не будет "
+                                                           f"указан в таблице")
+    bot.send_message(chat_id=message.chat.id, text=answer)
 
 
 def __get_opt_price(message: telebot.types.Message):
@@ -63,8 +46,6 @@ def __get_opt_price(message: telebot.types.Message):
 def get_opt_price(message: telebot.types.Message, name: str):
     bot.send_message(chat_id=message.chat.id, text=f"Введите наценку для товара {name}")
     bot.register_next_step_handler(message=message, callback=__get_opt_price)
-
-
 
 
 commands = {
@@ -94,28 +75,18 @@ def commands_handler(message: telebot.types.Message) -> None:
 def parse_phones(message: telebot.types.Message):
     if check_user(message.chat.id):
         phones = message.text
-        phones = phones.replace("\n\n", "\n").split("\n")
+        while "\n\n" in phones:
+            phones = phones.replace("\n\n", "\n")
+        phones = phones.split("\n")
         errors_l = list()
         success = 0
         for phone in phones:
-            for i in range(len(phone)-1, 0, -1):
-                if phone[i].isdigit():
-                    phone = phone[:i+1] + " " + phone[i+1:]
-                    break
-            phone = phone.replace(".", "").replace("-", " ").replace("  ", " ").replace(",", "")
             try:
-                data = phone.split()
-                number = data.pop(0)
-                country = data.pop(-1)
-                price = data.pop(-1)
-                color = data.pop(-1)
-                storage = data.pop(-1)
-                name = " ".join(data)
-                if not storage[0].isdigit():
-                    name += " " + storage
-                db.insert_user("id"+str(message.chat.id), int(number), name, color, int(price), storage, country)
+                data = get_data_from_string(phone)
+                db.insert_user(f"id{message.chat.id}", data["name"], data["version"], data["color"],
+                               int(data["price"]), data["storage"], data["country"])
                 success += 1
-            except IndexError:
+            except KeyError:
                 errors_l.append(phone)
             except ValueError:
                 errors_l.append(phone)
@@ -158,11 +129,11 @@ def main():
     except ConnectionError:
         print("Проблема с подключением к интернету/серверу API. Завершаю работу...")
         bot.stop_bot()
+    except rqst.ReadTimeout as e:
+        print("Ошибка 'ReadTimeout'. Проблемы либо с подключением, либо с API. Если эта ошибка будет часто повторятся,"
+              " то нужно использовать VPN/Proxy")
 
 
 if __name__ == "__main__":
     while True:
-        try:
-            main()
-        except Exception as ex:
-            print(ex)
+        main()
