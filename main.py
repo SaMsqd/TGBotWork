@@ -38,7 +38,18 @@ def command_table_opt(message: telebot.types.Message):
             print("Опять ошибка IndexError. main.py-45")
             bot.send_message(chat_id=message.chat.id, text=f"Произошла ошибка, телефон {number} {name} не будет "
                                                            f"указан в таблице")
-    bot.send_message(chat_id=message.chat.id, text=answer.replace("gb", ""))
+    cur_answer = ""
+    for line in answer.split("\n"):
+        print(len(cur_answer))
+        if len(cur_answer + line + "\n") < 1500 or line == "":
+            if line == "":
+                cur_answer += "\n"
+            else:
+                cur_answer += line + "\n"
+        else:
+            bot.send_message(chat_id=message.chat.id, text=cur_answer)
+            cur_answer = ""
+    bot.send_message(chat_id=message.chat.id, text=cur_answer)
 
 
 def __get_opt_price(message: telebot.types.Message):

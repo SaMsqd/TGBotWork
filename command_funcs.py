@@ -6,17 +6,26 @@ import emoji
 import CNV
 
 
+def get_price_index(data: str) -> int:
+    data = data.replace(".", "").replace(",", "")
+    price_index = 0
+    for el in data.split():
+        if el.isdigit() or CNV.delete_flag(el).isdigit():
+            price_index = data.index(el)
+    return price_index
+
+
 def get_data_from_string(phone_data: str) -> dict[str: str]:
     res_dict = dict()
-    phone_data = phone_data.lower()
-
+    phone_data = phone_data.lower().replace("-", " ")
+    price_index = get_price_index(phone_data)    # С какой позиции начинается цена
     for COLOR in CNV.COLORS:
         if COLOR in phone_data.lower():
             res_dict["color"] = COLOR.capitalize()
             phone_data = phone_data.replace(COLOR, " ")
             break
     for STORAGE in CNV.STORAGE:
-        if STORAGE in phone_data[0: phone_data.find("-")]:
+        if STORAGE in phone_data[0: price_index]:
             if STORAGE == "1tb":
                 res_dict["storage"] = STORAGE.upper()
                 phone_data = phone_data.replace(STORAGE, " ", 1)
@@ -26,7 +35,7 @@ def get_data_from_string(phone_data: str) -> dict[str: str]:
             break
 
     for NAME in CNV.NAMES:
-        if NAME in phone_data.lower()[0: phone_data.index("-")]:
+        if NAME in phone_data.lower()[0: price_index]:
             res_dict["name"] = NAME.capitalize()
             phone_data = phone_data.replace(NAME, " ", 1)
             break
