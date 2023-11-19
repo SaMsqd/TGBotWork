@@ -118,7 +118,8 @@ def command_help(message):
 /keyboard_off - выключить клавиатуру
 /clear - очистить таблицу
 /table_best - получить таблицу с лучшими ценами
-/table_opt - получить таблицу с наценками на товар(наценки вы настраиваете сами в следующей функции)
+/table_opt - получить таблицу с наценками на товар(наценки вы настраиваете сами в следу
+ющей функции)
 /table - получить таблицу
 /number - количество добавленных телефонов
     '''
@@ -163,7 +164,7 @@ def command_clear(message: telebot.types.Message) -> None:
 
 
 def command_table_best(message: telebot.types.Message, ret: bool = False) -> {str: int}:
-    t_data = db.exec_command(f"SELECT * FROM id{str(message.chat.id)}")
+    t_data = db.exec_command(f"SELECT * FROM id{str(message.chat.id)} ORDER BY phone_number, phone_name, storage")
     data = []
     for el in t_data:
         data.append(list(el))
@@ -225,6 +226,7 @@ def command_table(message: telebot.types.Message):
             f.write(f"{el[0]}, {el[1]}, {el[4]}, {el[2]}, {emoji.emojize(el[5])}, {make_price_beautiful(el[3])}\n")
     bot.send_document(message.chat.id, open(f"./files/{file_name}.csv", mode="r"))
     os.remove(f"./files/{file_name}.csv")
+
 
 from main import bot, commands, check_user, reg_user_database
 from main import db as database

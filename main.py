@@ -40,7 +40,6 @@ def command_table_opt(message: telebot.types.Message):
                                                            f"указан в таблице")
     cur_answer = ""
     for line in answer.split("\n"):
-        print(len(cur_answer))
         if len(cur_answer + line + "\n") < 1500 or line == "":
             if line == "":
                 cur_answer += "\n"

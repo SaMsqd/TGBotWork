@@ -2,19 +2,19 @@ import sqlite3
 import threading
 
 
-lock = threading.Lock()
+lock = threading.Lock() # Заглушка, чтобы база не падала от нескольких одновременных запросов
 
 
 # Класс для взаимодействия с базами данных
 class DataBase:
-    def __init__(self, file_name="database.db"):
+    def __init__(self, file_name: str = "database.db") -> None:
         self.file_name = file_name  # Запоминаем имя файла
         self.connection = sqlite3.connect(file_name, check_same_thread=False)    # Создаём соединение
         self.cursor = self.connection.cursor()  # Создаём курсор
         self.tables = self.__get_tables()     # Запоминаем все колонки в каждой таблице в виде списка
 
     # Нужен только для __init__ возвращает словарь {имя таблицы: [колонка1], [колонка2]}
-    def __get_tables(self):
+    def __get_tables(self) -> list:
         table_names = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
         res = dict()
         for table in table_names:
@@ -22,7 +22,7 @@ class DataBase:
         return res
 
     # Получает инфу о всех пользователях. Аргументы: имя таблицы, распечатать результат? по дефолоту 0
-    def get_all_rows(self, table_name, b_print=0):
+    def get_all_rows(self, table_name: str, b_print: int = 0):
         with lock:
             self.cursor.execute(f"SELECT * FROM {table_name}")
             if b_print:
@@ -31,7 +31,7 @@ class DataBase:
 
     # Получает инфу о пользователе. Аргументы: имя таблицы, колонка(по чему мы будем искать), её значение,
     # распечатать результат? по дефолту 0
-    def get_user_by(self, table_name, value, search_name="id", b_print=0):
+    def get_user_by(self, table_name: str, value: str or int, search_name: str = "id", b_print: int = 0):
         with lock:
             self.cursor.execute(f"SELECT * FROM {table_name} WHERE {search_name} = {value}")
         return self.cursor.fetchall()
@@ -39,7 +39,7 @@ class DataBase:
     # Внести в таблицу 1 пользователя. Аргументы: название таблицы, значения
     # Если внести на одно значение меньше, то будет заноситься всё, кроме айди. Чтобы сработало,
     # айди нужен автоинкрементированный
-    def insert_user(self, table_name: str, *values):
+    def insert_user(self, table_name: str, *values) -> None:
         with lock:
             if len(values) == len(self.tables[table_name]):
                 value = " ".join([f'"{x}",' for x in values])[0:-1]     # Да-да, куча говнокода
@@ -56,13 +56,13 @@ class DataBase:
         pass
 
     # Удаляет пользователя по его id. Аргументы: имя таблицы, id пользователя
-    def delete_user_by_id(self, table_name, id):
+    def delete_user_by_id(self, table_name: str, _id: int) -> None:
         with lock:
-            self.cursor.execute(f"DELETE FROM {table_name} WHERE id={id}")
+            self.cursor.execute(f"DELETE FROM {table_name} WHERE id={_id}")
             self.connection.commit()
 
     # Выполняет sql запрос и пытается его распечатать. Аргументы: команда
-    def exec_command(self, command):
+    def exec_command(self, command: str):   #Хз что возвращает
         with lock:
             self.cursor.execute(command)
             try:
@@ -73,7 +73,7 @@ class DataBase:
         return data
 
     # Удаляет таблицу
-    def delete_table(self, table_name):
+    def delete_table(self, table_name: str) -> None:
         with lock:
             self.cursor.execute(f"DROP TABLE {table_name}")
             self.connection.commit()
@@ -81,8 +81,8 @@ class DataBase:
 
     # Создаёт таблицу в базе данных. аргументы: название таблицы, **kwargs вида "имя": "колонки её параметры"
     # Пример: create_table(users, {"id": "integer primary key autoincrement", "name": "text"})
-    def create_table(self, table_name, columns: dict):
-        with lock:
+    def create_table(self, table_name: str, columns: dict) -> str or bool:
+        with lock:  # Заглушка нужна, так как sqlite не поддерживает многопоточность и будет падать, если убрать это
             values = ''
             for key, value in columns.items():
                 values += f'{key} {value},'
@@ -95,5 +95,13 @@ class DataBase:
             except Exception:
                 return False
 
-    def update_tables(self):
+    # Обновляет переменную с таблицами
+    def update_tables(self) -> None:
         self.tables = self.__get_tables()
+
+    # Сортирует таблицу по конкретному столбцу
+    def sorted_table(self, table_name: str, column: str = "id") -> list:
+        with lock:
+            self.cursor.execute(f"SELECT * from {table_name} ORDERED BY {column}")
+            return self.cursor.fetchall()
+
