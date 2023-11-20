@@ -22,32 +22,33 @@ def get_data_from_string(phone_data: str) -> dict[str: str]:
     for COLOR in CNV.COLORS:
         if COLOR in phone_data.lower():
             res_dict["color"] = COLOR.capitalize()
-            phone_data = phone_data.replace(COLOR, " ")
+            phone_data = phone_data.replace(COLOR, "")
             break
+    price_index = get_price_index(phone_data)
     for STORAGE in CNV.STORAGE:
         if STORAGE in phone_data[0: price_index]:
-            if STORAGE == "1tb":
+            if STORAGE == "1tb" or STORAGE == "1":
                 res_dict["storage"] = STORAGE.upper()
-                phone_data = phone_data.replace(STORAGE, " ", 1)
+                phone_data = phone_data.replace(STORAGE, "", 1)
             else:
                 res_dict["storage"] = STORAGE + "GB"
-                phone_data = phone_data = phone_data.replace(STORAGE, " ", 1)
+                phone_data = phone_data = phone_data.replace(STORAGE, "", 1)
             break
-
+    price_index = get_price_index(phone_data)
     for NAME in CNV.NAMES:
         if NAME in phone_data.lower()[0: price_index]:
             res_dict["name"] = NAME.capitalize()
-            phone_data = phone_data.replace(NAME, " ", 1)
+            phone_data = phone_data.replace(NAME, "", 1)
             break
-
+    price_index = get_price_index(phone_data)
     for VERSION in CNV.VERSIONS:
         if VERSION in phone_data:
             res_dict["version"] = VERSION.capitalize()
-            phone_data = phone_data.replace(VERSION, " ")
+            phone_data = phone_data.replace(VERSION, "")
             break
     else:
         res_dict["version"] = ""
-
+    
     if "iphone" in phone_data:
         phone_data = phone_data.replace("iphone", "")
     phone_data = phone_data.replace("  ", " ").replace("-", " ").replace(".", "").replace(",", "").split()
@@ -100,7 +101,7 @@ def command_start(message: telebot.types.Message) -> None:
                                                        f" вы у нас впервые, заношу ваш ID в базу данных...")
         if reg_user_database(message.chat.id):
             db.create_table(table_name=f"id{message.chat.id}", columns={
-                "phone_number": "integer", "phone_name": "text", "phone_color": "text", "phone_price": "integer"
+                "number": "integer", "version": "text", "color": "text", "price": "integer"
             })
             bot.send_message(chat_id=message.chat.id, text=f"Поздравляю, вы успешно зарегистрированы, ваш id - "
                                                            f"{message.chat.id}.\n\nЕсли вы потеряете доступ к текущему"
@@ -113,7 +114,8 @@ def command_start(message: telebot.types.Message) -> None:
 
 def command_help(message):
     bot.send_message(chat_id=message.chat.id, text=
-    '''
+    f'''
+Ваш ID - {message.chat.id}
 /keyboard_on - включить клавиатуру
 /keyboard_off - выключить клавиатуру
 /clear - очистить таблицу
@@ -150,82 +152,67 @@ def command_keyboard_off(message):
 
 
 def command_number(message: telebot.types.Message):
-    phones = db.get_all_rows(table_name="id"+str(message.chat.id))
-    phone_number = len(phones)
-    if phone_number == 1 and phones[0] == "":
-        phone_number = 0
-    bot.send_message(chat_id=message.chat.id, text=f"Количество телефонов, которое вы добавили: {phone_number}")
+    if check_user(message.chat.id):
+        phones = db.get_all_rows(table_name="id"+str(message.chat.id))
+        phone_number = len(phones)
+        if phone_number == 1 and phones[0] == "":
+            phone_number = 0
+        bot.send_message(chat_id=message.chat.id, text=f"Количество телефонов, которое вы добавили: {phone_number}")
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Вас, похоже, нет в системе. Пропишите /start")
 
 
 def command_clear(message: telebot.types.Message) -> None:
-    db.delete_table(table_name="id" + str(message.chat.id))
-    reg_user_database(message.chat.id)
-    bot.send_message(chat_id=message.chat.id, text="Данные по телефонам были удалены из вашей базы")
+    if check_user(message.chat.id):
+        db.delete_table(table_name="id" + str(message.chat.id))
+        reg_user_database(message.chat.id)
+        bot.send_message(chat_id=message.chat.id, text="Данные по телефонам были удалены из вашей базы")
 
 
-def command_table_best(message: telebot.types.Message, ret: bool = False) -> {str: int}:
-    t_data = db.exec_command(f"SELECT * FROM id{str(message.chat.id)} ORDER BY phone_number, phone_name, storage")
-    data = []
-    for el in t_data:
-        data.append(list(el))
-    best_values = dict()
-    previous = ""
-    for phone in data:
-        if str(phone[0]) + phone[1] + phone[2] + phone[4] not in best_values.keys():
-            best_values[f"{phone[0]} {phone[1]} {phone[2]} {phone[4]}"] = phone[3]
-        elif phone[3] < best_values[f"{phone[0]} {phone[1]} {phone[2]}"]:
-            best_values[f"{phone[0]} {phone[1]} {phone[2]} {phone[4]} {phone[5]}"] = phone[3]
-    if ret:
-        return best_values
-    answer = ""
-    for i in best_values.keys():
-        buff = i.split()
-        number = buff.pop(0)
-        storage = buff.pop(-1)
-        color = buff.pop(-1)
-        name = " ".join(buff)
-        try:
-            country = emoji.emojize(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])
-        except IndexError:
-            country = ""
-        price = make_price_beautiful(best_values[i] + 500)
-        try:
-            if previous == number + name + storage:
-                answer += f"{number} {name} {storage} {color}{country} - {price}\n"
+# Функция для определения необходимости сделать замену в списке лучших
+def to_replace_positions(cur_phone: tuple, best_sorted: list):  # Возвращает bool и int
+    for index, phone in enumerate(best_sorted):
+        if cur_phone[0] + cur_phone[1] + cur_phone[2] + cur_phone[4] == phone[0] + phone[1] + phone[2] + phone[4] and \
+                ((cur_phone[5] in "🇺🇸" and phone[5] in "🇺🇸" and phone[0] in ["14", "15"]) or \
+                (cur_phone[5] in "🇭🇰🇨🇳" and phone[5] in "🇭🇰🇨🇳") or \
+                 ((cur_phone[5] not in "🇭🇰🇨🇳🇺🇸" and phone[5] not in "🇺🇸🇭🇰🇨🇳") or ((cur_phone[5] in "🇺🇸" and\
+                                        phone[5] in "🇺🇸" and phone[0] not in ["14", "15"])))):
+            if cur_phone[3] <= phone[3]:
+                return True, index
             else:
-                answer += f"\n{number} {name} {storage} {color}{country} - {price}\n"
-                previous = number + name + storage
-        except IndexError:
-            print("Произошла ошибка IndexError и я не знаю почему")
-            bot.send_message(chat_id=message.chat.id, text=f"Телефон {number} {name} {storage} {color}{country} - {price} не будет учитываться в таблице. Это сбой")
-    bot.send_message(chat_id=message.chat.id, text=answer.replace("gb", ""))
-    # file_name = str(time.strftime('%H%M%S'))
-    # with open(f"./files/{file_name}.csv", mode="w+", encoding="utf-8") as f:
-    #     f.write("Number, Name, Storage, Color, Country, Price\n")
-    #     for i in best_values.keys():
-    #         buff = i.split()
-    #         number = buff.pop(0)
-    #         storage = buff.pop(-1)
-    #         color = buff.pop(-1)
-    #         name = " ".join(buff)
-    #         f.write(f"""{number}, {name}, {storage}, {color}, {countryes.get_country(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and '
-    #                         f'phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])}, {best_values[i]}\n""")
-    # bot.send_document(message.chat.id, open(f"./files/{file_name}.csv", mode="r"))
-    # os.remove(f"./files/{file_name}.csv")
+                return False, 2
+    return False, -1
 
-# def command_table_client(message: telebot.types.Message):
-#     pass
+
+def command_table_best(message: telebot.types.Message, ret: bool = False):
+    if check_user(message.chat.id):
+        t_data = db.exec_command(f"SELECT * FROM id{message.chat.id} ORDER BY name, version, storage, country, price")
+        best_sorted = []
+        for phone in t_data:
+            b, index = to_replace_positions(phone, best_sorted)
+            if b:
+                if index != -1:
+                    best_sorted.insert(index, phone)
+                    best_sorted.pop(index+1)
+            elif index == 2:
+                continue
+            else:
+                best_sorted.append(phone)
+        if ret:
+            return best_sorted
+        bot.send_message(chat_id=message.chat.id, text="Функция пока не умеет выводить")
 
 
 def command_table(message: telebot.types.Message):
-    data = db.exec_command(f"SELECT * FROM id{str(message.chat.id)}")
-    file_name = str(time.strftime('%H%M%S'))
-    with open(f"./files/{file_name}.csv", mode="w+", encoding="utf-8") as f:
-        f.write("Number, Name, Storage, Color, Country, Price\n")
-        for el in data:
-            f.write(f"{el[0]}, {el[1]}, {el[4]}, {el[2]}, {emoji.emojize(el[5])}, {make_price_beautiful(el[3])}\n")
-    bot.send_document(message.chat.id, open(f"./files/{file_name}.csv", mode="r"))
-    os.remove(f"./files/{file_name}.csv")
+    if check_user(message.chat.id):
+        data = db.exec_command(f"SELECT * FROM id{str(message.chat.id)}")
+        file_name = str(time.strftime('%H%M%S'))
+        with open(f"./files/{file_name}.csv", mode="w+", encoding="utf-8") as f:
+            f.write("Number, Name, Storage, Color, Country, Price\n")
+            for el in data:
+                f.write(f"{el[0]}, {el[1]}, {el[4]}, {el[2]}, {emoji.emojize(el[5])}, {make_price_beautiful(el[3])}\n")
+        bot.send_document(message.chat.id, open(f"./files/{file_name}.csv", mode="r"))
+        os.remove(f"./files/{file_name}.csv")
 
 
 from main import bot, commands, check_user, reg_user_database

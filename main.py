@@ -1,5 +1,8 @@
+import sqlite3
+
 import requests.exceptions as rqst
 
+import CNV
 from command_funcs import *
 from DB import DataBase
 
@@ -13,42 +16,41 @@ cur_overprice = 0
 wait = True
 
 
+def get_storage_index(data: str) -> int:
+    data = data.replace(".", "").replace(",", "")
+    color_index = 0
+    for el in data.split():
+        if el.lower() in CNV.STORAGE or CNV.delete_flag(el.lower()) in CNV.STORAGE:
+            color_index = data.index(el)
+            break
+    return color_index
+
+
 @bot.message_handler(commands=["table_opt"])
 def command_table_opt(message: telebot.types.Message):
-    best_values = command_table_best(message, ret=True)
-    answer = ""
-    previous = ""
-    for i in best_values.keys():
-        buff = i.split()
-        number = buff.pop(0)
-        storage = buff.pop(-1)
-        color = buff.pop(-1)
-        name = " ".join(buff)
-        try:
-            country = emoji.emojize(db.exec_command(f'SELECT phone_country FROM id{message.chat.id} WHERE phone_number={number} and phone_name="{name}" and phone_color="{color}" and storage="{storage}" and phone_price={best_values[i]}')[0][0])
-        except IndexError:
-            country = ""
-        try:
-            if previous == number + name + storage:
-                answer += f"{number} {name} {storage} {color}{country} - {make_price_beautiful(int(best_values[i]) + 500)}\n"
-            else:
-                answer += f"\n{number} {name} {storage} {color}{country} - {make_price_beautiful(int(best_values[i]) + 500)}\n"
-                previous = number + name + storage
-        except IndexError:
-            print("Опять ошибка IndexError. main.py-45")
-            bot.send_message(chat_id=message.chat.id, text=f"Произошла ошибка, телефон {number} {name} не будет "
-                                                           f"указан в таблице")
-    cur_answer = ""
-    for line in answer.split("\n"):
-        if len(cur_answer + line + "\n") < 1500 or line == "":
-            if line == "":
-                cur_answer += "\n"
-            else:
-                cur_answer += line + "\n"
-        else:
-            bot.send_message(chat_id=message.chat.id, text=cur_answer)
-            cur_answer = ""
-    bot.send_message(chat_id=message.chat.id, text=cur_answer)
+    if check_user(message.chat.id):
+        best_sorted = command_table_best(message, ret=True)
+        name = ""
+        version = ""
+        storage = ""
+        answer = ""
+        for phone in best_sorted:
+            if phone[0] != name or phone[1] != version or phone[4] != storage:
+                if answer != "":
+                    answer += "\n"
+                name = phone[0]
+                version = phone[1]
+                storage = phone[4]
+            answer += f"{phone[0]} {phone[1]} {phone[4]} {phone[2]}{phone[5]} - {make_price_beautiful(phone[3] + 500)}\n"
+            if len(answer) > 1500:
+                answer = answer.split("\n\n")
+                for i in range(1, len(answer)).__reversed__():
+                    if answer[i][0:get_storage_index(answer[i])] == answer[-1][0:get_storage_index(answer[i-1])] and \
+                            answer[i].count("64GB") != 0:
+                        answer[i], answer[i-1] = answer[i-1], answer[i]
+                bot.send_message(chat_id=message.chat.id, text="\n\n".join(answer))
+                answer = ""
+        bot.send_message(chat_id=message.chat.id, text=answer)
 
 
 def __get_opt_price(message: telebot.types.Message):
@@ -102,7 +104,7 @@ def parse_phones(message: telebot.types.Message):
             try:
                 data = get_data_from_string(phone)
                 db.insert_user(f"id{message.chat.id}", data["name"], data["version"], data["color"],
-                               int(data["price"]), data["storage"], data["country"])
+                               int(data["price"]), data["storage"].replace("тбGB", "TB"), data["country"].replace("gb", ""))
                 success += 1
             except KeyError:
                 errors_l.append(phone)
@@ -133,8 +135,8 @@ def check_user(chat_id) -> bool:    # Есть ли пользователь в 
 
 def reg_user_database(chat_id) -> bool:
     try:
-        db.create_table(table_name="id" + str(chat_id), columns={"phone_number": "integer", "phone_name": "text",
-                        "phone_color": "text", "phone_price": "integer", "storage": "text", "phone_country": "text"})
+        db.create_table(table_name="id" + str(chat_id), columns={"name": "text", "version": "text",
+                        "color": "text", "price": "integer", "storage": "text", "country": "text"})
         return True
     except Exception:
         return False
@@ -150,6 +152,10 @@ def main():
     except rqst.ReadTimeout as e:
         print("Ошибка 'ReadTimeout'. Проблемы либо с подключением, либо с API. Если эта ошибка будет часто повторятся,"
               " то нужно использовать VPN/Proxy")
+    # except sqlite3.OperationalError as ex:
+    #     print("Ошибка с операцией в sqlite", )
+    except telebot.apihelper.ApiTelegramException:
+        print("Пустое сообщение")
 
 
 if __name__ == "__main__":
