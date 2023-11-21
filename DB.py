@@ -15,12 +15,11 @@ class DataBase:
 
     # Нужен только для __init__ возвращает словарь {имя таблицы: [колонка1], [колонка2]}
     def __get_tables(self) -> list:
-        with lock:
-            table_names = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
-            res = dict()
-            for table in table_names:
-                res[table[0]] = [{x[1]: x[2]} for x in self.cursor.execute(f"PRAGMA table_info({table[0]})").fetchall()]
-            return res
+        table_names = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+        res = dict()
+        for table in table_names:
+            res[table[0]] = [{x[1]: x[2]} for x in self.cursor.execute(f"PRAGMA table_info({table[0]})").fetchall()]
+        return res
 
     # Получает инфу о всех пользователях. Аргументы: имя таблицы, распечатать результат? по дефолоту 0
     def get_all_rows(self, table_name: str, b_print: int = 0):

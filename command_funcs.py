@@ -62,6 +62,7 @@ def get_data_from_string(phone_data: str) -> dict[str: str]:
                 else:
                     res_dict["country"] += el
         except IndexError:
+            print("Ошибка command_funcs 65")
             return {"error": "IndexError"}
     else:
         try:
@@ -72,6 +73,7 @@ def get_data_from_string(phone_data: str) -> dict[str: str]:
                     else:
                         res_dict["country"] += el
         except IndexError:
+            print("Ошибка command_funcs 76")
             return {"exception": "indexError"}
     return res_dict
 
@@ -200,7 +202,30 @@ def command_table_best(message: telebot.types.Message, ret: bool = False):
                 best_sorted.append(phone)
         if ret:
             return best_sorted
-        bot.send_message(chat_id=message.chat.id, text="Функция пока не умеет выводить")
+        name = ""
+        version = ""
+        storage = ""
+        answer = ""
+        for phone in best_sorted:
+            if phone[0] != name or phone[1] != version or phone[4] != storage:
+                if answer != "":
+                    answer += "\n"
+                name = phone[0]
+                version = phone[1]
+                storage = phone[4]
+            answer += f"{phone[0]} {phone[1]} {phone[4]} {phone[2]}{phone[5]} - {make_price_beautiful(phone[3]  )}\n"
+            if len(answer) > 1500:
+                answer = answer.split("\n\n")
+                for i in range(1, len(answer)).__reversed__():
+                    if answer[i][0:get_storage_index(answer[i])] == answer[-1][0:get_storage_index(answer[i - 1])] and \
+                            answer[i].count("64GB") != 0:
+                        answer[i], answer[i - 1] = answer[i - 1], answer[i]
+                bot.send_message(chat_id=message.chat.id, text="\n\n".join(answer))
+                answer = ""
+        if len(answer) != 0:
+            bot.send_message(chat_id=message.chat.id, text=answer)
+        else:
+            bot.send_message(chat_id=message.chat.id, text="Таблица пуста")
 
 
 def command_table(message: telebot.types.Message):
@@ -215,7 +240,7 @@ def command_table(message: telebot.types.Message):
         os.remove(f"./files/{file_name}.csv")
 
 
-from main import bot, commands, check_user, reg_user_database
+from main import bot, commands, check_user, reg_user_database, get_storage_index
 from main import db as database
 
 db = database

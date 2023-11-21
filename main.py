@@ -1,8 +1,4 @@
-import sqlite3
-
 import requests.exceptions as rqst
-
-import CNV
 from command_funcs import *
 from DB import DataBase
 
@@ -50,7 +46,12 @@ def command_table_opt(message: telebot.types.Message):
                         answer[i], answer[i-1] = answer[i-1], answer[i]
                 bot.send_message(chat_id=message.chat.id, text="\n\n".join(answer))
                 answer = ""
-        bot.send_message(chat_id=message.chat.id, text=answer)
+        if len(answer) != 0:
+            bot.send_message(chat_id=message.chat.id, text=answer)
+        else:
+            bot.send_message(chat_id=message.chat.id, text="Таблица пуста")
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Вашего ID нет в системе")
 
 
 def __get_opt_price(message: telebot.types.Message):
