@@ -32,7 +32,7 @@ def get_data_from_string(phone_data: str) -> dict[str: str]:
                 phone_data = phone_data.replace(STORAGE, "", 1)
             else:
                 res_dict["storage"] = STORAGE + "GB"
-                phone_data = phone_data = phone_data.replace(STORAGE, "", 1)
+                phone_data = phone_data.replace(STORAGE, "", 1)
             break
     price_index = get_price_index(phone_data)
     for NAME in CNV.NAMES:
@@ -174,7 +174,7 @@ def command_clear(message: telebot.types.Message) -> None:
 # Функция для определения необходимости сделать замену в списке лучших
 def to_replace_positions(cur_phone: tuple, best_sorted: list):  # Возвращает bool и int
     for index, phone in enumerate(best_sorted):
-        if cur_phone[0] + cur_phone[1] + cur_phone[2] + cur_phone[4] == phone[0] + phone[1] + phone[2] + phone[4] and \
+        if cur_phone[0] + cur_phone[1] + cur_phone[2] + str(cur_phone[4]) == phone[0] + phone[1] + phone[2] + str(phone[4]) and \
                 ((cur_phone[5] in "🇺🇸" and phone[5] in "🇺🇸" and phone[0] in ["14", "15"]) or \
                 (cur_phone[5] in "🇭🇰🇨🇳" and phone[5] in "🇭🇰🇨🇳") or \
                  ((cur_phone[5] not in "🇭🇰🇨🇳🇺🇸" and phone[5] not in "🇺🇸🇭🇰🇨🇳") or ((cur_phone[5] in "🇺🇸" and\
@@ -213,14 +213,12 @@ def command_table_best(message: telebot.types.Message, ret: bool = False):
                 name = phone[0]
                 version = phone[1]
                 storage = phone[4]
-            answer += f"{phone[0]} {phone[1]} {phone[4]} {phone[2]}{phone[5]} - {make_price_beautiful(phone[3]  )}\n"
+            if phone[4] == 1024:
+                answer += f"{phone[0]} {phone[1]} 1TB {phone[2]}{phone[5]} - {make_price_beautiful(phone[3] + 500)}\n"
+            else:
+                answer += f"{phone[0]} {phone[1]} {phone[4]}GB {phone[2]}{phone[5]} - {make_price_beautiful(phone[3] + 500)}\n"
             if len(answer) > 1500:
-                answer = answer.split("\n\n")
-                for i in range(1, len(answer)).__reversed__():
-                    if answer[i][0:get_storage_index(answer[i])] == answer[-1][0:get_storage_index(answer[i - 1])] and \
-                            answer[i].count("64GB") != 0:
-                        answer[i], answer[i - 1] = answer[i - 1], answer[i]
-                bot.send_message(chat_id=message.chat.id, text="\n\n".join(answer))
+                bot.send_message(chat_id=message.chat.id, text=answer)
                 answer = ""
         if len(answer) != 0:
             bot.send_message(chat_id=message.chat.id, text=answer)

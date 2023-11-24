@@ -37,14 +37,12 @@ def command_table_opt(message: telebot.types.Message):
                 name = phone[0]
                 version = phone[1]
                 storage = phone[4]
-            answer += f"{phone[0]} {phone[1]} {phone[4]} {phone[2]}{phone[5]} - {make_price_beautiful(phone[3] + 500)}\n"
+            if phone[4] == 1024:
+                answer += f"{phone[0]} {phone[1]} 1TB {phone[2]}{phone[5]} - {make_price_beautiful(phone[3] + 500)}\n"
+            else:
+                answer += f"{phone[0]} {phone[1]} {phone[4]}GB {phone[2]}{phone[5]} - {make_price_beautiful(phone[3] + 500)}\n"
             if len(answer) > 1500:
-                answer = answer.split("\n\n")
-                for i in range(1, len(answer)).__reversed__():
-                    if answer[i][0:get_storage_index(answer[i])] == answer[-1][0:get_storage_index(answer[i-1])] and \
-                            answer[i].count("64GB") != 0:
-                        answer[i], answer[i-1] = answer[i-1], answer[i]
-                bot.send_message(chat_id=message.chat.id, text="\n\n".join(answer))
+                bot.send_message(chat_id=message.chat.id, text=answer)
                 answer = ""
         if len(answer) != 0:
             bot.send_message(chat_id=message.chat.id, text=answer)
@@ -54,28 +52,12 @@ def command_table_opt(message: telebot.types.Message):
         bot.send_message(chat_id=message.chat.id, text="Вашего ID нет в системе")
 
 
-def __get_opt_price(message: telebot.types.Message):
-    global cur_overprice
-    global wait
-    try:
-        cur_overprice = int(message.text)
-        wait = False
-    except ValueError:
-        bot.send_message(chat_id=message.chat.id, text="Похоже, вы ввели символ...")
-
-
-def get_opt_price(message: telebot.types.Message, name: str):
-    bot.send_message(chat_id=message.chat.id, text=f"Введите наценку для товара {name}")
-    bot.register_next_step_handler(message=message, callback=__get_opt_price)
-
-
 commands = {
     "/start": command_start,
     "/help": command_help,
     "/number": command_number,
     "/clear": command_clear,
     "/table_best": command_table_best,
-    #"/table_client": command_table_client,
     "/table_opt": command_table_opt,
     "/table": command_table,
     "/keyboard_on": command_keyboard_on,
@@ -85,11 +67,9 @@ commands = {
 
 @bot.message_handler(commands=[x[1:] for x in commands.keys()])
 def commands_handler(message: telebot.types.Message) -> None:
-    global db
     for command in commands.keys():
         if command == message.text:
             commands[command](message)
-        db = DataBase("test.db")
 
 
 @bot.message_handler(content_types=["text"])
@@ -104,8 +84,16 @@ def parse_phones(message: telebot.types.Message):
         for phone in phones:
             try:
                 data = get_data_from_string(phone)
+                data["storage"] = data["storage"].replace("тбGB", "TB").replace("GB", "").replace("TB", "")
+                # Заказчик попросил, чтобы цвет Silver вносился как White
+                if data["color"] == "Silver":
+                    data["color"] = "White"
+                if data["version"] == "Max":
+                    data["version"] = "Pro max"
+                if data["storage"] == "1":
+                    data["storage"] = "1024"
                 db.insert_user(f"id{message.chat.id}", data["name"], data["version"], data["color"],
-                               int(data["price"]), data["storage"].replace("тбGB", "TB"), data["country"].replace("gb", ""))
+                               int(data["price"]), int(data["storage"]), data["country"].replace("gb", ""))
                 success += 1
             except KeyError:
                 errors_l.append(phone)
@@ -118,8 +106,8 @@ def parse_phones(message: telebot.types.Message):
                 beautiful_error_message += error + "\n"
             bot.send_message(chat_id=message.chat.id, text=f"Было добавлено {success} телефонов, не получилось "
                                                                    f"добавить {len(errors_l)} телефонов:\n{beautiful_error_message}"
-                                                                   f"\n\nВозможно, эта строка не была похожа на шаблон. "
-                                                                   f"Чтобы ознакомится с ним, введите /help")
+                                                                   f"\n\nВозможно, эта строка не была похожа на шаблон."
+                                                                   f" Чтобы ознакомится с ним, введите /help")
         else:
             bot.send_message(chat_id=message.chat.id, text=f"Все {success} телефонов были добавлены в таблицу!")
     else:
@@ -137,7 +125,7 @@ def check_user(chat_id) -> bool:    # Есть ли пользователь в 
 def reg_user_database(chat_id) -> bool:
     try:
         db.create_table(table_name="id" + str(chat_id), columns={"name": "text", "version": "text",
-                        "color": "text", "price": "integer", "storage": "text", "country": "text"})
+                        "color": "text", "price": "integer", "storage": "integer", "country": "text"})
         return True
     except Exception:
         return False
@@ -150,7 +138,7 @@ def main():
     except ConnectionError:
         print("Проблема с подключением к интернету/серверу API. Завершаю работу...")
         bot.stop_bot()
-    except rqst.ReadTimeout as e:
+    except rqst.ReadTimeout:
         print("Ошибка 'ReadTimeout'. Проблемы либо с подключением, либо с API. Если эта ошибка будет часто повторятся,"
               " то нужно использовать VPN/Proxy")
     # except sqlite3.OperationalError as ex:
