@@ -1,4 +1,6 @@
 import requests.exceptions as rqst
+import telebot.types
+
 from command_funcs import *
 from DB import DataBase
 
@@ -52,6 +54,66 @@ def command_table_opt(message: telebot.types.Message):
         bot.send_message(chat_id=message.chat.id, text="Вашего ID нет в системе")
 
 
+@bot.message_handler(commands=["table_retail"])
+def command_table_retail(message: telebot.types.Message):
+    if check_user(message.chat.id):
+        best_sorted = command_table_best(message, ret=True)
+        name = ""
+        version = ""
+        storage = ""
+        answer = ""
+        for phone in best_sorted:
+            if phone[0] != name or phone[1] != version or phone[4] != storage:
+                if answer != "":
+                    answer += "\n"
+                name = phone[0]
+                version = phone[1]
+                storage = phone[4]
+            if phone[4] == 1024:
+                answer += f"{phone[0]} {phone[1]} 1TB {phone[2]}{phone[5]} - {make_price_beautiful(phone[3] + 500)}↔️{make_price_beautiful(phone[3] + 3000)}\n"
+            else:
+                answer += f"{phone[0]} {phone[1]} {phone[4]}GB {phone[2]}{phone[5]} - {make_price_beautiful(phone[3] + 500)}↔️{make_price_beautiful(phone[3] + 3000)}\n"
+            if len(answer) > 1500:
+                bot.send_message(chat_id=message.chat.id, text=answer)
+                answer = ""
+        if len(answer) != 0:
+            bot.send_message(chat_id=message.chat.id, text=answer)
+        else:
+            bot.send_message(chat_id=message.chat.id, text="Таблица пуста")
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Вашего ID нет в системе")
+
+
+@bot.message_handler(commands=["table_retail_file"])
+def command_table_retail_file(message: telebot.types.Message):
+    print("table_file")
+    if check_user(message.chat.id):
+        best_sorted = command_table_best(message, ret=True)
+        name = ""
+        version = ""
+        storage = ""
+        answer = ""
+        file_name = str(time.strftime('%H%M%S'))
+        with open(f"./files/{file_name}.xlsx", mode="w+", encoding="utf-8") as f:
+            f.write("Наименование, Гарантия\n")
+            f.write(" , 14 дней, 1 год\n")
+            for phone in best_sorted:
+                if phone[0] != name or phone[1] != version or phone[4] != storage:
+                    if answer != "":
+                        f.write("\n")
+                    name = phone[0]
+                    version = phone[1]
+                    storage = phone[4]
+                if phone[4] == 1024:
+                    f.write(f"{phone[0]} {phone[1]} 1TB {phone[2]}{phone[5]}, {make_price_beautiful(phone[3] + 500)}, {make_price_beautiful(phone[3] + 3000)}\n".replace("  ", " "))
+                else:
+                    f.write(f"{phone[0]} {phone[1]} {phone[4]}GB {phone[2]}{phone[5]}, {make_price_beautiful(phone[3] + 500)}, {make_price_beautiful(phone[3] + 3000)}\n".replace("  ", " "))
+        bot.send_document(message.chat.id, open(f"./files/{file_name}.xlsx", mode="r"))
+        os.remove(f"./files/{file_name}.xlsx")
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Вашего ID нет в системе")
+
+
 commands = {
     "/start": command_start,
     "/help": command_help,
@@ -62,6 +124,8 @@ commands = {
     "/table": command_table,
     "/keyboard_on": command_keyboard_on,
     "/keyboard_off": command_keyboard_off,
+    "/table_retail": command_table_retail,
+    "/table_retail_file": command_table_retail_file
 }
 
 
@@ -88,7 +152,7 @@ def parse_phones(message: telebot.types.Message):
                 # Заказчик попросил, чтобы цвет Silver вносился как White
                 if data["color"] == "Silver":
                     data["color"] = "White"
-                if data["version"] == "Max":
+                if data["version"] == "Max" or data["version"] == "Pro":
                     data["version"] = "Pro max"
                 if data["storage"] == "1":
                     data["storage"] = "1024"
