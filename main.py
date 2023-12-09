@@ -5,7 +5,7 @@ from command_funcs import *
 from DB import DataBase
 
 
-TOKEN: str = os.getenv("BOT_TOKEN")
+TOKEN: str = "6690029911:AAHw31g4FbAHNFMc5u3p_NigYBeqk-nz_4s"
 bot = telebot.TeleBot(TOKEN)
 db = DataBase("test.db")   # Чтобы можно было получить доступ к этой переменной
 # Эти переменные для функции command_table_opt. Да, делал через костыли. Соболезную тем, кто будет поддерживать это код,
