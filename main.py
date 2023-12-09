@@ -86,7 +86,6 @@ def command_table_retail(message: telebot.types.Message):
 
 @bot.message_handler(commands=["table_retail_file"])
 def command_table_retail_file(message: telebot.types.Message):
-    print("table_file")
     if check_user(message.chat.id):
         best_sorted = command_table_best(message, ret=True)
         name = ""
