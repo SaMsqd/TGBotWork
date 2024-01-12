@@ -1,116 +1,321 @@
+from functools import wraps
 import requests.exceptions as rqst
-import telebot.types
+import telebot
+import os
+import time
+import emoji
+import init_databases
+import keyboard
+from CNV import *
 
-from command_funcs import *
-from DB import DataBase
-
-
-TOKEN: str = "6690029911:AAHw31g4FbAHNFMc5u3p_NigYBeqk-nz_4s"
+TOKEN: str = "2054290165:AAGo7Dqybp5fkqORKccJZdmZTXNcohdpAKw"
 bot = telebot.TeleBot(TOKEN)
-db = DataBase("test.db")   # Чтобы можно было получить доступ к этой переменной
-# Эти переменные для функции command_table_opt. Да, делал через костыли. Соболезную тем, кто будет поддерживать это код,
-# хотя, скорее всего, это буду я сам... Блять, я себя захуярил
-cur_overprice = 0
-wait = True
+keyboard = keyboard.Keyboard()
+db = keyboard.active_database
 
 
-def get_storage_index(data: str) -> int:
+# Отлавливается в парсерах, чтобы нормально добавлять ошибочные строки в роутер парсеров.
+# Вызывается при любой ошибке в парсере
+class ParseException(Exception):
+    def __init__(self, text: str = ''):
+        super().__init__(f'Ошибка в парсинге {text}')
+
+
+# Декоратор. Применяется для проверки наличия таблиц с id пользователя, отправившего сообщение
+def check_user_id():
+    def decorator(func):
+        @wraps(func)
+        def wrapper(message, ret: bool = False):
+            if f'phones{message.chat.id}' in init_databases.databases['phones'].tables.keys():
+                return func(message)
+            else:
+                init_databases.init_tables(message.chat.id)
+                if ret:
+                    return func(message, ret)
+                func(message)
+
+        return wrapper
+
+    return decorator
+
+
+def get_price_index(data: str) -> int:
     data = data.replace(".", "").replace(",", "")
-    color_index = 0
+    price_index = 0
     for el in data.split():
-        if el.lower() in CNV.STORAGE or CNV.delete_flag(el.lower()) in CNV.STORAGE:
-            color_index = data.index(el)
+        if el.isdigit() or delete_flag(el).isdigit():
+            price_index = data.index(el)
+    return price_index
+
+
+def get_data_from_string(phone_data: str) -> dict[str: str]:
+    res_dict = dict()
+    phone_data = phone_data.lower().replace("-", " ")
+    for COLOR in COLORS:
+        if COLOR in phone_data.lower():
+            res_dict["color"] = COLOR.capitalize()
+            phone_data = phone_data.replace(COLOR, "")
             break
-    return color_index
+    price_index = get_price_index(phone_data)
+    for STORAGE in Phones.STORAGE:
+        if STORAGE in phone_data[0: price_index]:
+            if STORAGE == "1tb" or STORAGE == "1":
+                res_dict["storage"] = STORAGE.upper()
+                phone_data = phone_data.replace(STORAGE, "", 1)
+            else:
+                res_dict["storage"] = STORAGE + "GB"
+                phone_data = phone_data.replace(STORAGE, "", 1)
+            break
+    price_index = get_price_index(phone_data)
+    for NAME in Phones.NAMES:
+        if NAME in phone_data.lower()[0: price_index]:
+            res_dict["name"] = NAME.capitalize()
+            phone_data = phone_data.replace(NAME, "", 1)
+            break
+    for VERSION in Phones.VERSIONS:
+        if VERSION in phone_data:
+            res_dict["model"] = VERSION.capitalize()
+            phone_data = phone_data.replace(VERSION, "")
+            break
+    else:
+        res_dict["model"] = ""
+
+    if "iphone" in phone_data:
+        phone_data = phone_data.replace("iphone", "")
+    phone_data = phone_data.replace("  ", " ").replace("-", " ").replace(".", "").replace(",", "").split()
+    res_dict["price"] = ""
+    res_dict["country"] = ""
+    if len(phone_data) == 1:
+        try:
+            for el in phone_data[0]:
+                if el.isdigit():
+                    res_dict["price"] += el
+                else:
+                    res_dict["country"] += el
+        except IndexError:
+            return {"exception": "IndexError"}
+    else:
+        try:
+            for i in phone_data:
+                for el in i:
+                    if el.isdigit():
+                        res_dict["price"] += el
+                    else:
+                        res_dict["country"] += el
+        except IndexError:
+            return {"exception": "indexError"}
+    return res_dict
+
+
+# Заказчик попросил сделать вывод цены через точку для удобства
+def make_price_beautiful(price):
+    rl_price = list(str(price))
+    rl_price.reverse()
+    res = ""
+    for i in range(len(rl_price)):
+        if (i + 1) % 3 == 0:
+            res += rl_price[i] + "."
+        else:
+            res += rl_price[i]
+    if res[-1] == ".":
+        res = res[:-1]
+    return res[::-1]
+
+
+@check_user_id()
+def command_start(message: telebot.types.Message) -> None:
+    command_keyboard_on(message, text=f"Здравствуйте, {message.from_user.full_name}. Ваш ID есть "
+                                      f"в системе, можете вводить команды")
+
+
+def command_help(message):
+    bot.send_message(chat_id=message.chat.id, text=f'''
+Ваш ID - {message.chat.id}
+/keyboard_on - включить клавиатуру
+/keyboard_off - выключить клавиатуру
+/clear - очистить таблицу
+/table_best - получить таблицу с лучшими ценами
+/table_opt - получить таблицу с наценками на товар
+/table - получить файлик со всеми позициями выбранной таблицы
+/number - количество добавленных элементов выбранной таблицы
+    '''
+                     )
+
+
+def command_keyboard_on(message: telebot.types.Message, text: str):
+    bot.send_message(chat_id=message.chat.id, text=text, reply_markup=keyboard.generate_keyboard())
+
+
+def command_keyboard_off(message):
+    bot.send_message(chat_id=message.chat.id, text="Клавиатура убрана",
+                     reply_markup=telebot.types.ReplyKeyboardRemove())
+
+
+@check_user_id()
+def command_number(message: telebot.types.Message):
+    phones = db.get_all_rows(table_name="id" + str(message.chat.id))
+    phone_number = len(phones)
+    if phone_number == 1 and phones[0] == "":
+        phone_number = 0
+    bot.send_message(chat_id=message.chat.id, text=f"Количество телефонов, которое вы добавили: {phone_number}")
+
+
+@check_user_id()
+def command_clear(message: telebot.types.Message) -> None:
+    db.delete_table(table_name="id" + str(message.chat.id))
+    init_databases.init_tables(message.chat.id)
+    bot.send_message(chat_id=message.chat.id, text="Данные по телефонам были удалены из вашей базы")
+
+
+# Функция для определения необходимости сделать замену в списке лучших
+def to_replace_positions(cur_phone: tuple, best_sorted: list) -> bool and int:  # Возвращает bool и int
+    for index, phone in enumerate(best_sorted):
+        if cur_phone[0] + cur_phone[1] + cur_phone[2] + str(cur_phone[4]) == phone[0] + phone[1] + phone[2] + str(
+                phone[4]) and \
+                ((cur_phone[5] in "🇺🇸" and phone[5] in "🇺🇸" and phone[0] in ["14", "15"]) or
+                 (cur_phone[5] in "🇭🇰🇨🇳" and phone[5] in "🇭🇰🇨🇳") or
+                 ((cur_phone[5] not in "🇭🇰🇨🇳🇺🇸" and phone[5] not in "🇺🇸🇭🇰🇨🇳") or ((cur_phone[5] in "🇺🇸" and
+                                                                                   phone[5] in "🇺🇸" and phone[
+                                                                                       0] not in ["14", "15"])))):
+            if cur_phone[3] <= phone[3]:
+                return True, index
+            else:
+                return False, 2
+    return False, -1
+
+
+@check_user_id()
+def command_table_best(message: telebot.types.Message, ret: bool = False):
+    t_data = db.exec_command(f"SELECT * FROM id{message.chat.id} ORDER BY name, model, storage, country, price")
+    best_sorted = []
+    for phone in t_data:
+        b, index = to_replace_positions(phone, best_sorted)
+        if b:
+            if index != -1:
+                best_sorted.insert(index, phone)
+                best_sorted.pop(index + 1)
+        elif index == 2:
+            continue
+        else:
+            best_sorted.append(phone)
+    if ret:
+        return best_sorted
+    name = ""
+    model = ""
+    storage = ""
+    answer = ""
+    for phone in best_sorted:
+        if phone[0] != name or phone[1] != model or phone[4] != storage:
+            if answer != "":
+                answer += "\n"
+            name = phone[0]
+            model = phone[1]
+            storage = phone[4]
+        if phone[4] == 1024:
+            answer += f"{phone[0]} {phone[1]} 1TB {phone[2]}{phone[5]} - {make_price_beautiful(phone[3] + 500)}\n"
+        else:
+            answer += f"{phone[0]} {phone[1]} {phone[4]}GB {phone[2]}{phone[5]} - " \
+                      f"{make_price_beautiful(phone[3] + 500)}\n"
+        if len(answer) > 1500:
+            bot.send_message(chat_id=message.chat.id, text=answer)
+            answer = ""
+    if len(answer) != 0:
+        bot.send_message(chat_id=message.chat.id, text=answer)
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Таблица пуста")
+
+
+@check_user_id()
+def command_table(message: telebot.types.Message):
+    data = db.exec_command(f"SELECT * FROM id{str(message.chat.id)}")
+    file_name = str(time.strftime('%H%M%S'))
+    with open(f"./files/{file_name}.csv", mode="w+", encoding="utf-8") as f:
+        f.write("Number, Name, Storage, Color, Country, Price\n")
+        for el in data:
+            f.write(f"{el[0]}, {el[1]}, {el[4]}, {el[2]}, {emoji.emojize(el[5])}, {make_price_beautiful(el[3])}\n")
+    bot.send_document(message.chat.id, open(f"./files/{file_name}.csv", mode="r"))
+    os.remove(f"./files/{file_name}.csv")
 
 
 @bot.message_handler(commands=["table_opt"])
+@check_user_id()
 def command_table_opt(message: telebot.types.Message):
-    if check_user(message.chat.id):
-        best_sorted = command_table_best(message, ret=True)
-        name = ""
-        version = ""
-        storage = ""
-        answer = ""
-        for phone in best_sorted:
-            if phone[0] != name or phone[1] != version or phone[4] != storage:
-                if answer != "":
-                    answer += "\n"
-                name = phone[0]
-                version = phone[1]
-                storage = phone[4]
-            if phone[4] == 1024:
-                answer += f"{phone[0]} {phone[1]} 1TB {phone[2]}{phone[5]} - {make_price_beautiful(phone[3] + 500)}\n"
-            else:
-                answer += f"{phone[0]} {phone[1]} {phone[4]}GB {phone[2]}{phone[5]} - {make_price_beautiful(phone[3] + 500)}\n"
-            if len(answer) > 1500:
-                bot.send_message(chat_id=message.chat.id, text=answer)
-                answer = ""
-        if len(answer) != 0:
-            bot.send_message(chat_id=message.chat.id, text=answer)
+    best_sorted = command_table_best(message, ret=True)
+    name = ""
+    model = ""
+    storage = ""
+    answer = ""
+    for phone in best_sorted:
+        if phone[0] != name or phone[1] != model or phone[4] != storage:
+            if answer != "":
+                answer += "\n"
+            name = phone[0]
+            model = phone[1]
+            storage = phone[4]
+        if phone[4] == 1024:
+            answer += f"{phone[0]} {phone[1]} 1TB {phone[2]}{phone[5]} - {make_price_beautiful(phone[3] + 500)}\n"
         else:
-            bot.send_message(chat_id=message.chat.id, text="Таблица пуста")
+            answer += f"{phone[0]} {phone[1]} {phone[4]}GB {phone[2]}{phone[5]} - " \
+                      f"{make_price_beautiful(phone[3] + 500)}\n"
+        if len(answer) > 1500:
+            bot.send_message(chat_id=message.chat.id, text=answer)
+            answer = ""
+    if len(answer) != 0:
+        bot.send_message(chat_id=message.chat.id, text=answer)
     else:
-        bot.send_message(chat_id=message.chat.id, text="Вашего ID нет в системе")
+        bot.send_message(chat_id=message.chat.id, text="Таблица пуста")
 
 
 @bot.message_handler(commands=["table_retail"])
+@check_user_id()
 def command_table_retail(message: telebot.types.Message):
-    if check_user(message.chat.id):
-        best_sorted = command_table_best(message, ret=True)
-        name = ""
-        version = ""
-        storage = ""
-        answer = ""
-        for phone in best_sorted:
-            if phone[0] != name or phone[1] != version or phone[4] != storage:
-                if answer != "":
-                    answer += "\n"
-                name = phone[0]
-                version = phone[1]
-                storage = phone[4]
-            if phone[4] == 1024:
-                answer += f"{phone[0]} {phone[1]} 1TB {phone[2]}{phone[5]} - {make_price_beautiful(phone[3] + 500)}↔️{make_price_beautiful(phone[3] + 3000)}\n"
-            else:
-                answer += f"{phone[0]} {phone[1]} {phone[4]}GB {phone[2]}{phone[5]} - {make_price_beautiful(phone[3] + 500)}↔️{make_price_beautiful(phone[3] + 3000)}\n"
-            if len(answer) > 1500:
-                bot.send_message(chat_id=message.chat.id, text=answer)
-                answer = ""
-        if len(answer) != 0:
-            bot.send_message(chat_id=message.chat.id, text=answer)
-        else:
-            bot.send_message(chat_id=message.chat.id, text="Таблица пуста")
-    else:
-        bot.send_message(chat_id=message.chat.id, text="Вашего ID нет в системе")
+    __retail_assistent(message)
 
 
 @bot.message_handler(commands=["table_retail_file"])
+@check_user_id()
 def command_table_retail_file(message: telebot.types.Message):
-    if check_user(message.chat.id):
-        best_sorted = command_table_best(message, ret=True)
-        name = ""
-        version = ""
-        storage = ""
-        answer = ""
-        file_name = str(time.strftime('%H%M%S'))
-        with open(f"./files/{file_name}.xlsx", mode="w+", encoding="utf-8") as f:
-            f.write("Наименование, Гарантия\n")
-            f.write(" , 14 дней, 1 год\n")
-            for phone in best_sorted:
-                if phone[0] != name or phone[1] != version or phone[4] != storage:
-                    if answer != "":
-                        f.write("\n")
-                    name = phone[0]
-                    version = phone[1]
-                    storage = phone[4]
-                if phone[4] == 1024:
-                    f.write(f"{phone[0]} {phone[1]} 1TB {phone[2]}{phone[5]}, {make_price_beautiful(phone[3] + 500)}, {make_price_beautiful(phone[3] + 3000)}\n".replace("  ", " "))
-                else:
-                    f.write(f"{phone[0]} {phone[1]} {phone[4]}GB {phone[2]}{phone[5]}, {make_price_beautiful(phone[3] + 500)}, {make_price_beautiful(phone[3] + 3000)}\n".replace("  ", " "))
-        bot.send_document(message.chat.id, open(f"./files/{file_name}.xlsx", mode="r"))
-        os.remove(f"./files/{file_name}.xlsx")
-    else:
-        bot.send_message(chat_id=message.chat.id, text="Вашего ID нет в системе")
+    file_name = str(time.strftime('%H%M%S'))
+    with open(f"./files/{file_name}.xlsx", mode="w+", encoding="utf-8") as f:
+        __retail_assistent(message, f)
+    bot.send_document(message.chat.id, open(f"./files/{file_name}.xlsx", mode="r"))
+    os.remove(f"./files/{file_name}.xlsx")
+
+
+def __retail_assistent(message: telebot.types.Message, f=None):
+    best_sorted = command_table_best(message, ret=True)
+    if f:
+        f.write("Наименование, Гарантия\n")
+        f.write(" , 14 дней, 1 год\n")
+    name = ""
+    model = ""
+    storage = ""
+    answer = ""
+    for phone in best_sorted:
+        if phone[0] != name or phone[1] != model or phone[4] != storage:
+            if answer != "":
+                f.write("\n")
+            name = phone[0]
+            model = phone[1]
+            storage = phone[4]
+        if f:
+            if phone[4] == 1024:
+                f.write(f"{phone[0]} {phone[1]} 1TB {phone[2]}{phone[5]}, {make_price_beautiful(phone[3] + 500)}, "
+                        f"{make_price_beautiful(phone[3] + 3000)}\n".replace("  ", " "))
+            else:
+                f.write(f"{phone[0]} {phone[1]} {phone[4]}GB {phone[2]}{phone[5]}, "
+                        f"{make_price_beautiful(phone[3] + 500)}, "
+                        f"{make_price_beautiful(phone[3] + 3000)}\n".replace("  ", " "))
+        else:
+            if phone[4] == 1024:
+                answer += f"{phone[0]} {phone[1]} 1TB {phone[2]}{phone[5]} - " \
+                          f"{make_price_beautiful(phone[3] + 500)}↔️{make_price_beautiful(phone[3] + 3000)}\n"
+            else:
+                answer += f"{phone[0]} {phone[1]} {phone[4]}GB {phone[2]}{phone[5]} - " \
+                          f"{make_price_beautiful(phone[3] + 500)}↔️{make_price_beautiful(phone[3] + 3000)}\n"
+            if len(answer) > 1500:
+                bot.send_message(chat_id=message.chat.id, text=answer)
+                answer = ""
 
 
 commands = {
@@ -135,63 +340,147 @@ def commands_handler(message: telebot.types.Message) -> None:
             commands[command](message)
 
 
-@bot.message_handler(content_types=["text"])
-def parse_phones(message: telebot.types.Message):
-    if check_user(message.chat.id):
-        phones = message.text
-        while "\n\n" in phones:
-            phones = phones.replace("\n\n", "\n")
-        phones = phones.split("\n")
-        errors_l = list()
-        success = 0
-        for phone in phones:
-            try:
-                data = get_data_from_string(phone)
-                data["storage"] = data["storage"].replace("тбGB", "TB").replace("GB", "").replace("TB", "")
-                # Заказчик попросил, чтобы цвет Silver вносился как White
-                if data["color"] == "Silver":
-                    data["color"] = "White"
-                if data["version"] == "Max" or data["version"] == "Pro":
-                    data["version"] = "Pro max"
-                if data["storage"] == "1":
-                    data["storage"] = "1024"
-                db.insert_user(f"id{message.chat.id}", data["name"], data["version"], data["color"],
-                               int(data["price"]), int(data["storage"]), data["country"].replace("gb", ""))
-                success += 1
-            except KeyError:
-                errors_l.append(phone)
-            except ValueError:
-                errors_l.append(phone)
-                print(f"Что-то обработалось не так... {phone}")
-        if len(errors_l) > 0:
-            beautiful_error_message = ""
-            for error in errors_l:
-                beautiful_error_message += error + "\n"
-            bot.send_message(chat_id=message.chat.id, text=f"Было добавлено {success} телефонов, не получилось "
-                                                                   f"добавить {len(errors_l)} телефонов:\n{beautiful_error_message}"
-                                                                   f"\n\nВозможно, эта строка не была похожа на шаблон."
-                                                                   f" Чтобы ознакомится с ним, введите /help")
-        else:
-            bot.send_message(chat_id=message.chat.id, text=f"Все {success} телефонов были добавлены в таблицу!")
+@check_user_id()
+@bot.message_handler(commands=['phones', 'watches', 'airpods', 'macbooks', 'ipads', 'back'])
+def change_active_db(message: telebot.types.Message):
+    bot.send_message(chat_id=message.chat.id, text=keyboard.change_pos(message.text),
+                     reply_markup=keyboard.generate_keyboard())
+
+
+@check_user_id()
+@bot.message_handler(content_types=['text'])
+def parse_router(message: telebot.types.Message):
+    # Подготовка строки
+    positions = message.text
+    while '\n\n' in positions:
+        positions = positions.replace('\n\n', '')
+    positions = positions.split('\n')
+    errors = list()
+    success = 0
+    user_id = message.chat.id
+    # Перебор строк
+    for position in positions:
+        try:
+            if is_watch(position):
+                parse_watches(position)
+
+            elif is_airpod(position):
+                parse_airpods(position)
+
+            elif is_macbook(position):
+                parse_macbooks(position)
+
+            elif is_ipad(position):
+                parse_ipads(position)
+
+# Телефоны идут в else, так как я не смог придумать для них нормальную проверку. Но и так должно работать
+# нормально, так как для них создан очень чувствительный парсер
+            else:
+                data = parse_phones(position)
+                init_databases.databases['phones'].insert_user(f"id{user_id}",
+                                                               data["name"], data["model"],
+                                                               data["color"],
+                                                               int(data["price"]),
+                                                               int(data["storage"]),
+                                                               data["country"].replace("gb", ""))
+        except ParseException:
+            errors.append(position)
+            print('Ошибка в парсинге:', position)
+
+    if len(errors) > 0:
+        beautiful_error_message = ""
+        for error in errors:
+            beautiful_error_message += error + "\n"
+        bot.send_message(chat_id=message.chat.id, text=f"Было добавлено {success} позиций. Не получилось "
+                                                       f"добавить {len(errors)}:"
+                                                       f"\n{beautiful_error_message}")
     else:
-        bot.send_message(chat_id=message.chat.id, text="Простите, но вы ещё не зарегистрированы у нас. Чтобы начать"
-                                                       " работу, надо ввести команду /start")
+        bot.send_message(chat_id=message.chat.id, text=f"Все {success} позиций были добавлены в таблицу!")
 
 
-def check_user(chat_id) -> bool:    # Есть ли пользователь в базе данных
-    db.update_tables()
-    if "id" + str(chat_id) in db.tables.keys():
-        return True
+# Телефоны пока проверять не буду, так как у них нет принципиального отличия, по которым я могу их вычислить
+# def is_phone(data: str) -> bool:
+#     data = data.lower()
+#     for model in Phones.NAMES:
+#         if (model in data.split()) or ('iphone' in data):
+#             return True
+#     return False
+
+
+def is_watch(data: str) -> bool:
+    data = data.lower()
+    for model in Watches.models:
+        for size in Watches.sizes:
+            if (model in data and size in data) or 'watch' in data or 'aw' in data or 'apple' in data:
+                return True
     return False
 
 
-def reg_user_database(chat_id) -> bool:
+def is_airpod(data: str) -> bool:
+    data = data.lower()
+    for model in Airpods.models:
+        for case in Airpods.cases:
+            if ('airpods' in data) or (model in data.split() and case in data):
+                return True
+    return False
+
+
+def is_macbook(data: str) -> bool:
+    data = data.lower()
+    for model in Macbooks.models:
+        for cpu in Macbooks.cpus:
+            if (model in data and cpu in data) or \
+                    ('mb' in data or 'macbook' in data or 'mac book' in data):
+                return True
+    return False
+
+
+def is_ipad(data: str) -> bool:
+    data = data.lower()
+    for model in Ipads.models:
+        for network in Ipads.networks:
+            if ('ipad' in data) or (network in data and \
+                    ((not model.isdigit()) and model in data)):
+                return True
+    return False
+
+
+def parse_phones(phone: str):
     try:
-        db.create_table(table_name="id" + str(chat_id), columns={"name": "text", "version": "text",
-                        "color": "text", "price": "integer", "storage": "integer", "country": "text"})
-        return True
-    except Exception:
-        return False
+        data = get_data_from_string(phone)
+        data["storage"] = data["storage"].replace("тбGB", "TB").replace("GB", "").replace("TB", "")
+        # Заказчик попросил, произвести некоторые изменения
+        if data["name"] == '13' and (data["color"] == "Black" or data["color"] == "White") and \
+                (data["model"] == "Plus" or data["model"] == "") or \
+                data["name"] == '14' and (data["color"] == "Black" or data["color"] == "White") and \
+                (data["model"] == "Plus" or data["model"] == ""):
+            data["color"] = ["Midnight" if data["color"] == "Black" else "Starlight"][0]
+        if data["color"] == "Silver":
+            data["color"] = "White"
+        if data["model"] == "Max" or data["model"] == "Pro":
+            data["model"] = "Pro max"
+        if data["storage"] == "1":
+            data["storage"] = "1024"
+    except KeyError and ValueError:
+        raise ParseException
+        # О да! Я отлавливаю две ошибки и объединяю их в мою одну, чтобы
+        # мой роутер парсеров смог нормально отработать ошибку)\
+
+
+def parse_watches(watch: str) -> dict:
+    pass
+
+
+def parse_airpods(airpod: str) -> dict:
+    pass
+
+
+def parse_macbooks(macbook: str) -> dict:
+    pass
+
+
+def parse_ipads(ipad: str) -> dict:
+    pass
 
 
 def main():
@@ -204,8 +493,6 @@ def main():
     except rqst.ReadTimeout:
         print("Ошибка 'ReadTimeout'. Проблемы либо с подключением, либо с API. Если эта ошибка будет часто повторятся,"
               " то нужно использовать VPN/Proxy")
-    # except sqlite3.OperationalError as ex:
-    #     print("Ошибка с операцией в sqlite", )
     except telebot.apihelper.ApiTelegramException:
         print("Пустое сообщение")
 

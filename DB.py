@@ -14,7 +14,7 @@ class DataBase:
         self.tables = self.__get_tables()     # Запоминаем все колонки в каждой таблице в виде списка
 
     # Нужен только для __init__ возвращает словарь {имя таблицы: [колонка1], [колонка2]}
-    def __get_tables(self) -> list:
+    def __get_tables(self) -> dict:
         table_names = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
         res = dict()
         for table in table_names:
@@ -51,7 +51,7 @@ class DataBase:
                 self.cursor.execute(f"INSERT INTO {table_name}({columns}) VALUES({value})")
                 self.connection.commit()
 
-    # Вставляет в таблицу сразу несоклько пользователей. Лень пока что реализовывать
+    # Вставляет в таблицу сразу несколько пользователей. Лень пока что реализовывать
     def insert_users(self):
         pass
 
@@ -87,13 +87,10 @@ class DataBase:
             for key, value in columns.items():
                 values += f'{key} {value},'
             values = values[0:-1]
-            try:
-                self.cursor.execute(f"CREATE TABLE {table_name}({values})")
-                self.connection.commit()
-                self.update_tables()
-                return f"Таблица {table_name} успешно создана в базе {self.file_name}"
-            except Exception:
-                return False
+            self.cursor.execute(f"CREATE TABLE {table_name}({values})")
+            self.connection.commit()
+            self.update_tables()
+            return f"Таблица {table_name} успешно создана в базе {self.file_name}"
 
     # Обновляет переменную с таблицами
     def update_tables(self) -> None:
