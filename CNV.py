@@ -2,7 +2,7 @@
 # Он вспомогательный, используется для того, чтобы сделать парсинг телефонов более гибким
 # !!! Позже добавил ещё список STORAGE для функции command_funcs.get_data_from_string
 
-COLORS = ["black white", "deep purple", "red", "purple", "green", "blue", "midnight", "starlight",
+COLORS = ["black white", "deep purple", "light pink","red", "purple", "green", "blue", "midnight", "starlight",
           "pink", "yellow", "gold", "silver", "white", "titan", "titanium", "natural", "black"]
 
 '''
@@ -26,11 +26,11 @@ class Phones:
 
 
 class Watches:
-    models = ['se', 's8', 's9', 'series 9']
-    sizes = ['40', '41', '44', '45']
+    models = ['se', 's8', 's9', 'series 9', 'ultra 2', 'ultra']
+    sizes = ['40', '41', '44', '45', '49']
     colors = COLORS
-    strap_sizes = ['s/m', 'm/l', 'sm', 'ml']
-    year = [str(year) for year in range(2000, 2025)]
+    strap_sizes = ['s/m', 'm/l', 'sm', 'ml', 'sport loop', 's']
+    year = [str(year) for year in range(2020, 2025)]
     # Страну игнорируем
 
 

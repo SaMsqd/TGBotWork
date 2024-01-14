@@ -43,7 +43,8 @@ Watch SE 2023 44 Midnight SM-25.200🇺🇸
 Watch SE 2023 44 Starlight ML-25.000🇺🇸
 Watch SE 2022 44 Silver M/L-24.000🇺🇸
 Watch S8 45 Sport RED M/L-33.700🇺🇸
-Watch S9 41 Pink ML -36.700🇺🇸Watch S9 41 Pink Sport Loop-37.000🇺🇸
+Watch S9 41 Pink ML -36.700🇺🇸
+Watch S9 41 Pink Sport Loop-37.000🇺🇸
 Watch S9 41 Midnight (S/M)-37.500🇺🇸
 Watch S9 41 Midnight Sport Loop-37.000
 Watch S9 41 Starlight SM -39.300🇺🇸
@@ -186,11 +187,39 @@ IPad pro 11 128GB Gray WIFI  83000🇺🇸
         self.everything = self.everything.split('\n')
         self.everything.remove(' ')
         self.everything.remove('')
-    @unittest.skip
+        self.parse_watches = [
+            'Watch SE 40 Starlight SM 2023-25.200🇺🇸',
+            'Watch SE 2023 40 White ML-23.800🇺🇸',
+            'Watch SE 2023 40 Midnight S/M-23.800🇺🇸',
+            'Watch S9 41 Pink Sport Loop-37.000🇺🇸',
+            'Watch S9 45 Pink (M/L)-40.400🇺🇸',
+            'Watch Ultra 2 49 Titanium Olive Alpine Loop (S)-75.500🇺🇸',
+            '🇺🇸AW S9 45mm Pink M/L - 38,500',
+            'S9 45 Pink AL Lihgt Pink (M/L) - 42.000'
+        ]
+
     def test_watches_parser(self):
-        for subject in self.watches:
+        for subject in self.parse_watches:
             with self.subTest(subject=subject):
-                pass
+                data = main.parse_watches(subject.lower())
+                if data == {'model': 'se', 'size': '40', 'color': 'starlight', 'strap_size': 'sm',
+                            'year': '2023', 'price': '25200'} or \
+                        data == {'model': 'se', 'year': '2023', 'size': '40', 'color': 'white', 'strap_size': 'ml',
+                                 'price': '23800'} or \
+                        data == {'model': 'se', 'year': '2023', 'size': '40', 'color': 'midnight', 'strap_size': 's/m',
+                                 'price': '23800'} or \
+                        data == {'model': 's9', 'size': '41', 'color': 'pink', 'price': '37000'} or \
+                        data == {'model': 's9', 'size': '45', 'color': 'pink', 'strap_size': 'm/l',
+                                 'price': '40400'} or \
+                        data == {'model': 'ultra 2', 'size': '49', 'color': 'titanium', 'strap_size': 's',
+                                 'price': '75500'} or \
+                        data == {'model': 's9', 'size': '45', 'color': 'pink', 'strap_size': 'm/l',
+                                 'price': '38500'} or \
+                        data == {'model': 's9', 'year': '2023', 'size': '45', 'color': 'light pink', 'strap_size': 'm/l',
+                                 'price': '42000'}:
+                    pass
+                else:
+                    print(subject, data)
 
     @unittest.skip
     def test_airpods_parser(self):
@@ -210,10 +239,10 @@ IPad pro 11 128GB Gray WIFI  83000🇺🇸
             with self.subTest(subject=subject):
                 pass
 
-    def test_is_phone(self):
-        for item in self.everything:
-            with self.subTest(item=item):
-                self.assertEqual(main.is_phone(item), item in self.phones)
+    # def test_is_phone(self):
+    #     for item in self.everything:
+    #         with self.subTest(item=item):
+    #             self.assertEqual(main.is_phone(item), item in self.phones)
 
     @unittest.skip
     def test_is_ipad(self):

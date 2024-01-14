@@ -8,6 +8,7 @@ import init_databases
 import keyboard
 from CNV import *
 
+
 TOKEN: str = "2054290165:AAGo7Dqybp5fkqORKccJZdmZTXNcohdpAKw"
 bot = telebot.TeleBot(TOKEN)
 keyboard = keyboard.Keyboard()
@@ -40,7 +41,7 @@ def check_user_id():
 
 
 def get_price_index(data: str) -> int:
-    data = data.replace(".", "").replace(",", "")
+    data = data.replace(".", "").replace(",", "").replace('-', ' ')
     price_index = 0
     for el in data.split():
         if el.isdigit() or delete_flag(el).isdigit():
@@ -351,7 +352,7 @@ def change_active_db(message: telebot.types.Message):
 @bot.message_handler(content_types=['text'])
 def parse_router(message: telebot.types.Message):
     # Подготовка строки
-    positions = message.text
+    positions = message.text.replace('.', '').replace(',', '').replace('_', '')
     while '\n\n' in positions:
         positions = positions.replace('\n\n', '')
     positions = positions.split('\n')
@@ -362,16 +363,17 @@ def parse_router(message: telebot.types.Message):
     for position in positions:
         try:
             if is_watch(position):
-                parse_watches(position)
-
+                data = parse_watches(position)
+                init_databases.databases['watches'].insert_user(f'')
             elif is_airpod(position):
-                parse_airpods(position)
-
+                data = parse_airpods(position)
+                init_databases.databases['airpods'].insert_user(f'')
             elif is_macbook(position):
-                parse_macbooks(position)
-
+                data = parse_macbooks(position)
+                init_databases.databases['macbooks'].insert_user(f'')
             elif is_ipad(position):
-                parse_ipads(position)
+                data = parse_ipads(position)
+                init_databases.databases['ipads'].insert_user(f'')
 
 # Телефоны идут в else, так как я не смог придумать для них нормальную проверку. Но и так должно работать
 # нормально, так как для них создан очень чувствительный парсер
@@ -465,10 +467,57 @@ def parse_phones(phone: str):
         raise ParseException
         # О да! Я отлавливаю две ошибки и объединяю их в мою одну, чтобы
         # мой роутер парсеров смог нормально отработать ошибку)\
+    return data
 
 
 def parse_watches(watch: str) -> dict:
-    pass
+    res_dict = dict()
+    res_dict['price'] = ''
+
+    for model in Watches.models:
+        if model in watch[:get_price_index(watch)]:
+            res_dict['model'] = model
+            watch = watch.replace(model, '')
+            break
+    else:
+        raise ParseException('ошибка в парсинге модели')
+
+    for size in Watches.sizes:
+        if size in watch[:get_price_index(watch)]:
+            res_dict['size'] = size
+            watch = watch.replace(size, '')
+            break
+    else:
+        raise ParseException('ошибка в праснге размера')
+
+    for strap_size in Watches.strap_sizes:
+        if strap_size in watch[:get_price_index(watch)]:
+            res_dict['strap_size'] = strap_size
+            watch = watch.replace(strap_size, '')
+            break
+    else:
+        raise ParseException('ошибка в праснге размера ремешка')
+
+    for color in Watches.colors:
+        if color in watch[:get_price_index(watch)]:
+            res_dict['color'] = color
+            watch = watch.replace(color, '')
+            break
+
+    else:
+        raise ParseException('ошибка в праснге цвета')
+
+    for year in Watches.year:
+        if year in watch[:get_price_index(watch)]:
+            res_dict['year'] = year
+            watch = watch.replace(year, '')
+            break
+
+    for symb in watch[get_price_index(watch):]:
+        if symb.isdigit():
+            res_dict['price'] = res_dict['price'] + symb
+
+    return res_dict
 
 
 def parse_airpods(airpod: str) -> dict:
