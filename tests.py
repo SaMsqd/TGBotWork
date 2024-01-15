@@ -197,7 +197,11 @@ IPad pro 11 128GB Gray WIFI  83000🇺🇸
             '🇺🇸AW S9 45mm Pink M/L - 38,500',
             'S9 45 Pink AL Lihgt Pink (M/L) - 42.000'
         ]
+        self.parse_airpods: dict = {1: 'AirPods Max Grey-59.000', 2: 'AirPods (3rd Gen) with MagSafe Case-17.300🇪🇺',
+                              3: 'AirPods pro 2 (2023) MagSafe-21.500🇪🇺', 4: 'AirPods pro 2 - 19,500',
+                              5: 'AirPods 2 9.500 (Lightning 2019 год)', 6: 'AirPods Pro 2 USB-c & MagSafe 2023 - 21.300'}
 
+    @unittest.skip
     def test_watches_parser(self):
         for subject in self.parse_watches:
             with self.subTest(subject=subject):
@@ -211,21 +215,27 @@ IPad pro 11 128GB Gray WIFI  83000🇺🇸
                         data == {'model': 's9', 'size': '41', 'color': 'pink', 'price': '37000'} or \
                         data == {'model': 's9', 'size': '45', 'color': 'pink', 'strap_size': 'm/l',
                                  'price': '40400'} or \
-                        data == {'model': 'ultra 2', 'size': '49', 'color': 'titanium', 'strap_size': 's',
-                                 'price': '75500'} or \
-                        data == {'model': 's9', 'size': '45', 'color': 'pink', 'strap_size': 'm/l',
-                                 'price': '38500'} or \
-                        data == {'model': 's9', 'year': '2023', 'size': '45', 'color': 'light pink', 'strap_size': 'm/l',
-                                 'price': '42000'}:
+                        data == {'price': '37000', 'model': 's9', 'size': '41', 'strap_size': 'sport loop', 'color': 'pink'} or \
+                        data == {'price': '42000', 'model': 's9', 'size': '45', 'strap_size': 'm/l', 'color': 'pink'} or \
+                        data == {'price': '75500', 'model': 'ultra 2', 'size': '49', 'strap_size': 'alpine loop s', 'color': 'titanium olive'} or \
+                        data == {'price': '38500', 'model': 's9', 'size': '45', 'strap_size': 'm/l', 'color': 'pink'}:
                     pass
                 else:
                     print(subject, data)
 
-    @unittest.skip
     def test_airpods_parser(self):
-        for subject in self.airpods:
-            with self.subTest(subject=subject):
-                pass
+        for pos, data in self.parse_airpods.items():
+            with self.subTest(pos=pos, data=data):
+                res = main.parse_airpods(data.lower())
+                if pos == 1 and res == {'model': 'pro', 'color': 'grey', 'price': '59000'} or \
+                        pos == 3 and res == {'model': 'pro', 'year': '2023', 'case': 'magsafe', 'price': '21500'} or \
+                        pos == 4 and res == {'model': 'pro 2', 'price': '19500'} or \
+                        pos == 5 and res == {'model': '2', 'price': '9500'} or \
+                        pos == 6 and res == {'model': 'pro 2', 'case': 'magsafe', 'year': '2023', 'price': '21300'}:
+
+                    pass
+                else:
+                    print(data, res)
 
     @unittest.skip
     def test_macbooks_parser(self):

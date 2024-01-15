@@ -49,6 +49,12 @@ def get_price_index(data: str) -> int:
     return price_index
 
 
+def len_model_el(data: str, model: str) -> int:
+    for el in data.split():
+        if model in el:
+            return len(el)
+
+
 def get_data_from_string(phone_data: str) -> dict[str: str]:
     res_dict = dict()
     phone_data = phone_data.lower().replace("-", " ")
@@ -488,15 +494,17 @@ def parse_watches(watch: str) -> dict:
             watch = watch.replace(size, '')
             break
     else:
-        raise ParseException('ошибка в праснге размера')
+        raise ParseException('ошибка в парсинге размера')
 
     for strap_size in Watches.strap_sizes:
         if strap_size in watch[:get_price_index(watch)]:
             res_dict['strap_size'] = strap_size
             watch = watch.replace(strap_size, '')
+            if 'alpine loop' in watch:
+                res_dict['strap_size'] = 'alpine loop ' + res_dict['strap_size']
             break
     else:
-        raise ParseException('ошибка в праснге размера ремешка')
+        raise ParseException('ошибка в парсинге размера ремешка')
 
     for color in Watches.colors:
         if color in watch[:get_price_index(watch)]:
@@ -505,7 +513,7 @@ def parse_watches(watch: str) -> dict:
             break
 
     else:
-        raise ParseException('ошибка в праснге цвета')
+        raise ParseException('ошибка в парсинге цвета')
 
     for year in Watches.year:
         if year in watch[:get_price_index(watch)]:
@@ -521,7 +529,48 @@ def parse_watches(watch: str) -> dict:
 
 
 def parse_airpods(airpod: str) -> dict:
-    pass
+    airpod = airpod.replace('max', 'pro')
+    res_dict = dict()
+    res_dict['price'] = ''
+
+    for model in Airpods.models:
+        if model in airpod[:get_price_index(airpod)] and len_model_el(airpod, model) == 1:
+            res_dict['model'] = model
+            airpod = airpod.replace(model, '')
+            break
+    else:
+        raise ParseException('ошибка в парсинге модели')
+
+    for color in COLORS:
+        if color in airpod:
+            res_dict['color'] = color
+            airpod = airpod.replace(color, '')
+            break
+
+    for year in Airpods.year:
+        if year in airpod[:get_price_index(airpod)] and 2010 <= int(year) <= 2024:
+            res_dict['year'] = year
+            airpod = airpod.replace(year, '')
+            break
+        if res_dict['model'] == 'pro 2 lightning':
+            res_dict['year'] = '2022'
+            airpod = airpod.replace('2022', '')
+            break
+        if res_dict['model'] == 'pro 2 lightning':
+            res_dict['year'] = '2023'
+            airpod = airpod.replace('2023', '')
+            break
+
+    for case in Airpods.cases:
+        if case in airpod[: get_price_index(airpod)]:
+            res_dict['case'] = case
+            break
+
+    for symb in airpod[get_price_index(airpod):]:
+        if symb.isdigit():
+            res_dict['price'] = res_dict['price'] + symb
+
+    return res_dict
 
 
 def parse_macbooks(macbook: str) -> dict:

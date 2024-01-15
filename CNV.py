@@ -2,8 +2,8 @@
 # Он вспомогательный, используется для того, чтобы сделать парсинг телефонов более гибким
 # !!! Позже добавил ещё список STORAGE для функции command_funcs.get_data_from_string
 
-COLORS = ["black white", "deep purple", "light pink","red", "purple", "green", "blue", "midnight", "starlight",
-          "pink", "yellow", "gold", "silver", "white", "titan", "titanium", "natural", "black"]
+COLORS = ["titanium olive", "black white", "deep purple", "light pink", "red", "purple", "green", "blue", "midnight", "starlight",
+          "pink", "yellow", "gold", "silver", "white", "titan", "titanium", "natural", "black", 'grey']
 
 '''
     Далее идут классы, описывающие свойства, которые могут быть у каждого из товаров.
@@ -35,9 +35,10 @@ class Watches:
 
 
 class Airpods:
-    models = ['2', '3', 'pro 2 lightning', '2022', 'pro 2 type c', '2023', 'max', 'pro']
+    models = ['pro 2 lightning', 'pro 2 type c', 'pro 2', 'max', 'pro', '2', '3']
     # !!! max = pro, pro 2 lightning = 2022, pro 2 type c = 2023
     cases = ['magsafe', 'charging']
+    year = [str(year) for year in range(2018, 2024)]
     # Страну игнорируем
 
 
