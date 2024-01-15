@@ -8,7 +8,6 @@ import init_databases
 import keyboard
 from CNV import *
 
-
 TOKEN: str = "2054290165:AAGo7Dqybp5fkqORKccJZdmZTXNcohdpAKw"
 bot = telebot.TeleBot(TOKEN)
 keyboard = keyboard.Keyboard()
@@ -381,8 +380,8 @@ def parse_router(message: telebot.types.Message):
                 data = parse_ipads(position)
                 init_databases.databases['ipads'].insert_user(f'')
 
-# Телефоны идут в else, так как я не смог придумать для них нормальную проверку. Но и так должно работать
-# нормально, так как для них создан очень чувствительный парсер
+            # Телефоны идут в else, так как я не смог придумать для них нормальную проверку. Но и так должно работать
+            # нормально, так как для них создан очень чувствительный парсер
             else:
                 data = parse_phones(position)
                 init_databases.databases['phones'].insert_user(f"id{user_id}",
@@ -448,7 +447,7 @@ def is_ipad(data: str) -> bool:
     for model in Ipads.models:
         for network in Ipads.networks:
             if ('ipad' in data) or (network in data and \
-                    ((not model.isdigit()) and model in data)):
+                                    ((not model.isdigit()) and model in data)):
                 return True
     return False
 
@@ -528,15 +527,17 @@ def parse_watches(watch: str) -> dict:
     return res_dict
 
 
+
 def parse_airpods(airpod: str) -> dict:
-    airpod = airpod.replace('max', 'pro')
+    airpod = airpod.replace('max', 'pro').lower()
     res_dict = dict()
     res_dict['price'] = ''
 
     for model in Airpods.models:
-        if model in airpod[:get_price_index(airpod)] and len_model_el(airpod, model) == 1:
+        if (model != '2' or model != '3') and model in airpod[:get_price_index(airpod)]\
+                or len_model_el(airpod, model) == 1:
             res_dict['model'] = model
-            airpod = airpod.replace(model, '')
+            airpod = airpod.replace(model, '', 1)
             break
     else:
         raise ParseException('ошибка в парсинге модели')
@@ -548,7 +549,7 @@ def parse_airpods(airpod: str) -> dict:
             break
 
     for year in Airpods.year:
-        if year in airpod[:get_price_index(airpod)] and 2010 <= int(year) <= 2024:
+        if year in airpod and 2010 <= int(year) <= 2024:
             res_dict['year'] = year
             airpod = airpod.replace(year, '')
             break

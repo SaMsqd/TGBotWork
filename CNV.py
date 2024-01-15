@@ -3,7 +3,7 @@
 # !!! Позже добавил ещё список STORAGE для функции command_funcs.get_data_from_string
 
 COLORS = ["titanium olive", "black white", "deep purple", "light pink", "red", "purple", "green", "blue", "midnight", "starlight",
-          "pink", "yellow", "gold", "silver", "white", "titan", "titanium", "natural", "black", 'grey']
+          "pink", "yellow", "gold", "silver", "white", "titanium", "titan", "natural", "black", 'grey']
 
 '''
     Далее идут классы, описывающие свойства, которые могут быть у каждого из товаров.

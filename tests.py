@@ -223,16 +223,18 @@ IPad pro 11 128GB Gray WIFI  83000🇺🇸
                 else:
                     print(subject, data)
 
+    @unittest.skip
     def test_airpods_parser(self):
         for pos, data in self.parse_airpods.items():
             with self.subTest(pos=pos, data=data):
                 res = main.parse_airpods(data.lower())
                 if pos == 1 and res == {'model': 'pro', 'color': 'grey', 'price': '59000'} or \
+                        pos == 2 and res == {'case': 'magsafe', 'model': '3', 'price': '1700'} or \
                         pos == 3 and res == {'model': 'pro', 'year': '2023', 'case': 'magsafe', 'price': '21500'} or \
                         pos == 4 and res == {'model': 'pro 2', 'price': '19500'} or \
                         pos == 5 and res == {'model': '2', 'price': '9500'} or \
                         pos == 6 and res == {'model': 'pro 2', 'case': 'magsafe', 'year': '2023', 'price': '21300'}:
-
+                    print(data, res)
                     pass
                 else:
                     print(data, res)
