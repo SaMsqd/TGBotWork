@@ -40,7 +40,9 @@ def check_user_id():
 
 
 def get_price_index(data: str) -> int:
-    data = data.replace(".", "").replace(",", "").replace('-', ' ')
+    base = data
+    data = data.replace(".", "").replace(",", "").replace('-', ' ').replace('(', ' ')
+    print(len(base) - len(data))
     price_index = 0
     for el in data.split():
         if el.isdigit() or delete_flag(el).isdigit():
@@ -482,7 +484,7 @@ def parse_watches(watch: str) -> dict:
     for model in Watches.models:
         if model in watch[:get_price_index(watch)]:
             res_dict['model'] = model
-            watch = watch.replace(model, '')
+            watch = watch.replace(model, '', 1)
             break
     else:
         raise ParseException('ошибка в парсинге модели')
@@ -525,7 +527,6 @@ def parse_watches(watch: str) -> dict:
             res_dict['price'] = res_dict['price'] + symb
 
     return res_dict
-
 
 
 def parse_airpods(airpod: str) -> dict:
@@ -575,11 +576,97 @@ def parse_airpods(airpod: str) -> dict:
 
 
 def parse_macbooks(macbook: str) -> dict:
-    pass
+    macbook = macbook.lower().replace('2022', '').replace('2023', '')
+    res_dict = dict()
+    res_dict['price'] = ''
+
+    for model in Macbooks.models:
+        if model in macbook[:get_price_index(macbook)] and len_model_el(macbook, model) == 2:
+            if 'pro' in macbook:
+                res_dict['model'] = 'pro ' + model
+                macbook = macbook.replace('pro ' + model, '', 1)
+                break
+            elif 'air' in macbook:
+                res_dict['model'] = 'air ' + model
+                macbook = macbook.replace('air ' + model, '', 1)
+                break
+    else:
+        raise ParseException('ошибка в парсинге модели')
+
+    for color in COLORS:
+        if color in macbook:
+            res_dict['color'] = color
+            macbook = macbook.replace(color, '')
+            break
+    else:
+        raise ParseException('ошибка в парсинге цвета')
+
+    for cpu in Macbooks.cpus:
+        if cpu in macbook:
+            res_dict['cpu'] = cpu
+            macbook = macbook.replace(cpu, '')
+            break
+    else:
+        raise ParseException('ошибка в парсинге процессора')
+
+    for storage in Macbooks.storages:
+        if storage in macbook:
+            res_dict['storage'] = storage
+            macbook = macbook.replace(storage, '')
+            break
+    else:
+        raise ParseException('ошибка в парсинге хранилища')
+
+    price_index = get_price_index(macbook)
+    for symb in macbook[price_index:]:
+        if symb.isdigit():
+            res_dict['price'] = res_dict['price'] + symb
+
+    return res_dict
 
 
 def parse_ipads(ipad: str) -> dict:
-    pass
+    res_dict = dict()
+    res_dict['price'] = ''
+    for model in Ipads.models:
+        if model in ipad[:get_price_index(ipad)]:
+            res_dict['model'] = model
+            ipad = ipad.replace(model, '', 1)
+            break
+
+    else:
+        raise ParseException('ошибка в парсинге модели')
+
+    for storage in Ipads.storages:
+        if storage in ipad:
+            res_dict['storage'] = storage
+            ipad = ipad.replace(storage, '')
+            break
+    else:
+        raise ParseException('ошибка в парсинге хранилища')
+
+    for color in COLORS:
+        if color in ipad:
+            res_dict['color'] = color
+            ipad = ipad.replace(storage, '')
+            break
+    else:
+        raise ParseException('ошибка в парсинге цвета')
+
+    for network in Ipads.networks:
+        if network in ipad:
+            res_dict['network'] = network
+            ipad = ipad.replace(network, '')
+            break
+    else:
+        raise ParseException('ошибка в парсинге поддреживаемой сети')
+
+    price_index = get_price_index(ipad)
+    for symb in ipad[price_index:]:
+        if symb.isdigit():
+            res_dict['price'] = res_dict['price'] + symb
+
+    return res_dict
 
 
 def main():

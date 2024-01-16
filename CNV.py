@@ -3,7 +3,7 @@
 # !!! Позже добавил ещё список STORAGE для функции command_funcs.get_data_from_string
 
 COLORS = ["titanium olive", "black white", "deep purple", "light pink", "red", "purple", "green", "blue", "midnight", "starlight",
-          "pink", "yellow", "gold", "silver", "white", "titanium", "titan", "natural", "black", 'grey']
+          "pink", "yellow", "gold", "silver", "white", "titanium", "titan", "natural", "black", 'grey', 'gray'] # В макбуках серый написан как gray
 
 '''
     Далее идут классы, описывающие свойства, которые могут быть у каждого из товаров.
@@ -43,10 +43,10 @@ class Airpods:
 
 
 class Macbooks:
-    models = ['air 13', 'air 15', 'pro 13', 'pro 14', 'pro 16']
+    models = ['13', '14', '15', '16'] # Разделяются на pro и air, это проверяется в парсере
     cpus = ['m1', 'm2', 'm3']
     color = COLORS
-    storages = ['256', '512', '1024', '2048', '1tb', '1тб', '1', '2tb', '2тб', '2']
+    storages = ['256', '512', '1024', '2048', '1tb', '1тб', '1', '2tb', '2тб', '2', '4tb', '4тб', '4']
     # Страну игнорируем
 
 

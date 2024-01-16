@@ -200,6 +200,24 @@ IPad pro 11 128GB Gray WIFI  83000🇺🇸
         self.parse_airpods: dict = {1: 'AirPods Max Grey-59.000', 2: 'AirPods (3rd Gen) with MagSafe Case-17.300🇪🇺',
                               3: 'AirPods pro 2 (2023) MagSafe-21.500🇪🇺', 4: 'AirPods pro 2 - 19,500',
                               5: 'AirPods 2 9.500 (Lightning 2019 год)', 6: 'AirPods Pro 2 USB-c & MagSafe 2023 - 21.300'}
+        self.parse_macbooks: dict = {#1: 'Air 13 MGN63 (M1,8/256) Gray -75.500🇮🇳(с гравировкой) ',
+                                     2: 'MacBook MLY33 Air 13 Midnight (M2, 8GB, 256GB) 2022-99.300🇺🇸 ',
+                                     3: 'Pro 13 MNEP3(M2,8/256)Silver-109.500🇺🇸',
+                                     4: 'MacBook MRX33  Pro 14 M3 512GB Space Gray -191.000🇺🇸',
+                                     5: 'Pro 16 MRW13 Space Black (M3 Pro 12-Core, GPU 18-Core, 18GB, 512GB) - 236.500🇺🇸',
+                                     6: 'Pro MRW33 16 1 Tb (2023) Black M3 PRO MAX -445.000🇺🇸',
+                                     7: 'MGN63 (Air 13 M1 8/256 Sp.Grey) - 77000'}
+        self.parse_ipads: dict = {
+            1: 'IPad 9 64 Gray WIFI -28.700🇺🇸',
+            2: 'IPad 9 64 White LTE -41.000🇺🇸',
+            3: 'IPad 10 64 Yellow WIFI -42.000🇺🇸',
+            4: 'iPad PRO 11 M2 128 Gray Wi-Fi-80.000🇺🇸',
+            5: 'iPad Pro 11 (Wi-Fi , 512GB) Gray -112.000🇺🇸',
+            6: 'iPad Pro 12.9 2022 M2 LTE 128 Silver - 102.800🇺🇸',
+            7: 'IPad Pro 12 256 Gray WI-FI (2022)-117.500🇺🇸',
+            8: 'iPad 10 256GB Yellow WIFI 55000🇺🇸',
+            9: 'IPad pro 11 128GB Gray WIFI  83000🇺🇸'
+        }
 
     @unittest.skip
     def test_watches_parser(self):
@@ -241,15 +259,26 @@ IPad pro 11 128GB Gray WIFI  83000🇺🇸
 
     @unittest.skip
     def test_macbooks_parser(self):
-        for subject in self.macbooks:
-            with self.subTest(subject=subject):
-                pass
+        for pos, data in self.parse_macbooks.items():
+            with self.subTest(pos=pos, data=data):
+                data = main.parse_macbooks(data)
+                if pos == 1 and data == {'price': '75500', 'model': 'air 13', 'color': 'gray', 'cpu': 'm1', 'storage': '256'} or \
+                    pos == 2 and data == {'price': '99300', 'model': 'air 13', 'color': 'midnight', 'cpu': 'm2', 'storage': '256'} or \
+                    pos == 3 and data == {'price': '109500', 'model': 'pro 13', 'color': 'silver', 'cpu': 'm2', 'storage': '256'} or \
+                    pos == 4 and data == {'price': '191000', 'model': 'pro 14', 'color': 'gray', 'cpu': 'm3', 'storage': '512'} or \
+                    pos == 5 and data == {'price': '236500', 'model': 'pro 16', 'color': 'black', 'cpu': 'm3', 'storage': '512'} or \
+                    pos == 6 and data == {'price': '445000', 'model': 'pro 16', 'color': 'black', 'cpu': 'm3', 'storage': '1'} or \
+                    pos == 7 and data == {'price': '77000', 'model': 'air 13', 'color': 'grey', 'cpu': 'm1', 'storage': '256'}:
+                    pass
+                else:
+                    print(pos, data)
+                    raise Exception
 
-    @unittest.skip
     def test_ipads_parser(self):
-        for subject in self.ipads:
-            with self.subTest(subject=subject):
-                pass
+        for pos, data in self.parse_ipads.items():
+            with self.subTest(pos=pos, data=data):
+                data = main.parse_airpods(data)
+                print(pos, data)
 
     # def test_is_phone(self):
     #     for item in self.everything:
