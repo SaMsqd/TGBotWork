@@ -370,16 +370,21 @@ def parse_router(message: telebot.types.Message):
         try:
             if is_watch(position):
                 data = parse_watches(position)
-                init_databases.databases['watches'].insert_user(f'')
+                init_databases.databases['watches'].insert_user(f'id{user_id}', data['model'], data['size'],
+                                                                data['color'], data['strap_size'], data.get('year', 'None'),
+                                                                data['price'])
             elif is_airpod(position):
                 data = parse_airpods(position)
-                init_databases.databases['airpods'].insert_user(f'')
+                init_databases.databases['airpods'].insert_user(f'id{user_id}', data['model'], data.get('color', 'None'),
+                                                                data.get('year', 0), data.get('case', 'None'), data['price'])
             elif is_macbook(position):
                 data = parse_macbooks(position)
-                init_databases.databases['macbooks'].insert_user(f'')
+                init_databases.databases['macbooks'].insert_user(f'id{user_id}', data['model'], data['cpu'],
+                                                                 data['color'], data['storage'], data['price'])
             elif is_ipad(position):
                 data = parse_ipads(position)
-                init_databases.databases['ipads'].insert_user(f'')
+                init_databases.databases['ipads'].insert_user(f'id{user_id}', data['model'], data['storage'],
+                                                              data['color'], data['price'])
 
             # Телефоны идут в else, так как я не смог придумать для них нормальную проверку. Но и так должно работать
             # нормально, так как для них создан очень чувствительный парсер

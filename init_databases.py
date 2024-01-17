@@ -23,6 +23,7 @@ columns_for_databases = {
     'airpods': {
         'model': 'text',
         'color': 'text',
+        'year': 'integer',
         'case': 'text',
         'price': 'integer'
     },
