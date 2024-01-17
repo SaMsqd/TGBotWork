@@ -42,7 +42,6 @@ def check_user_id():
 def get_price_index(data: str) -> int:
     base = data
     data = data.replace(".", "").replace(",", "").replace('-', ' ').replace('(', ' ')
-    print(len(base) - len(data))
     price_index = 0
     for el in data.split():
         if el.isdigit() or delete_flag(el).isdigit():
@@ -626,6 +625,7 @@ def parse_macbooks(macbook: str) -> dict:
 
 
 def parse_ipads(ipad: str) -> dict:
+    ipad = ipad.lower()
     res_dict = dict()
     res_dict['price'] = ''
     for model in Ipads.models:

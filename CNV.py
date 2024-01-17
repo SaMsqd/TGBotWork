@@ -51,7 +51,7 @@ class Macbooks:
 
 
 class Ipads:
-    models = ['9', '10', 'air 5', 'pro 11', 'pro 12']
+    models = ['pro 12', 'pro 11', 'air 5', '9', '10']
     storages = ['64', '128', '256', '512', '1tb', '1тб', '1']
     color = COLORS
     networks = ['wifi', 'wi-fi', 'wi fi', 'lte']

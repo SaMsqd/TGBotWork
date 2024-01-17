@@ -198,15 +198,16 @@ IPad pro 11 128GB Gray WIFI  83000🇺🇸
             'S9 45 Pink AL Lihgt Pink (M/L) - 42.000'
         ]
         self.parse_airpods: dict = {1: 'AirPods Max Grey-59.000', 2: 'AirPods (3rd Gen) with MagSafe Case-17.300🇪🇺',
-                              3: 'AirPods pro 2 (2023) MagSafe-21.500🇪🇺', 4: 'AirPods pro 2 - 19,500',
-                              5: 'AirPods 2 9.500 (Lightning 2019 год)', 6: 'AirPods Pro 2 USB-c & MagSafe 2023 - 21.300'}
-        self.parse_macbooks: dict = {#1: 'Air 13 MGN63 (M1,8/256) Gray -75.500🇮🇳(с гравировкой) ',
-                                     2: 'MacBook MLY33 Air 13 Midnight (M2, 8GB, 256GB) 2022-99.300🇺🇸 ',
-                                     3: 'Pro 13 MNEP3(M2,8/256)Silver-109.500🇺🇸',
-                                     4: 'MacBook MRX33  Pro 14 M3 512GB Space Gray -191.000🇺🇸',
-                                     5: 'Pro 16 MRW13 Space Black (M3 Pro 12-Core, GPU 18-Core, 18GB, 512GB) - 236.500🇺🇸',
-                                     6: 'Pro MRW33 16 1 Tb (2023) Black M3 PRO MAX -445.000🇺🇸',
-                                     7: 'MGN63 (Air 13 M1 8/256 Sp.Grey) - 77000'}
+                                    3: 'AirPods pro 2 (2023) MagSafe-21.500🇪🇺', 4: 'AirPods pro 2 - 19,500',
+                                    5: 'AirPods 2 9.500 (Lightning 2019 год)',
+                                    6: 'AirPods Pro 2 USB-c & MagSafe 2023 - 21.300'}
+        self.parse_macbooks: dict = {  # 1: 'Air 13 MGN63 (M1,8/256) Gray -75.500🇮🇳(с гравировкой) ',
+            2: 'MacBook MLY33 Air 13 Midnight (M2, 8GB, 256GB) 2022-99.300🇺🇸 ',
+            3: 'Pro 13 MNEP3(M2,8/256)Silver-109.500🇺🇸',
+            4: 'MacBook MRX33  Pro 14 M3 512GB Space Gray -191.000🇺🇸',
+            5: 'Pro 16 MRW13 Space Black (M3 Pro 12-Core, GPU 18-Core, 18GB, 512GB) - 236.500🇺🇸',
+            6: 'Pro MRW33 16 1 Tb (2023) Black M3 PRO MAX -445.000🇺🇸',
+            7: 'MGN63 (Air 13 M1 8/256 Sp.Grey) - 77000'}
         self.parse_ipads: dict = {
             1: 'IPad 9 64 Gray WIFI -28.700🇺🇸',
             2: 'IPad 9 64 White LTE -41.000🇺🇸',
@@ -233,9 +234,11 @@ IPad pro 11 128GB Gray WIFI  83000🇺🇸
                         data == {'model': 's9', 'size': '41', 'color': 'pink', 'price': '37000'} or \
                         data == {'model': 's9', 'size': '45', 'color': 'pink', 'strap_size': 'm/l',
                                  'price': '40400'} or \
-                        data == {'price': '37000', 'model': 's9', 'size': '41', 'strap_size': 'sport loop', 'color': 'pink'} or \
+                        data == {'price': '37000', 'model': 's9', 'size': '41', 'strap_size': 'sport loop',
+                                 'color': 'pink'} or \
                         data == {'price': '42000', 'model': 's9', 'size': '45', 'strap_size': 'm/l', 'color': 'pink'} or \
-                        data == {'price': '75500', 'model': 'ultra 2', 'size': '49', 'strap_size': 'alpine loop s', 'color': 'titanium olive'} or \
+                        data == {'price': '75500', 'model': 'ultra 2', 'size': '49', 'strap_size': 'alpine loop s',
+                                 'color': 'titanium olive'} or \
                         data == {'price': '38500', 'model': 's9', 'size': '45', 'strap_size': 'm/l', 'color': 'pink'}:
                     pass
                 else:
@@ -262,13 +265,20 @@ IPad pro 11 128GB Gray WIFI  83000🇺🇸
         for pos, data in self.parse_macbooks.items():
             with self.subTest(pos=pos, data=data):
                 data = main.parse_macbooks(data)
-                if pos == 1 and data == {'price': '75500', 'model': 'air 13', 'color': 'gray', 'cpu': 'm1', 'storage': '256'} or \
-                    pos == 2 and data == {'price': '99300', 'model': 'air 13', 'color': 'midnight', 'cpu': 'm2', 'storage': '256'} or \
-                    pos == 3 and data == {'price': '109500', 'model': 'pro 13', 'color': 'silver', 'cpu': 'm2', 'storage': '256'} or \
-                    pos == 4 and data == {'price': '191000', 'model': 'pro 14', 'color': 'gray', 'cpu': 'm3', 'storage': '512'} or \
-                    pos == 5 and data == {'price': '236500', 'model': 'pro 16', 'color': 'black', 'cpu': 'm3', 'storage': '512'} or \
-                    pos == 6 and data == {'price': '445000', 'model': 'pro 16', 'color': 'black', 'cpu': 'm3', 'storage': '1'} or \
-                    pos == 7 and data == {'price': '77000', 'model': 'air 13', 'color': 'grey', 'cpu': 'm1', 'storage': '256'}:
+                if pos == 1 and data == {'price': '75500', 'model': 'air 13', 'color': 'gray', 'cpu': 'm1',
+                                         'storage': '256'} or \
+                        pos == 2 and data == {'price': '99300', 'model': 'air 13', 'color': 'midnight', 'cpu': 'm2',
+                                              'storage': '256'} or \
+                        pos == 3 and data == {'price': '109500', 'model': 'pro 13', 'color': 'silver', 'cpu': 'm2',
+                                              'storage': '256'} or \
+                        pos == 4 and data == {'price': '191000', 'model': 'pro 14', 'color': 'gray', 'cpu': 'm3',
+                                              'storage': '512'} or \
+                        pos == 5 and data == {'price': '236500', 'model': 'pro 16', 'color': 'black', 'cpu': 'm3',
+                                              'storage': '512'} or \
+                        pos == 6 and data == {'price': '445000', 'model': 'pro 16', 'color': 'black', 'cpu': 'm3',
+                                              'storage': '1'} or \
+                        pos == 7 and data == {'price': '77000', 'model': 'air 13', 'color': 'grey', 'cpu': 'm1',
+                                              'storage': '256'}:
                     pass
                 else:
                     print(pos, data)
@@ -277,10 +287,31 @@ IPad pro 11 128GB Gray WIFI  83000🇺🇸
     def test_ipads_parser(self):
         for pos, data in self.parse_ipads.items():
             with self.subTest(pos=pos, data=data):
-                data = main.parse_airpods(data)
-                print(pos, data)
+                data = main.parse_ipads(data)
+                if pos == 1 and data == {'price': '28700', 'model': '9', 'storage': '64', 'color': 'gray',
+                                         'network': 'wifi'} or \
+                        pos == 2 and data == {'price': '41000', 'model': '9', 'storage': '64', 'color': 'white',
+                                              'network': 'lte'} or \
+                        pos == 3 and data == {'price': '42000', 'model': '10', 'storage': '64', 'color': 'yellow',
+                                              'network': 'wifi'} or \
+                        pos == 4 and data == {'price': '80000', 'model': 'pro 11', 'storage': '128', 'color': 'gray',
+                                              'network': 'wi-fi'} or \
+                        pos == 5 and data == {'price': '112000', 'model': 'pro 11', 'storage': '512', 'color': 'gray',
+                                              'network': 'wi-fi'} or \
+                        pos == 6 and data == {'price': '102800', 'model': 'pro 12', 'storage': '128', 'color': 'silver',
+                                              'network': 'lte'} or \
+                        pos == 7 and data == {'price': '117500', 'model': 'pro 12', 'storage': '256', 'color': 'gray',
+                                              'network': 'wi-fi'} or \
+                        pos == 8 and data == {'price': '55000', 'model': '10', 'storage': '256', 'color': 'yellow',
+                                              'network': 'wifi'} or \
+                        pos == 9 and data == {'price': '83000', 'model': 'pro 11', 'storage': '128', 'color': 'gray',
+                                              'network': 'wifi'}:
+                    pass
+                else:
+                    print(pos, data)
 
-    # def test_is_phone(self):
+                    # def test_is_phone(self):
+
     #     for item in self.everything:
     #         with self.subTest(item=item):
     #             self.assertEqual(main.is_phone(item), item in self.phones)
