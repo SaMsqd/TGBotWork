@@ -21,11 +21,12 @@ class ParseException(Exception):
         super().__init__(f'Ошибка в парсинге {text}')
 
 
-# Декоратор. Применяется для проверки наличия таблиц с id пользователя, отправившего сообщение
-def check_user_id():
+# Декоратор. Применяется для проверки наличия таблиц с id пользователя, отправившего сообщениеdef check_user_id():    #TODO: Пофиксить, совсем не отрабатывает
+    print('check_user_id')
     def decorator(func):
         @wraps(func)
         def wrapper(message, ret: bool = False):
+            print('обёртка')
             if f'phones{message.chat.id}' in init_databases.databases['phones'].tables.keys():
                 return func(message)
             else:
@@ -130,6 +131,7 @@ def make_price_beautiful(price):
 
 
 @check_user_id()
+@bot.message_handler(commands=['start'])
 def command_start(message: telebot.types.Message) -> None:
     command_keyboard_on(message, text=f"Здравствуйте, {message.from_user.full_name}. Ваш ID есть "
                                       f"в системе, можете вводить команды")
@@ -358,10 +360,11 @@ def change_active_db(message: telebot.types.Message):
 @bot.message_handler(content_types=['text'])
 def parse_router(message: telebot.types.Message):
     # Подготовка строки
-    positions = message.text.replace('.', '').replace(',', '').replace('_', '')
+    positions = message.text.replace('.', '').replace(',', '').replace('_', '').lower()
     while '\n\n' in positions:
         positions = positions.replace('\n\n', '')
     positions = positions.split('\n')
+
     errors = list()
     success = 0
     user_id = message.chat.id
@@ -390,7 +393,8 @@ def parse_router(message: telebot.types.Message):
             # нормально, так как для них создан очень чувствительный парсер
             else:
                 data = parse_phones(position)
-                init_databases.databases['phones'].insert_user(f"id{user_id}",
+                print(data)
+                init_databases.databases['phones'].insert_user(f"phones{user_id}",
                                                                data["name"], data["model"],
                                                                data["color"],
                                                                int(data["price"]),
