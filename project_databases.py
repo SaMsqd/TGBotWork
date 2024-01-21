@@ -1,3 +1,4 @@
+import DB
 from DB import DataBase
 
 
@@ -14,30 +15,30 @@ columns_for_databases = {
     },
     'watches': {
         'model': 'text',
-        'size': 'int',
+        'size': 'integer',
         'color': 'text',
         'strap_size': 'text',
-        'year': 'int',
+        'year': 'integer',
         'price': 'integer'
     },
     'airpods': {
         'model': 'text',
         'color': 'text',
+        'case_type': 'text',
         'year': 'integer',
-        'case': 'text',
         'price': 'integer'
     },
     'macbooks': {
         'model': 'text',
         'cpu': 'text',
         'color': 'text',
-        'storage': 'int',
+        'storage': 'integer',
         'price': 'integer'
     },
     'ipads': {
         'model': 'text',
-        'storage': 'int',
-        'color': 'str',
+        'storage': 'integer',
+        'color': 'text',
         'price': 'integer'
     }
 }
@@ -67,5 +68,33 @@ databases = init_databases()
 # для которого (с использованием чьего id) была создана таблицы
 def init_tables(chat_id: int):
     for db_name, db_object in databases.items():
-        print(db_object.create_table(table_name=f'{db_name}{chat_id}', columns=columns_for_databases[db_name]))
+        db_object.create_table(table_name=f'{db_name}{chat_id}', columns=columns_for_databases[db_name])
     return True
+
+
+def get_best_from_active_database(database: str, id: str | int):    # Реализовать выборку лучших результатов
+    active_db = databases[database]
+    match database:
+        case 'phones':
+            t_data = active_db.exec_command(f"SELECT * FROM id{message.chat.id} ORDER BY name, model, storage, country, price")
+            best_sorted = []
+            for phone in t_data:
+                b, index = to_replace_positions(phone, best_sorted)
+                if b:
+                    if index != -1:
+                        best_sorted.insert(index, phone)
+                        best_sorted.pop(index + 1)
+                elif index == 2:
+                    continue
+                else:
+                    best_sorted.append(phone)
+            if ret:
+                return best_sorted
+        case 'watches':
+            pass
+        case 'airpods':
+            pass
+        case 'macbooks':
+            pass
+        case 'ipads':
+            pass

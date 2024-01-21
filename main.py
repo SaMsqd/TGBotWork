@@ -1,10 +1,11 @@
+import functools
 from functools import wraps
 import requests.exceptions as rqst
 import telebot
 import os
 import time
 import emoji
-import init_databases
+import project_databases
 import keyboard
 from CNV import *
 
@@ -21,23 +22,19 @@ class ParseException(Exception):
         super().__init__(f'Ошибка в парсинге {text}')
 
 
-# Декоратор. Применяется для проверки наличия таблиц с id пользователя, отправившего сообщениеdef check_user_id():    #TODO: Пофиксить, совсем не отрабатывает
-    print('check_user_id')
-    def decorator(func):
-        @wraps(func)
-        def wrapper(message, ret: bool = False):
-            print('обёртка')
-            if f'phones{message.chat.id}' in init_databases.databases['phones'].tables.keys():
-                return func(message)
-            else:
-                init_databases.init_tables(message.chat.id)
-                if ret:
-                    return func(message, ret)
-                func(message)
+# Декоратор. Применяется для проверки наличия таблиц с id пользователя, отправившего сообщение    #TODO: Пофиксить, совсем не отрабатывает
+def check_user_id(func):
+    def _wrapper(message, ret: bool = False):
+        print('обёртка')
+        if f'phones{message.chat.id}' in project_databases.databases['phones'].tables.keys():
+            return func(message)
+        else:
+            project_databases.init_tables(message.chat.id)
+            if ret:
+                return func(message, ret)
+            func(message)
 
-        return wrapper
-
-    return decorator
+    return _wrapper
 
 
 def get_price_index(data: str) -> int:
@@ -130,8 +127,8 @@ def make_price_beautiful(price):
     return res[::-1]
 
 
-@check_user_id()
 @bot.message_handler(commands=['start'])
+@check_user_id
 def command_start(message: telebot.types.Message) -> None:
     command_keyboard_on(message, text=f"Здравствуйте, {message.from_user.full_name}. Ваш ID есть "
                                       f"в системе, можете вводить команды")
@@ -160,7 +157,7 @@ def command_keyboard_off(message):
                      reply_markup=telebot.types.ReplyKeyboardRemove())
 
 
-@check_user_id()
+@check_user_id
 def command_number(message: telebot.types.Message):
     phones = db.get_all_rows(table_name="id" + str(message.chat.id))
     phone_number = len(phones)
@@ -169,10 +166,10 @@ def command_number(message: telebot.types.Message):
     bot.send_message(chat_id=message.chat.id, text=f"Количество телефонов, которое вы добавили: {phone_number}")
 
 
-@check_user_id()
+@check_user_id
 def command_clear(message: telebot.types.Message) -> None:
     db.delete_table(table_name="id" + str(message.chat.id))
-    init_databases.init_tables(message.chat.id)
+    project_databases.init_tables(message.chat.id)
     bot.send_message(chat_id=message.chat.id, text="Данные по телефонам были удалены из вашей базы")
 
 
@@ -193,22 +190,12 @@ def to_replace_positions(cur_phone: tuple, best_sorted: list) -> bool and int:  
     return False, -1
 
 
-@check_user_id()
+
+
+
+@check_user_id
 def command_table_best(message: telebot.types.Message, ret: bool = False):
-    t_data = db.exec_command(f"SELECT * FROM id{message.chat.id} ORDER BY name, model, storage, country, price")
-    best_sorted = []
-    for phone in t_data:
-        b, index = to_replace_positions(phone, best_sorted)
-        if b:
-            if index != -1:
-                best_sorted.insert(index, phone)
-                best_sorted.pop(index + 1)
-        elif index == 2:
-            continue
-        else:
-            best_sorted.append(phone)
-    if ret:
-        return best_sorted
+
     name = ""
     model = ""
     storage = ""
@@ -234,7 +221,7 @@ def command_table_best(message: telebot.types.Message, ret: bool = False):
         bot.send_message(chat_id=message.chat.id, text="Таблица пуста")
 
 
-@check_user_id()
+@check_user_id
 def command_table(message: telebot.types.Message):
     data = db.exec_command(f"SELECT * FROM id{str(message.chat.id)}")
     file_name = str(time.strftime('%H%M%S'))
@@ -247,7 +234,7 @@ def command_table(message: telebot.types.Message):
 
 
 @bot.message_handler(commands=["table_opt"])
-@check_user_id()
+@check_user_id
 def command_table_opt(message: telebot.types.Message):
     best_sorted = command_table_best(message, ret=True)
     name = ""
@@ -276,13 +263,13 @@ def command_table_opt(message: telebot.types.Message):
 
 
 @bot.message_handler(commands=["table_retail"])
-@check_user_id()
+@check_user_id
 def command_table_retail(message: telebot.types.Message):
     __retail_assistent(message)
 
 
 @bot.message_handler(commands=["table_retail_file"])
-@check_user_id()
+@check_user_id
 def command_table_retail_file(message: telebot.types.Message):
     file_name = str(time.strftime('%H%M%S'))
     with open(f"./files/{file_name}.xlsx", mode="w+", encoding="utf-8") as f:
@@ -349,14 +336,14 @@ def commands_handler(message: telebot.types.Message) -> None:
             commands[command](message)
 
 
-@check_user_id()
+@check_user_id
 @bot.message_handler(commands=['phones', 'watches', 'airpods', 'macbooks', 'ipads', 'back'])
 def change_active_db(message: telebot.types.Message):
     bot.send_message(chat_id=message.chat.id, text=keyboard.change_pos(message.text),
                      reply_markup=keyboard.generate_keyboard())
 
 
-@check_user_id()
+@check_user_id
 @bot.message_handler(content_types=['text'])
 def parse_router(message: telebot.types.Message):
     # Подготовка строки
@@ -373,33 +360,37 @@ def parse_router(message: telebot.types.Message):
         try:
             if is_watch(position):
                 data = parse_watches(position)
-                init_databases.databases['watches'].insert_user(f'id{user_id}', data['model'], data['size'],
-                                                                data['color'], data['strap_size'], data.get('year', 'None'),
+                project_databases.databases['watches'].insert_user(f'watches{user_id}', data['model'], data['size'],
+                                                                data['color'], data['strap_size'],
+                                                                data.get('year', 'None'),
                                                                 data['price'])
             elif is_airpod(position):
                 data = parse_airpods(position)
-                init_databases.databases['airpods'].insert_user(f'id{user_id}', data['model'], data.get('color', 'None'),
-                                                                data.get('year', 0), data.get('case', 'None'), data['price'])
+                project_databases.databases['airpods'].insert_user(f'airpods{user_id}', data['model'],
+                                                                data.get('color', 'None'),
+                                                                data.get('year', 0), data.get('case', 'None'),
+                                                                data['price'])
             elif is_macbook(position):
                 data = parse_macbooks(position)
-                init_databases.databases['macbooks'].insert_user(f'id{user_id}', data['model'], data['cpu'],
+                print(data)
+                project_databases.databases['macbooks'].insert_user(f'macbooks{user_id}', data['model'], data['cpu'],
                                                                  data['color'], data['storage'], data['price'])
             elif is_ipad(position):
                 data = parse_ipads(position)
-                init_databases.databases['ipads'].insert_user(f'id{user_id}', data['model'], data['storage'],
+                project_databases.databases['ipads'].insert_user(f'ipads{user_id}', data['model'], data['storage'],
                                                               data['color'], data['price'])
 
             # Телефоны идут в else, так как я не смог придумать для них нормальную проверку. Но и так должно работать
             # нормально, так как для них создан очень чувствительный парсер
             else:
                 data = parse_phones(position)
-                print(data)
-                init_databases.databases['phones'].insert_user(f"phones{user_id}",
+                project_databases.databases['phones'].insert_user(f"phones{user_id}",
                                                                data["name"], data["model"],
                                                                data["color"],
                                                                int(data["price"]),
                                                                int(data["storage"]),
                                                                data["country"].replace("gb", ""))
+            success += 1
         except ParseException:
             errors.append(position)
             print('Ошибка в парсинге:', position)
@@ -543,7 +534,7 @@ def parse_airpods(airpod: str) -> dict:
     res_dict['price'] = ''
 
     for model in Airpods.models:
-        if (model != '2' or model != '3') and model in airpod[:get_price_index(airpod)]\
+        if (model != '2' or model != '3') and model in airpod[:get_price_index(airpod)] \
                 or len_model_el(airpod, model) == 1:
             res_dict['model'] = model
             airpod = airpod.replace(model, '', 1)
