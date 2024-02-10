@@ -33,7 +33,7 @@ def check_user_id(func):
             if ret:
                 return func(message, ret)
             func(message)
-
+    print('Конец обрётки')
     return _wrapper
 
 
@@ -195,7 +195,7 @@ def to_replace_positions(cur_phone: tuple, best_sorted: list) -> bool and int:  
 
 @check_user_id
 def command_table_best(message: telebot.types.Message, ret: bool = False):
-
+    best_sorted = command_table_best(message, True)
     name = ""
     model = ""
     storage = ""
@@ -469,10 +469,12 @@ def parse_phones(phone: str):
             data["model"] = "Pro max"
         if data["storage"] == "1":
             data["storage"] = "1024"
-    except KeyError and ValueError:
+    except KeyError:
         raise ParseException
         # О да! Я отлавливаю две ошибки и объединяю их в мою одну, чтобы
         # мой роутер парсеров смог нормально отработать ошибку)\
+    except ValueError:
+        raise ParseException
     return data
 
 
