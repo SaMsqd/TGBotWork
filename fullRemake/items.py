@@ -23,9 +23,9 @@ class Item:
         :return None
         :raise TypeError
         """
-        self.var_checker({model: str,
+        self.var_checker({model: int,
                           price: int})
-        self.model: str = model
+        self.model: int = model
         self.price: int = price
 
     @staticmethod
@@ -73,18 +73,14 @@ class Watch(Item):
         self.strap_size = strap_size
         self.year = year
 
-        self.model_priority = 0
-        self.size_priority = 0,
-        self.strap_size_priority = 0
+
 
     def generate_str(self):
         return (f'{self.model} {self.year} {self.size} {self.strap_size} '
                 f'{self.color} - {self.price}')
 
-    def generate_sql(self, table_name):
-        return (f'INSERT INTO {table_name} VALUES ({self.model}, {self.model_priority}, '
-                f'{self.size}, {self.size_priority}, {self.color}, {self.strap_size}, '
-                f'{self.strap_size_priority}, {self.year}, {self.price})')
+    def generate_sql(self):
+        return (f'({self.model},"{self.size}", "{self.color}", "{self.strap_size}", {self.year}, {self.price})')
 
 
 class Airpod(Item):
@@ -99,15 +95,11 @@ class Airpod(Item):
         self.case = case
         self.year = year
 
-        self.model_priority = 0
-        self.case_priority = 0
-
     def generate_str(self):
         return f'{self.model} {self. year} {self.case} - {self.price}'
 
-    def generate_sql(self, table_name):
-        return (f'INSERT INTO {table_name} VALUES({self.model}, {self.model_priority}, '
-                f'{self.case}, {self.case_priority}, {self.year}, {self.price})')
+    def generate_sql(self):
+        return (f'({self.model},"{self.case}", {self.year}, {self.price})')
 
 
 class Macbook(Item):
@@ -123,17 +115,11 @@ class Macbook(Item):
         self.color = color
         self.storage = storage
 
-        self.model_priority = 0
-        self.cpu_priority = 0
-        self.storage_priority = priorities['storage'][str(storage)]
-
     def generate_str(self):
         return f'{self.model} {self.cpu} {self.storage} {self.color} - {self.price}'
 
-    def generate_sql(self, table_name):
-        return (f'INSERT INTO {table_name} VALUES ({self.model}, {self.model_priority}, '
-                f'{self.cpu}, {self.cpu_priority}, {self.color}, {self.storage}, '
-                f'{self.storage_priority}, {self.price})')
+    def generate_sql(self):
+        return (f'({self.model},"{self.cpu}", "{self.color}", {self.storage},{self.price})')
 
 
 class Phone(Item):
@@ -147,23 +133,26 @@ class Phone(Item):
         })
 
         super().__init__(model, price)
-        self. version = version
+        self.version = version
         self.color = color
         self.storage = storage
         self.country = country
 
-        self.model_priority = 0
-        self.version_priority = 0
-        self.storage_priority = priorities['storage'][str(storage)]
+        if self.model >= 14 and self.country == '🇺🇸':
+            self.market = 'us'
+        elif self.country == '🇨🇳':
+            self.market = 'cn'
+        else:
+            self.market = 'others'
 
     def generate_str(self):
-        return (f'{self.model} {self.version} {self.storage} {self.color} '
-                f'- {self.price}{self.country}')
+        return (f'{self.model} {self.version} {self.color} {self.storage} '
+                f'- {self.country}{self.price}')
 
-    def generate_sql(self, table_name):
-        return (f'INSERT INTO {table_name} VALUES ({self.model}, {self.model_priority}, {self.version}, '
-                f'{self.version_priority}, {self.color}, {self.storage}, {self.storage_priority}, '
-                f'{self.country}, {self.price})')
+    def generate_sql(self):
+        return (f'({self.model}, "{self.version}", '
+                f' "{self.color}", {self.storage}, '
+                f'"{self.country}", "{self.market}" , {self.price})')
 
 
 class Ipad(Item):
@@ -180,14 +169,11 @@ class Ipad(Item):
         self.color = color
         self.network = network
 
-        self.model_priority = 0
-        self.storage_priority = priorities['storage'][str(storage)]
-        self.network_priority = 0
 
     def generate_str(self):
         return f'{self.model} {self.storage} {self.network} {self.color} - {self.price}'
 
-    def generate_sql(self, table_name):
-        return (f'INSERT INTO {table_name} VALUES({self.model}, {self.model_priority}, {self.network}, '
-                f'{self.network_priority}, {self.color}, {self.storage}, '
-                f'{self.storage_priority}, {self.price})')
+    def generate_sql(self):
+        return (f'("{self.model}", "{self.storage}", '
+                f' "{self.color}", {self.network}, '
+                f' {self.price})')
