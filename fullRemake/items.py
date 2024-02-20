@@ -140,7 +140,7 @@ class Phone(Item):
 
         if self.model >= 14 and self.country == '🇺🇸':
             self.market = 'us'
-        elif self.country == '🇨🇳':
+        elif self.country == '🇨🇳'or self.country == '🇭🇰':
             self.market = 'cn'
         else:
             self.market = 'others'
