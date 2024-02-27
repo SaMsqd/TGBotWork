@@ -50,9 +50,9 @@ class Item:
         """
         pass
 
-    def generate_sql(self, table_name):
+    def generate_sql(self):
         """
-        Генерирует строку-команду SQL, которую просто нужно будет выполнить, чтобы добавить устройства в БД
+        Генерирует значения, которые нужно вставить после ключевго sql-слова values
         :param str table_name: название таблицы
         :return: str
         """

@@ -1,6 +1,5 @@
 # Для каждого пользователя создавать свою бд и делать все товары в одной бд, но в разных таблицах
 # Создать метод для иннициации бд и создания таблиц
-import asyncio
 import sqlite3
 from fullRemake.items import Item
 from fullRemake.items import Phone
@@ -8,6 +7,8 @@ from fullRemake.items import Ipad
 from fullRemake.items import Airpod
 from fullRemake.items import Macbook
 from fullRemake.items import Watch
+
+
 class Database:
     def __init__(self, db_name):
         self.connection = sqlite3.connect(f'./files/{db_name}.db')
@@ -81,6 +82,3 @@ class Database:
                                 Watch(int(item[0]), str(item[1]), str(item[2]), str(item[3]), int(item[4]),int(item[5]))]
             k+=1
         return(all_items)
-
-
-
