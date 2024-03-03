@@ -246,7 +246,7 @@ class Parser:
 
         for storage in Macbooks.storages:
             if storage in macbook:
-                res_dict['storage'] = storage
+                res_dict['storage'] = int(storage.replace('тб', '').replace('tb', '').replace('gb', '').replace('гб', ''))
                 macbook = macbook.replace(storage, '')
                 break
         else:
@@ -275,7 +275,7 @@ class Parser:
 
         for storage in Ipads.storages:
             if storage in ipad:
-                res_dict['storage'] = storage
+                res_dict['storage'] = int(storage.replace('тб', '').replace('tb', '').replace('gb', '').replace('гб', ''))
                 ipad = ipad.replace(storage, '')
                 break
         else:
