@@ -55,6 +55,16 @@ class Ipads:
     networks = ['wifi', 'wi-fi', 'wi fi', 'lte']
     # Страну игнорируем
 
+
+class Playstation:
+    play_station_models = ['slim digital', 'slim', '1208a', 'xbox x']
+    headphones = ['puls 3d']
+    gamepads = ['edge', 'white', 'black', 'red', 'blue', 'camouflage', 'purple', 'чёрный', 'белый', 'gold shadow',
+                'красный', 'голубой', 'камуфляж', 'розовый', 'фиолетовый']
+    stations = ['док станция']
+    wheels = ['g29']
+    vrs = ['vr2']
+
 def delete_flag(data: str) -> str:
     for el in Phones.COUNTRIES[0]:
         data = data.replace(el, "")

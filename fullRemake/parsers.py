@@ -7,7 +7,7 @@ class Parser:
     @staticmethod
     def get_data_from_string(phone_data: str) -> dict[str: str]:
         res_dict = dict()
-        phone_data = phone_data.lower().replace("-", " ").replace('iphone', '')
+        phone_data = phone_data.lower().replace("-", " ").replace('iphone', '').replace('apple', '')
 
         for COLOR in COLORS:
             if COLOR in phone_data.lower():
@@ -330,9 +330,6 @@ class Parser:
 
             elif Parser.is_watch(position):
                 return Parser.parse_watches(position), 'watch'
-
-            elif Parser.is_playstation(position):
-                return Parser.parse_playstation(position), 'playstation'
 
             # Телефоны идут в else, так как я не смог придумать для них нормальную проверку. Но и так должно работать
             # нормально, так как для них создан очень чувствительный парсер

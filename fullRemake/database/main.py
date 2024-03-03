@@ -111,11 +111,11 @@ class Database:
 
     def clear(self):
         self.cursor.execute('DROP TABLE IF EXISTS Phones')
-        self.cursor.execute('DROP TABLE IF NOT EXISTS Watches')
-        self.cursor.execute('DROP TABLE IF NOT EXISTS Airpods')
-        self.cursor.execute('DROP TABLE IF NOT EXISTS Macbooks')
-        self.cursor.execute('DROP TABLE IF NOT EXISTS Ipads')
-        self.cursor.execute('DROP TABLE IF NOT EXISTS Playstations')
+        self.cursor.execute('DROP TABLE IF EXISTS Watches')
+        self.cursor.execute('DROP TABLE IF EXISTS Airpods')
+        self.cursor.execute('DROP TABLE IF EXISTS Macbooks')
+        self.cursor.execute('DROP TABLE IF EXISTS Ipads')
+        self.cursor.execute('DROP TABLE IF EXISTS Playstations')
         self.connection.commit()
         self.create_tables()
 

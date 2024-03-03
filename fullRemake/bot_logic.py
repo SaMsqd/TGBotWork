@@ -130,8 +130,15 @@ def table_retail(message: Message):
 
 @bot.message_handler(commands=['/playstation'])
 def playstation(message: Message):
-    pass
+    bot.send_message(chat_id=message.chat.id, text='Отправьте прайс:')
+    bot.register_next_step_handler(message, playstation_handler)
 
+
+
+def playstation_handler(message: Message):
+    db = Database('id' + str(message.chat.id))
+    data = message.text.lower()
+    parsers.Parser.parse_playstation(data)
 
 @bot.message_handler(content_types=['text'])
 def parse(message: Message):
