@@ -51,6 +51,7 @@ class Database:
         string_items = items[0].generate_sql()
         for i in range(len(items)-1):
             string_items += ',' + items[i+1].generate_sql()
+        print(string_items)
         self.cursor.execute(f'insert into {item_name} values{string_items}')
         self.connection.commit()
 

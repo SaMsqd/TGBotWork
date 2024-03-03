@@ -1,7 +1,7 @@
 import telebot
 from telebot.types import Message
 
-from fullRemake import parsers, items
+from fullRemake import parsers, items, item_patterns
 from fullRemake.database.main import Database
 from fullRemake.keyboard import Keyboard as keyboard
 
@@ -130,15 +130,41 @@ def table_retail(message: Message):
 
 @bot.message_handler(commands=['/playstation'])
 def playstation(message: Message):
-    bot.send_message(chat_id=message.chat.id, text='Отправьте прайс:')
-    bot.register_next_step_handler(message, playstation_handler)
-
-
-
-def playstation_handler(message: Message):
-    db = Database('id' + str(message.chat.id))
     data = message.text.lower()
-    parsers.Parser.parse_playstation(data)
+    play_stations = list()
+    headphones = list()
+    stations = list()
+    wheels = list()
+    vrs = list()
+
+    for play_station_model in item_patterns.Playstation.play_station_models:
+        if play_station_model in data:
+            play_stations.append(play_station_model)
+            data = data.replace(play_station_model, '')
+
+    for headphone in item_patterns.Playstation.headphones:
+        if headphone in data:
+            headphones.append(headphone)
+            data = data.replace(headphone, '')
+
+    for station in item_patterns.Playstation.stations:
+        if station in data:
+            stations.append(station)
+            data = data.replace(station, '')
+
+    for wheel in item_patterns.Playstation.wheels:
+        if wheel in data:
+            wheels.append(wheel)
+            data = data.replace(wheel, '')
+
+    for vr in item_patterns.Playstation.vrs:
+        if vr in data:
+            vrs.append(vr)
+            data = data.replace(vr, '')
+
+    data = data.replace('\n\n', '\n')
+
+
 
 @bot.message_handler(content_types=['text'])
 def parse(message: Message):
@@ -164,7 +190,7 @@ def parse(message: Message):
 
             elif item_name == 'airpod':
                 airpods.append(
-                    items.Airpod(result['model'], result['case'], result['year'], result['price'])
+                    items.Airpod(result['model'], result.get('case', 'None'), result.get('year', 10), result['price'])
                 )
 
             elif item_name == 'macbook':

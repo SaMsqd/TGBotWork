@@ -116,7 +116,7 @@ class Airpod(Item):
                 f'↔️ {make_price_beautiful(self.price + 1000)}')
 
     def generate_sql(self):
-        return (f'({self.model},"{self.case}", {self.year}, {self.price})')
+        return (f'("{self.model}","{self.case}", {self.year}, {self.price})')
 
 
 class Macbook(Item):
@@ -216,6 +216,7 @@ class Ipad(Item):
         return (f'("{self.model}", "{self.storage}", '
                 f' "{self.color}", "{self.network}", '
                 f' {self.price})')
+
 
 class Playstation:
     def __init__(self, type, name, price):
