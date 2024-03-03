@@ -1,4 +1,5 @@
 from exceptions import ParseException
+from fullRemake import item_patterns
 from item_patterns import *
 
 
@@ -6,13 +7,16 @@ class Parser:
     @staticmethod
     def get_data_from_string(phone_data: str) -> dict[str: str]:
         res_dict = dict()
-        phone_data = phone_data.lower().replace("-", " ")
+        phone_data = phone_data.lower().replace("-", " ").replace('iphone', '')
+
         for COLOR in COLORS:
             if COLOR in phone_data.lower():
                 res_dict["color"] = COLOR.capitalize()
                 phone_data = phone_data.replace(COLOR, "")
                 break
+        phone_data = phone_data.strip()
         price_index = Parser.get_price_index(phone_data)
+
         for STORAGE in Phones.STORAGE:
             if STORAGE in phone_data[0: price_index]:
                 if STORAGE == "1tb" or STORAGE == "1":
@@ -22,19 +26,22 @@ class Parser:
                     res_dict["storage"] = STORAGE + "GB"
                     phone_data = phone_data.replace(STORAGE, "", 1)
                 break
+
         price_index = Parser.get_price_index(phone_data)
+
         for NAME in Phones.MODELS:
             if NAME in phone_data.lower()[0: price_index]:
-                res_dict["name"] = NAME.capitalize()
+                res_dict["model"] = NAME.capitalize()
                 phone_data = phone_data.replace(NAME, "", 1)
-                break
+
+
         for VERSION in Phones.VERSIONS:
             if VERSION in phone_data:
-                res_dict["model"] = VERSION.capitalize()
+                res_dict["version"] = VERSION.capitalize()
                 phone_data = phone_data.replace(VERSION, "")
                 break
         else:
-            res_dict["model"] = ""
+            res_dict["version"] = ""
 
         if "iphone" in phone_data:
             phone_data = phone_data.replace("iphone", "")
@@ -46,8 +53,7 @@ class Parser:
                 for el in phone_data[0]:
                     if el.isdigit():
                         res_dict["price"] += el
-                    else:
-                        res_dict["country"] += el
+                res_dict["country"] = phone_data[0].replace(item_patterns.delete_flag(phone_data[0]), '')
             except IndexError:
                 return {"exception": "IndexError"}
         else:
@@ -56,8 +62,8 @@ class Parser:
                     for el in i:
                         if el.isdigit():
                             res_dict["price"] += el
-                        else:
-                            res_dict["country"] += el
+                    if res_dict["country"] == '' and not i.isdigit():
+                        res_dict["country"] = i
             except IndexError:
                 return {"exception": "indexError"}
         return res_dict
@@ -77,7 +83,7 @@ class Parser:
     @staticmethod
     def get_price_index(data: str) -> int:
         base = data
-        data = data.replace(".", "").replace(",", "").replace('-', ' ').replace('(', ' ')
+        data = data.replace(".", "").replace(",", "").replace('-', ' ').replace('(', '').replace(')', ' ')
         price_index = 0
         for el in data.split():
             if el.isdigit() or Parser.delete_flag(el).isdigit():
@@ -90,15 +96,15 @@ class Parser:
             data = Parser.get_data_from_string(phone)
             data["storage"] = data["storage"].replace("тбGB", "TB").replace("GB", "").replace("TB", "")
             # Заказчик попросил, произвести некоторые изменения
-            if data["name"] == '13' and (data["color"] == "Black" or data["color"] == "White") and \
-                    (data["model"] == "Plus" or data["model"] == "") or \
-                    data["name"] == '14' and (data["color"] == "Black" or data["color"] == "White") and \
-                    (data["model"] == "Plus" or data["model"] == ""):
+            if data["model"] == '13' and (data["color"] == "Black" or data["color"] == "White") and \
+                    (data["version"] == "Plus" or data["version"] == "") or \
+                    data["model"] == '14' and (data["color"] == "Black" or data["color"] == "White") and \
+                    (data["model"] == "Plus" or data["version"] == ""):
                 data["color"] = ["Midnight" if data["color"] == "Black" else "Starlight"][0]
             if data["color"] == "Silver":
                 data["color"] = "White"
-            if data["model"] == "Max" or data["model"] == "Pro":
-                data["model"] = "Pro max"
+            if data["version"] == "Max" or data["version"] == "Pro":
+                data["version"] = "Pro max"
             if data["storage"] == "1":
                 data["storage"] = "1024"
         except KeyError or ValueError:
@@ -255,11 +261,11 @@ class Parser:
 
     @staticmethod
     def parse_ipads(ipad: str) -> dict:
-        ipad = ipad.lower()
+        ipad = ipad.lower().replace('109', '10').replace('5th', '5')
         res_dict = dict()
         res_dict['price'] = ''
         for model in Ipads.models:
-            if model in ipad[:Parser.get_price_index(ipad)]:
+            if model + ' ' in ipad[:Parser.get_price_index(ipad)]:
                 res_dict['model'] = model
                 ipad = ipad.replace(model, '', 1)
                 break
@@ -297,3 +303,88 @@ class Parser:
                 res_dict['price'] = res_dict['price'] + symb
 
         return res_dict
+
+    @staticmethod
+    def parse_playstation(position):
+        pass
+
+    @staticmethod
+    def parse_router(position):
+        """
+
+        :param str position: Строка для парсинга товара
+        :return dict, str: В словаре будут все данные + название товара
+        """
+        try:
+            if Parser.is_macbook(position):
+                return Parser.parse_macbooks(position), 'macbook'
+
+            elif 'iphone' in position.lower():
+                return Parser.parse_phones(position), 'phone'
+
+            elif Parser.is_ipad(position):
+                return Parser.parse_ipads(position), 'ipad'
+
+            elif Parser.is_airpod(position):
+                return Parser.parse_airpods(position), 'airpod'
+
+            elif Parser.is_watch(position):
+                return Parser.parse_watches(position), 'watch'
+
+            elif Parser.is_playstation(position):
+                return Parser.parse_playstation(position), 'playstation'
+
+            # Телефоны идут в else, так как я не смог придумать для них нормальную проверку. Но и так должно работать
+            # нормально, так как для них создан очень чувствительный парсер
+            else:
+                return Parser.parse_phones(position), 'phone'
+
+        except ParseException:
+            return f'Ошибка в парсинге: {position}'
+
+
+    @staticmethod
+    def is_watch(data: str) -> bool:
+        data = data.lower()
+        for model in Watches.models:
+            for size in Watches.sizes:
+                if ((model in data[:Parser.get_price_index(data)] and size in data[:Parser.get_price_index(data)])
+                        or 'watch' in data or 'aw' in data or 'apple' in data):
+                    return True
+        return False
+
+    @staticmethod
+    def is_airpod(data: str) -> bool:
+        data = data.lower()
+        for model in Airpods.models:
+            for case in Airpods.cases:
+                if ('airpods' in data) or (model in data.split() and case in data):
+                    return True
+        return False
+
+    @staticmethod
+    def is_macbook(data: str) -> bool:
+        data = data.lower()
+        for serial_number in Macbooks.serial_numbers:
+            if serial_number in data:
+                return True
+        for model in Macbooks.models:
+            for cpu in Macbooks.cpus:
+                if (model in data and cpu in data) or \
+                        ('mb' in data or 'macbook' in data or 'mac book' in data):
+                    return True
+        return False
+
+    @staticmethod
+    def is_ipad(data: str) -> bool:
+        data = data.lower()
+        for model in Ipads.models:
+            for network in Ipads.networks:
+                if ('ipad' in data) or (network in data and \
+                                        ((not model.isdigit()) and model in data)):
+                    return True
+        return False
+
+    @staticmethod
+    def is_playstation(data: str) -> bool:
+        pass

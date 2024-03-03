@@ -1,16 +1,15 @@
-priorities = {
-    'storage':
-        {
-            "64": 0,
-            "128": 1,
-            "256": 2,
-            "512": 3,
-            "1": 4,
-            "1024": 4,
-            "2": 5,
-            "2048": 5
-        }
-}
+def make_price_beautiful(price):
+    rl_price = list(str(price))
+    rl_price.reverse()
+    res = ""
+    for i in range(len(rl_price)):
+        if (i + 1) % 3 == 0:
+            res += rl_price[i] + "."
+        else:
+            res += rl_price[i]
+    if res[-1] == ".":
+        res = res[:-1]
+    return res[::-1]
 
 
 class Item:
@@ -36,10 +35,13 @@ class Item:
         :return:
         :raise TypeError
         """
-        for k, v in d.items():
-            if not isinstance(k, v):
-                name = f'{k=}'.split('=')[0]
-                raise TypeError(f'переменная {name} должна быть типа {v}')
+        # for pair in list(d.items())[0]:
+        #     print(pair)
+        #     if not isinstance(pair[0], pair[1]):
+        #
+        #         name = f'{pair[0]=}'.split('=')[0]
+        #         raise TypeError(f'переменная {name} должна быть типа {pair[1]}')
+        pass
 
     def generate_str(self):
         """
@@ -77,10 +79,18 @@ class Watch(Item):
 
     def generate_str(self):
         return (f'{self.model} {self.year} {self.size} {self.strap_size} '
-                f'{self.color} - {self.price}')
+                f'{self.color} - {make_price_beautiful(self.price)}')
+
+    def generate_opt(self):
+        return (f'{self.model} {self.year} {self.size} {self.strap_size} '
+                f'{self.color} - {make_price_beautiful(self.price + 500)}')
+
+    def generate_retail(self):
+        return (f'{self.model} {self.year} {self.size} {self.strap_size} '
+                f'{self.color} - {make_price_beautiful(self.price + 500)} ↔️ {make_price_beautiful(self.price + 1000)}')
 
     def generate_sql(self):
-        return (f'({self.model},"{self.size}", "{self.color}", "{self.strap_size}", {self.year}, {self.price})')
+        return (f'("{self.model}","{self.size}", "{self.color}", "{self.strap_size}", {self.year}, {self.price})')
 
 
 class Airpod(Item):
@@ -96,7 +106,14 @@ class Airpod(Item):
         self.year = year
 
     def generate_str(self):
-        return f'{self.model} {self. year} {self.case} - {self.price}'
+        return f'{self.model} {self. year} {self.case} - {make_price_beautiful(self.price)}'
+
+    def generate_opt(self):
+        return f'{self.model} {self. year} {self.case} - {make_price_beautiful(self.price + 500)}'
+
+    def generate_retail(self):
+        return (f'{self.model} {self.year} {self.case} - {make_price_beautiful(self.price + 500)} '
+                f'↔️ {make_price_beautiful(self.price + 1000)}')
 
     def generate_sql(self):
         return (f'({self.model},"{self.case}", {self.year}, {self.price})')
@@ -116,10 +133,17 @@ class Macbook(Item):
         self.storage = storage
 
     def generate_str(self):
-        return f'{self.model} {self.cpu} {self.storage} {self.color} - {self.price}'
+        return f'{self.model} {self.cpu} {self.storage} {self.color} - {make_price_beautiful(self.price)}'
+
+    def generate_opt(self):
+        return f'{self.model} {self.cpu} {self.storage} {self.color} - {make_price_beautiful(self.price + 500)}'
+
+    def generate_retail(self):
+        return (f'{self.model} {self.cpu} {self.storage} {self.color} - {make_price_beautiful(self.price + 500)} '
+                f'↔️ {make_price_beautiful(self.price + 1000)}')
 
     def generate_sql(self):
-        return (f'({self.model},"{self.cpu}", "{self.color}", {self.storage},{self.price})')
+        return (f'("{self.model}","{self.cpu}", "{self.color}", {self.storage},{self.price})')
 
 
 class Phone(Item):
@@ -138,7 +162,7 @@ class Phone(Item):
         self.storage = storage
         self.country = country
 
-        if self.model >= 14 and self.country == '🇺🇸':
+        if int(self.model) >= 14 and self.country == '🇺🇸':
             self.market = 'us'
         elif self.country == '🇨🇳'or self.country == '🇭🇰':
             self.market = 'cn'
@@ -146,8 +170,16 @@ class Phone(Item):
             self.market = 'others'
 
     def generate_str(self):
-        return (f'{self.model} {self.version} {self.color} {self.storage} '
-                f'- {self.country}{self.price}')
+        return (f'{self.model} {self.version} {self.color} {self.storage} {self.country} '
+                f'- {make_price_beautiful(self.price)}')
+
+    def generate_opt(self):
+        return (f'{self.model} {self.version} {self.color} {self.storage} {self.country} '
+                f'- {make_price_beautiful(self.price + 500)}')
+
+    def generate_retail(self):
+        return (f'{self.model} {self.version} {self.color} {self.storage} {self.country} '
+                f'- {make_price_beautiful(self.price + 500)} ↔️ {make_price_beautiful(self.price + 1000)}')
 
     def generate_sql(self):
         return (f'({self.model}, "{self.version}", '
@@ -171,9 +203,23 @@ class Ipad(Item):
 
 
     def generate_str(self):
-        return f'{self.model} {self.storage} {self.network} {self.color} - {self.price}'
+        return f'{self.model} {self.storage} {self.network} {self.color} - {make_price_beautiful(self.price)}'
+
+    def generate_opt(self):
+        return f'{self.model} {self.storage} {self.network} {self.color} - {make_price_beautiful(self.price + 500)}'
+
+    def generate_retail(self):
+        return (f'{self.model} {self.storage} {self.network} {self.color} - {make_price_beautiful(self.price + 500)}'
+         f'↔️ {make_price_beautiful(self.price + 1000)}')
 
     def generate_sql(self):
         return (f'("{self.model}", "{self.storage}", '
-                f' "{self.color}", {self.network}, '
+                f' "{self.color}", "{self.network}", '
                 f' {self.price})')
+
+class Playstation:
+    def __init__(self, type, name, price):
+        self.type = type
+        self.name = name
+        self.price = price
+
