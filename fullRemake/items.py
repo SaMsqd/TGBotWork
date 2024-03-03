@@ -1,4 +1,4 @@
-priorities = {
+priorities_phone = {
     'storage':
         {
             "64": 0,
@@ -9,6 +9,79 @@ priorities = {
             "1024": 4,
             "2": 5,
             "2048": 5
+        },
+    'model':
+        {
+            "13": 1,
+            "14": 2
+        },
+    'version':
+        {
+            'Pro': 1
+        }
+}
+
+priorities_ipad = {
+    'networks':
+        {
+            'wifi': 1,
+            'wi fi': 1,
+            'wi-fi': 1,
+            'lte': 2
+        },
+    'model':
+        {
+            'mini 6': 1,
+            'mini 7': 2
+        },
+    'storage':
+        {
+            '64': 1
+        }
+}
+
+priorities_macbook = {
+    'model':
+        {
+            '13': 1
+        },
+    'cpu':
+        {
+            'm1':1
+        },
+    'storage':
+        {
+            '256':1
+        }
+}
+
+priorities_watch = {
+    'model':
+        {
+            'hz': 1
+        },
+    'size':
+        {
+            'hz': 1
+        },
+    'strap_size':
+        {
+            'hz': 1
+        },
+    'year':
+        {
+            'hz': 1
+        }
+}
+
+priorities_airpods = {
+    'model':
+        {
+            'hz': 1
+        },
+    'year':
+        {
+            'hz': 1
         }
 }
 
@@ -23,9 +96,9 @@ class Item:
         :return None
         :raise TypeError
         """
-        self.var_checker({model: int,
+        self.var_checker({model: str,
                           price: int})
-        self.model: int = model
+        self.model: str = model
         self.price: int = price
 
     @staticmethod
@@ -68,6 +141,8 @@ class Watch(Item):
         })
         super().__init__(model, price)
 
+        self.priority = int(str(priorities_watch['model'][model]) + str(priorities_watch['size'][size]) + str(priorities_watch['strap_size'][strap_size]) + str(priorities_watch['year'][year]))
+
         self.size = size
         self.color = color
         self.strap_size = strap_size
@@ -90,6 +165,8 @@ class Airpod(Item):
             case: str,
             year: int
         })
+
+        self.priority = int(str(priorities_airpods['model'][model]) + str(priorities_airpods['year'][year]))
 
         super().__init__(model, price)
         self.case = case
@@ -115,6 +192,8 @@ class Macbook(Item):
         self.color = color
         self.storage = storage
 
+        self.priority = int(str(priorities_macbook['model'][model]) + str(priorities_macbook['cpu'][cpu]) + str(priorities_macbook['storage'][str(storage)]))
+
     def generate_str(self):
         return f'{self.model} {self.cpu} {self.storage} {self.color} - {self.price}'
 
@@ -132,13 +211,15 @@ class Phone(Item):
             country: str
         })
 
+        self.priority = int(str(priorities_phone['model'][model]) + str(priorities_phone['version'][version]) + str(priorities_phone['storage'][str(storage)]))
+
         super().__init__(model, price)
         self.version = version
         self.color = color
         self.storage = storage
         self.country = country
 
-        if self.model >= 14 and self.country == '🇺🇸':
+        if int(self.model) >= 14 and self.country == '🇺🇸':
             self.market = 'us'
         elif self.country == '🇨🇳'or self.country == '🇭🇰':
             self.market = 'cn'
@@ -150,7 +231,7 @@ class Phone(Item):
                 f'- {self.country}{self.price}')
 
     def generate_sql(self):
-        return (f'({self.model}, "{self.version}", '
+        return (f'("{self.model}", "{self.version}", '
                 f' "{self.color}", {self.storage}, '
                 f'"{self.country}", "{self.market}" , {self.price})')
 
@@ -164,6 +245,8 @@ class Ipad(Item):
             network: str,
         })
 
+        self.priority = int(str(priorities_ipad['networks'][network]) + str(priorities_ipad['model'][model]) + str(priorities_ipad['storage'][str(storage)]))
+
         super().__init__(model, price)
         self.storage = storage
         self.color = color
@@ -174,6 +257,6 @@ class Ipad(Item):
         return f'{self.model} {self.storage} {self.network} {self.color} - {self.price}'
 
     def generate_sql(self):
-        return (f'("{self.model}", "{self.storage}", '
-                f' "{self.color}", {self.network}, '
+        return (f'("{self.model}", {self.storage}, '
+                f' "{self.color}", "{self.network}", '
                 f' {self.price})')
