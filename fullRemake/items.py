@@ -12,12 +12,22 @@ priorities_phone = {
         },
     'model':
         {
-            "13": 1,
-            "14": 2
+            "se3": 0,
+            "11": 1,
+            "12": 2,
+            "13": 3,
+            "14": 4,
+            "15": 5,
+            "16": 6,
         },
     'version':
         {
-            'Pro': 1
+            '': 0,
+            'Mini': 1,
+            'Pro': 2,
+            'Max':3,
+            'Pro max': 4,
+            'Plus': 5
         }
 }
 
@@ -32,58 +42,137 @@ priorities_ipad = {
     'model':
         {
             'mini 6': 1,
-            'mini 7': 2
+            'mini 7': 2,
+            '5': 3,
+            'air 5': 4,
+            '9': 5,
+            '10': 6,
+            'pro 11': 7,
+            'pro 12': 8
         },
     'storage':
         {
-            '64': 1
+            "64": 0,
+            "128": 1,
+            "256": 2,
+            "512": 3,
+            "1": 4,
+            "1024": 4,
+            "2": 5,
+            "2048": 5
         }
 }
 
 priorities_macbook = {
     'model':
         {
-            '13': 1
+            '13': 1,
+            '14': 2,
+            'pro 14': 2,
+            'air 14': 2,
+            '15': 3,
+            'air 15': 3,
+            'pro 15': 3,
+            '16': 4,
+            'pro 16': 4,
+            'air 16': 4,
         },
     'cpu':
         {
-            'm1':1
+            'm1': 1,
+            'm2': 2,
+            'm3': 3,
         },
     'storage':
         {
-            '256':1
+            "64": 0,
+            "128": 1,
+            "256": 2,
+            "512": 3,
+            "1": 4,
+            "1024": 4,
+            "2": 5,
+            "2048": 5
         }
 }
 
 priorities_watch = {
     'model':
         {
-            'hz': 1
+            'se': 1,
+            's8': 2,
+            's9': 3,
+            'series 9': 4,
+            '9' : 4,
+            'ultra': 5,
+            'ultra 2': 6
         },
     'size':
         {
-            'hz': 1
+            '40': 1,
+            '41': 2,
+            '44': 3,
+            '45': 4,
+            '49': 5
         },
     'strap_size':
         {
-            'hz': 1
+            's/m': 1,
+            'sm': 1,
+            's': 2,
+            'm/l': 3,
+            'ml': 3,
+            'sport loop': 4
         },
     'year':
         {
-            'hz': 1
+            '2020': 1,
+            '2021': 2,
+            '2022': 3,
+            '2023': 4,
+            '2024': 4,
+            '2025': 5,
         }
 }
 
 priorities_airpods = {
     'model':
         {
-            'hz': 1
+            'pro 2 lightning': 1,
+            '2022': 1,
+            'max': 2,
+            'pro': 2,
+            'pro 2': 3,
+            '2': 3,
+            '3': 4,
+            'pro 2 type c': 5,
+            '2023': 5
         },
     'year':
         {
-            'hz': 1
+            '10': 9999,
+            '2018': 1,
+            '2019': 2,
+            '2020': 3,
+            '2021': 4,
+            '2022': 5,
+            '2023': 6,
+            '2024': 7,
         }
 }
+
+def make_price_beautiful(price):
+    rl_price = list(str(price))
+    rl_price.reverse()
+    res = ""
+    for i in range(len(rl_price)):
+        if (i + 1) % 3 == 0:
+            res += rl_price[i] + "."
+        else:
+            res += rl_price[i]
+    if res[-1] == ".":
+        res = res[:-1]
+    return res[::-1]
 
 
 class Item:
@@ -109,10 +198,7 @@ class Item:
         :return:
         :raise TypeError
         """
-        for k, v in d.items():
-            if not isinstance(k, v):
-                name = f'{k=}'.split('=')[0]
-                raise TypeError(f'переменная {name} должна быть типа {v}')
+        pass
 
     def generate_str(self):
         """
@@ -141,7 +227,7 @@ class Watch(Item):
         })
         super().__init__(model, price)
 
-        self.priority = int(str(priorities_watch['model'][model]) + str(priorities_watch['size'][size]) + str(priorities_watch['strap_size'][strap_size]) + str(priorities_watch['year'][year]))
+        self.priority = int(str(priorities_watch['model'][model]) + str(priorities_watch['size'][size]) + str(priorities_watch['strap_size'][strap_size]) + str(priorities_watch['year'][str(year)]))
 
         self.size = size
         self.color = color
@@ -155,7 +241,19 @@ class Watch(Item):
                 f'{self.color} - {self.price}')
 
     def generate_sql(self):
-        return (f'({self.model},"{self.size}", "{self.color}", "{self.strap_size}", {self.year}, {self.price})')
+        return f'("{self.model}","{self.size}", "{self.color}", "{self.strap_size}", {self.year}, {self.price})'
+
+    def generate_opt(self):
+        return (f'{self.model} {self.year} {self.size} {self.strap_size} '
+                f'{self.color} - {make_price_beautiful(self.price + 500)}')
+
+    def generate_opt(self):
+        return (f'{self.model} {self.year} {self.size} {self.strap_size} '
+                f'{self.color} - {make_price_beautiful(self.price + 1000)}')
+
+    def generate_retail(self):
+        return (f'{self.model} {self.year} {self.size} {self.strap_size} '
+                f'{self.color} - {make_price_beautiful(self.price + 500)} ↔️ {make_price_beautiful(self.price + 1000)}')
 
 
 class Airpod(Item):
@@ -166,17 +264,27 @@ class Airpod(Item):
             year: int
         })
 
-        self.priority = int(str(priorities_airpods['model'][model]) + str(priorities_airpods['year'][year]))
+        self.priority = int(str(priorities_airpods['model'][str(model)]) + str(priorities_airpods['year'][str(year)]))
 
         super().__init__(model, price)
         self.case = case
         self.year = year
 
     def generate_str(self):
-        return f'{self.model} {self. year} {self.case} - {self.price}'
+        return f'{self.model} {self.year} {self.case} - {self.price}'
+
+    def generate_opt(self):
+        return f'{self.model} {self. year} {self.case} - {make_price_beautiful(self.price + 500)}'
+
+    def generate_1000(self):
+        return f'{self.model} {self. year} {self.case} - {make_price_beautiful(self.price + 1000)}'
+
+    def generate_retail(self):
+        return (f'{self.model} {self.year} {self.case} - {make_price_beautiful(self.price + 500)} '
+                f'↔️ {make_price_beautiful(self.price + 1000)}')
 
     def generate_sql(self):
-        return (f'({self.model},"{self.case}", {self.year}, {self.price})')
+        return (f'("{self.model}","{self.case}", {self.year}, {self.price})')
 
 
 class Macbook(Item):
@@ -197,8 +305,19 @@ class Macbook(Item):
     def generate_str(self):
         return f'{self.model} {self.cpu} {self.storage} {self.color} - {self.price}'
 
+    def generate_opt(self):
+        return f'{self.model} {self.cpu} {self.storage} {self.color} - {make_price_beautiful(self.price + 500)}'
+
+    def generate_1000(self):
+        return f'{self.model} {self.cpu} {self.storage} {self.color} - {make_price_beautiful(self.price + 1000)}'
+
+    def generate_retail(self):
+        return (f'{self.model} {self.cpu} {self.storage} {self.color} - {make_price_beautiful(self.price + 500)} '
+                f'↔️ {make_price_beautiful(self.price + 1000)}')
+
+
     def generate_sql(self):
-        return (f'({self.model},"{self.cpu}", "{self.color}", {self.storage},{self.price})')
+        return f'("{self.model}","{self.cpu}", "{self.color}", {self.storage},{self.price})'
 
 
 class Phone(Item):
@@ -230,6 +349,18 @@ class Phone(Item):
         return (f'{self.model} {self.version} {self.color} {self.storage} '
                 f'- {self.country}{self.price}')
 
+    def generate_opt(self):
+        return (f'{self.model} {self.version} {self.color} {self.storage} {self.country} '
+                f'- {make_price_beautiful(self.price + 500)}')
+
+    def generate_1000(self):
+        return (f'{self.model} {self.version} {self.color} {self.storage} {self.country} '
+                f'- {make_price_beautiful(self.price + 1000)}')
+
+    def generate_retail(self):
+        return (f'{self.model} {self.version} {self.color} {self.storage} {self.country} '
+                f'- {make_price_beautiful(self.price + 500)} ↔️ {make_price_beautiful(self.price + 1000)}')
+
     def generate_sql(self):
         return (f'("{self.model}", "{self.version}", '
                 f' "{self.color}", {self.storage}, '
@@ -255,6 +386,16 @@ class Ipad(Item):
 
     def generate_str(self):
         return f'{self.model} {self.storage} {self.network} {self.color} - {self.price}'
+
+    def generate_opt(self):
+        return f'{self.model} {self.storage} {self.network} {self.color} - {make_price_beautiful(self.price + 500)}'
+
+    def generate_1000(self):
+        return f'{self.model} {self.storage} {self.network} {self.color} - {make_price_beautiful(self.price + 1000)}'
+
+    def generate_retail(self):
+        return (f'{self.model} {self.storage} {self.network} {self.color} - {make_price_beautiful(self.price + 500)}'
+         f'↔️ {make_price_beautiful(self.price + 1000)}')
 
     def generate_sql(self):
         return (f'("{self.model}", {self.storage}, '

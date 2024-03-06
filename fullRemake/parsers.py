@@ -48,12 +48,19 @@ class Parser:
         phone_data = phone_data.replace("  ", " ").replace("-", " ").replace(".", "").replace(",", "").split()
         res_dict["price"] = ""
         res_dict["country"] = ""
+        buff = ''
         if len(phone_data) == 1:
             try:
-                for el in phone_data[0]:
-                    if el.isdigit():
-                        res_dict["price"] += el
-                res_dict["country"] = phone_data[0].replace(item_patterns.delete_flag(phone_data[0]), '')
+                for i in phone_data:
+                    for el in i:
+                        if el.isdigit():
+                            buff += el
+                    if buff.isdigit() and int(buff) > 1000:
+                        res_dict['price'] = buff
+                    elif res_dict["country"] == '' and not buff.isdigit():
+                        res_dict["country"] = i
+                    buff = ''
+
             except IndexError:
                 return {"exception": "IndexError"}
         else:
@@ -107,6 +114,9 @@ class Parser:
                 data["version"] = "Pro max"
             if data["storage"] == "1":
                 data["storage"] = "1024"
+            for el in data['country'][::-1]:
+                if el not in Phones.COUNTRIES or el.isdigit():
+                    data.country = data['country'].replace(el, '')
         except KeyError or ValueError:
             raise ParseException
             # О да! Я отлавливаю две ошибки и объединяю их в мою одну, чтобы
@@ -204,9 +214,29 @@ class Parser:
                 res_dict['case'] = case
                 break
 
-        for symb in airpod[Parser.get_price_index(airpod):]:
-            if symb.isdigit():
-                res_dict['price'] = res_dict['price'] + symb
+        airpod = airpod.replace("  ", " ").replace("-", " ").replace(".", "").replace(",", "").split()
+        res_dict["price"] = ""
+        buff = ''
+        if len(airpod) == 1:
+            try:
+                for el in airpod[0]:
+                    if el.isdigit():
+                        res_dict["price"] += el
+                res_dict["country"] = airpod[0].replace(item_patterns.delete_flag(airpod[0]), '')
+            except IndexError:
+                return {"exception": "IndexError"}
+        else:
+            try:
+                for i in airpod:
+                    for el in i:
+                        if el.isdigit():
+                            buff += el
+                    if buff.isdigit() and int(buff) > 1000:
+                        res_dict['price'] = buff
+                    buff = ''
+
+            except IndexError:
+                return {"exception": "indexError"}
 
         return res_dict
     @staticmethod

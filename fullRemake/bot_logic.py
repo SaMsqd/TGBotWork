@@ -3,6 +3,8 @@ from telebot.types import Message
 
 from fullRemake import parsers, items, item_patterns
 from fullRemake.database.main import Database
+
+
 from fullRemake.keyboard import Keyboard as keyboard
 
 
@@ -41,7 +43,8 @@ def number(message: Message):
                  len(db.get_all("Airpods")), len(db.get_all("Macbooks")), len(db.get_all("Watches"))]))
     bot.send_message(
         chat_id=message.chat.id,
-        text=text
+        text=text,
+        reply_markup=keyboard
         )
 
 
@@ -65,15 +68,20 @@ def table_best(message: Message):
         if len(items[key]) > 0:
             text += key + '\n'
             for item in items[key]:
-                if len(text) + len(item.generate_str()) > 4000:
-                    bot.send_message(chat_id=message.chat.id, text=text)
-                    text = ''
-                text += '\n' + item.generate_str()
 
                 if hasattr(item, 'model') and item.model != model or \
                    hasattr(item, 'storage') and storage != item.storage or \
                    hasattr(item, 'version') and version != item.version:
                     text += '\n'
+
+                if len(text) + len(item.generate_str()) > 4000:
+                    bot.send_message(chat_id=message.chat.id, text=text.replace('None', ''))
+                    text = ''
+                if hasattr(item, 'year') and int(item.year) == 10:
+                    text += '\n' + item.generate_str().replace('10', '')
+                else:
+                    text += '\n' + item.generate_str()
+
 
                 if hasattr(item, 'version') and version != item.version:
                     version = item.version
@@ -91,7 +99,7 @@ def table_best(message: Message):
             storage = ''
             model = ''
     if len(text) != 0:
-        bot.send_message(chat_id=message.chat.id, text=text)
+        bot.send_message(chat_id=message.chat.id, text=text.replace(' None ', ''), reply_markup=keyboard)
 
 
 
@@ -100,13 +108,89 @@ def table_opt(message: Message):
     db = Database('id'+str(message.chat.id))
     items = db.get_sorted_items()
     text = ''
-    for item in items:
-        while len(text) + len(item.generate_str) + 3 < 4092:
-            text += '\n' + item.generate_opt
-            if item == items[-1]:
-                break
-        bot.send_message(chat_id=message.chat.id, text=text)
-        text = ''
+    version = ''
+    storage = 00
+    model = ''
+    for key in items.keys():
+        if len(items[key]) > 0:
+            text += key + '\n'
+            for item in items[key]:
+
+                if hasattr(item, 'model') and item.model != model or \
+                   hasattr(item, 'storage') and storage != item.storage or \
+                   hasattr(item, 'version') and version != item.version:
+                    text += '\n'
+
+                if len(text) + len(item.generate_opt()) > 4000:
+                    bot.send_message(chat_id=message.chat.id, text=text.replace('None', ''))
+                    text = ''
+                if hasattr(item, 'year') and int(item.year) == 10:
+                    text += '\n' + item.generate_opt().replace('10', '')
+                else:
+                    text += '\n' + item.generate_opt()
+
+
+                if hasattr(item, 'version') and version != item.version:
+                    version = item.version
+
+                if hasattr(item, 'storage') and storage != item.storage:
+                    storage = item.storage
+
+                if hasattr(item, 'model') and item.model != model:
+                    model = item.model
+
+
+            text += '\n\n\n'
+            version = ''
+            storage = ''
+            model = ''
+    if len(text) != 0:
+        bot.send_message(chat_id=message.chat.id, text=text.replace(' None ', ''), reply_markup=keyboard)
+
+
+@bot.message_handler(commands=['table_1000'])
+def table_1000(message: Message):
+    db = Database('id'+str(message.chat.id))
+    items = db.get_sorted_items()
+    text = ''
+    version = ''
+    storage = 00
+    model = ''
+    for key in items.keys():
+        if len(items[key]) > 0:
+            text += key + '\n'
+            for item in items[key]:
+
+                if hasattr(item, 'model') and item.model != model or \
+                   hasattr(item, 'storage') and storage != item.storage or \
+                   hasattr(item, 'version') and version != item.version:
+                    text += '\n'
+
+                if len(text) + len(item.generate_1000()) > 4000:
+                    bot.send_message(chat_id=message.chat.id, text=text.replace('None', ''))
+                    text = ''
+                if hasattr(item, 'year') and int(item.year) == 10:
+                    text += '\n' + item.generate_1000().replace('10', '')
+                else:
+                    text += '\n' + item.generate_1000()
+
+
+                if hasattr(item, 'version') and version != item.version:
+                    version = item.version
+
+                if hasattr(item, 'storage') and storage != item.storage:
+                    storage = item.storage
+
+                if hasattr(item, 'model') and item.model != model:
+                    model = item.model
+
+
+            text += '\n\n\n'
+            version = ''
+            storage = ''
+            model = ''
+    if len(text) != 0:
+        bot.send_message(chat_id=message.chat.id, text=text.replace(' None ', ''), reply_markup=keyboard)
 
 
 @bot.message_handler(commands=['table'])
@@ -116,20 +200,54 @@ def table(message: Message):
 
 @bot.message_handler(commands=['table_retail'])
 def table_retail(message: Message):
-    db = Database('id'+str(message.chat.id))
+    db = Database('id' + str(message.chat.id))
     items = db.get_sorted_items()
     text = ''
-    for item in items:
-        while len(text) + len(item.generate_str) + 3 < 4092:
-            text += '\n' + item.generate_retail
-            if item == items[-1]:
-                break
-        bot.send_message(chat_id=message.chat.id, text=text)
-        text = ''
+    version = ''
+    storage = 00
+    model = ''
+    for key in items.keys():
+        if len(items[key]) > 0:
+            text += key + '\n'
+            for item in items[key]:
+
+                if hasattr(item, 'model') and item.model != model or \
+                        hasattr(item, 'storage') and storage != item.storage or \
+                        hasattr(item, 'version') and version != item.version:
+                    text += '\n'
+
+                if len(text) + len(item.generate_retail()) > 4000:
+                    bot.send_message(chat_id=message.chat.id, text=text.replace('None', ''))
+                    text = ''
+                if hasattr(item, 'year') and int(item.year) == 10:
+                    text += '\n' + item.generate_retail().replace('10', '')
+                else:
+                    text += '\n' + item.generate_retail()
+
+                if hasattr(item, 'version') and version != item.version:
+                    version = item.version
+
+                if hasattr(item, 'storage') and storage != item.storage:
+                    storage = item.storage
+
+                if hasattr(item, 'model') and item.model != model:
+                    model = item.model
+
+            text += '\n\n\n'
+            version = ''
+            storage = ''
+            model = ''
+    if len(text) != 0:
+        bot.send_message(chat_id=message.chat.id, text=text.replace(' None ', ''))
 
 
-@bot.message_handler(commands=['/playstation'])
+@bot.message_handler(commands=['playstation'])
 def playstation(message: Message):
+    bot.send_message(chat_id=message.chat.id, text='Загрузите прайс')
+    bot.register_next_step_handler(message, _playstation)
+
+
+def _playstation(message: Message):
     data = message.text.lower()
     play_stations = list()
     headphones = list()
@@ -163,13 +281,19 @@ def playstation(message: Message):
             data = data.replace(vr, '')
 
     data = data.replace('\n\n', '\n')
+    print(play_stations, headphones, stations, wheels, vrs)
+    print(data)
 
 
 
 @bot.message_handler(content_types=['text'])
 def parse(message: Message):
-    data = (message.text.replace('\n\n', '\n').replace('₽', '').replace('.', '').replace('🚛', '')
-            .replace('р', '').lower().split('\n'))
+    if 'уценка' in message.text.lower():
+        data = message.text[:message.text.find('уценка')]
+        data = data.replace('\n\n', '\n').replace('₽', '').replace('.', '').replace('🚛', '').replace('р', '').lower().split('\n')
+    else:
+        data = message.text.replace('\n\n', '\n').replace('₽', '').replace('.', '').replace('🚛', '').replace('р', '').lower().split('\n')
+
     watches = list()
     airpods = list()
     macbooks = list()
@@ -190,7 +314,7 @@ def parse(message: Message):
 
             elif item_name == 'airpod':
                 airpods.append(
-                    items.Airpod(result['model'], result.get('case', 'None'), result.get('year', 10), result['price'])
+                    items.Airpod(result['model'], result.get('case', 'None'), result.get('year', '10'), result['price'])
                 )
 
             elif item_name == 'macbook':
@@ -218,6 +342,11 @@ def parse(message: Message):
 
         except ValueError:
             errors.append(pos)
+
+        except KeyError as ex:
+            print(ex, pos, item_name)
+            bot.send_message(chat_id=message.chat.id, text=f'Ошибка в списке проиоритетов, пожалуйста, отправьте строку'
+                                                           f'\n\n{pos}\n\nразработчику')
 
     db = Database('id'+str(message.chat.id))
 
