@@ -1,6 +1,7 @@
 from exceptions import ParseException
 from fullRemake import item_patterns
 from item_patterns import *
+import re
 
 
 class Parser:
@@ -114,9 +115,10 @@ class Parser:
                 data["version"] = "Pro max"
             if data["storage"] == "1":
                 data["storage"] = "1024"
-            for el in data['country'][::-1]:
-                if el not in Phones.COUNTRIES or el.isdigit():
-                    data.country = data['country'].replace(el, '')
+            if data['country']:
+                for el in data['country'][::-1]:
+                    if el not in Phones.COUNTRIES or el.isdigit():
+                        data['country'] = data['country'].replace(el, '')
         except KeyError or ValueError:
             raise ParseException
             # О да! Я отлавливаю две ошибки и объединяю их в мою одну, чтобы
@@ -174,6 +176,7 @@ class Parser:
                 res_dict['price'] = res_dict['price'] + symb
 
         return res_dict
+
     @staticmethod
     def parse_airpods(airpod: str) -> dict:
         airpod = airpod.replace('max', 'pro').lower()
@@ -213,7 +216,7 @@ class Parser:
             if case in airpod[:Parser.get_price_index(airpod)]:
                 res_dict['case'] = case
                 break
-
+        airpod = re.sub(r'(\d)\s+(\d)', r'\1\2', airpod)
         airpod = airpod.replace("  ", " ").replace("-", " ").replace(".", "").replace(",", "").split()
         res_dict["price"] = ""
         buff = ''
@@ -291,7 +294,7 @@ class Parser:
 
     @staticmethod
     def parse_ipads(ipad: str) -> dict:
-        ipad = ipad.lower().replace('109', '10').replace('5th', '5')
+        ipad = ipad.lower().replace('109', '10').replace('5th', '5').replace('cellular', 'lte')
         res_dict = dict()
         res_dict['price'] = ''
         for model in Ipads.models:

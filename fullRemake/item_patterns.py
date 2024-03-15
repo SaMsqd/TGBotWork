@@ -1,5 +1,5 @@
 COLORS = ["titanium olive", "black white", "deep purple", "light pink", "red", "purple", "green", "blue", "midnight", "starlight",
-          "pink", "yellow", "gold", "silver", "white", "titanium", "titan", "natural", "black", 'grey', 'gray', 'night'] # В макбуках серый написан как gray
+          "pink", "yellow", "gold", "silver", "white", "titanium", "titan", "natural", "black", 'grey', 'gray', 'night', 'star'] # В макбуках серый написан как gray
 
 '''
     Далее идут классы, описывающие свойства, которые могут быть у каждого из товаров.
@@ -20,12 +20,13 @@ class Watches:
     models = ['se', 's8', 's9', 'series 9', 'ultra 2', 'ultra', '9']
     sizes = ['40', '41', '44', '45', '49']
     colors = COLORS
-    strap_sizes = ['s/m', 'm/l', 'sm', 'ml', 'sport loop', 's']
+    strap_sizes = ['s/m', 'm/l', 'sm', 'ml', 'sport loop', 's', 'm']
     year = [str(year) for year in range(2020, 2025)]
     # Страну игнорируем
 
 
 class Airpods:
+    colors = COLORS
     models = ['pro 2 lightning', 'pro 2 type c', 'pro 2', 'max', 'pro', '2', '3']
     # !!! max = pro, pro 2 lightning = 2022, pro 2 type c = 2023
     cases = ['magsafe', 'charging']
@@ -49,7 +50,7 @@ class Macbooks:
 
 
 class Ipads:
-    models = ['mini 6', 'pro 12', 'pro 11', 'air 5', '5', '9', '10']
+    models = ['mini 6', 'pro 12', 'pro 11', 'air 5', '5', '9', '10', '102', '129']
     storages = ['64', '128', '256', '512', '1tb', '1тб', '1']
     COLORS = COLORS
     networks = ['wifi', 'wi-fi', 'wi fi', 'lte']

@@ -314,7 +314,8 @@ def parse(message: Message):
 
             elif item_name == 'airpod':
                 airpods.append(
-                    items.Airpod(result['model'], result.get('case', 'None'), result.get('year', '10'), result['price'])
+                    items.Airpod(result['model'], result.get('case', 'None'), result.get('year', '10'),
+                                 result.get('color', '10'), result['price'])
                 )
 
             elif item_name == 'macbook':

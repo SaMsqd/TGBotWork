@@ -235,7 +235,6 @@ class Watch(Item):
         self.year = year
 
 
-
     def generate_str(self):
         return (f'{self.model} {self.year} {self.size} {self.strap_size} '
                 f'{self.color} - {self.price}')
@@ -257,7 +256,7 @@ class Watch(Item):
 
 
 class Airpod(Item):
-    def __init__(self, model, case, year, price):
+    def __init__(self, model, case, year, color, price):
 
         self.var_checker({
             case: str,
@@ -267,24 +266,28 @@ class Airpod(Item):
         self.priority = int(str(priorities_airpods['model'][str(model)]) + str(priorities_airpods['year'][str(year)]))
 
         super().__init__(model, price)
+        self.color = color
         self.case = case
         self.year = year
 
     def generate_str(self):
-        return f'{self.model} {self.year} {self.case} - {self.price}'
+        return f'{self.model} {self.year} {self.case} {self.color} - {self.price}'
 
     def generate_opt(self):
-        return f'{self.model} {self. year} {self.case} - {make_price_beautiful(self.price + 500)}'
+        return f'{self.model} {self. year} {self.case} {self.color} - {make_price_beautiful(self.price + 500)}'
 
     def generate_1000(self):
-        return f'{self.model} {self. year} {self.case} - {make_price_beautiful(self.price + 1000)}'
+        return f'{self.model} {self. year} {self.case} {self.color} - {make_price_beautiful(self.price + 1000)}'
 
     def generate_retail(self):
-        return (f'{self.model} {self.year} {self.case} - {make_price_beautiful(self.price + 500)} '
-                f'↔️ {make_price_beautiful(self.price + 1000)}')
+        if self.color == '10':
+            return (f'{self.model} {self.year} {self.case} - {make_price_beautiful(self.price + 500)} '
+                    f'↔️ {make_price_beautiful(self.price + 1000)}')
+        return (f'{self.model} {self.year} {self.case} {self.color} - {make_price_beautiful(self.price + 500)} '
+                    f'↔️ {make_price_beautiful(self.price + 1000)}')
 
     def generate_sql(self):
-        return (f'("{self.model}","{self.case}", {self.year}, {self.price})')
+        return (f'("{self.model}","{self.case}", {self.year}, "{self.color}", {self.price})')
 
 
 class Macbook(Item):
