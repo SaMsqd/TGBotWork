@@ -22,7 +22,7 @@ class Database:
         self.cursor.execute(f'CREATE TABLE IF NOT EXISTS Watches(model int , size str ,\
         color str , strap_size str , year int , price int)')
         self.cursor.execute(f'CREATE TABLE IF NOT EXISTS Airpods(model str, cas str ,\
-        year int , price int)')
+        year int, color str, price int)')
         self.cursor.execute(f'CREATE TABLE IF NOT EXISTS Macbooks(model str , cpu str ,\
         color str , storage int , price int)')
         self.cursor.execute(f'CREATE TABLE IF NOT EXISTS Ipads(model str , network str ,\

@@ -372,8 +372,8 @@ class Parser:
         :return dict, str: В словаре будут все данные + название товара
         """
         try:
-            if Parser.is_macbook(position):
-                return Parser.parse_macbooks(position), 'macbook'
+            if Parser.is_airpod(position):
+                return Parser.parse_airpods(position), 'airpod'
 
             elif 'iphone' in position.lower():
                 return Parser.parse_phones(position), 'phone'
@@ -381,11 +381,11 @@ class Parser:
             elif Parser.is_ipad(position):
                 return Parser.parse_ipads(position), 'ipad'
 
-            elif Parser.is_airpod(position):
-                return Parser.parse_airpods(position), 'airpod'
-
             elif Parser.is_watch(position):
                 return Parser.parse_watches(position), 'watch'
+
+            elif Parser.is_macbook(position):
+                return Parser.parse_macbooks(position), 'macbook'
 
             # Телефоны идут в else, так как я не смог придумать для них нормальную проверку. Но и так должно работать
             # нормально, так как для них создан очень чувствительный парсер
