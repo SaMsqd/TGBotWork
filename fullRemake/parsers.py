@@ -88,9 +88,9 @@ class Parser:
 
     @staticmethod
     def delete_flag(data: str) -> str:
-        for el in Phones.COUNTRIES[0]:
+        for el in Phones.COUNTRIES[0][:-7]:
             data = data.replace(el, "")
-        return data
+        return data.replace(' ', '')
 
     @staticmethod
     def len_model_el(data: str, model: str) -> int:
@@ -249,9 +249,25 @@ class Parser:
             if res_dict['price'] == '':
                 return {'exception': 'priceError'}
         return res_dict
+
+    @staticmethod
+    def _recreate_string(macbook):
+        l = macbook.split('-')
+        if len(l) == 3:
+            for k, v in item_patterns.Macbooks.serial_numbers.items():
+                print(Parser.delete_flag(l[0].lower()))
+                if Parser.delete_flag(l[0].lower()) in v:
+                    return k + l[2].replace('pro', '').replace('air', '').replace('max', '') + '-' + l[1]
+        if len(l) > 3:
+            for k, v in item_patterns.Macbooks.serial_numbers.items():
+                if Parser.delete_flag(l[0]).lower() in v and l[1].replace(' ', '').isdigit():
+                    return k + ' ' + ''.join([x.replace('pro', '').replace('air', '').replace('max', '') for x in l[2:]]) + '-' + l[1]
+        return macbook
+
     @staticmethod
     def parse_macbooks(macbook: str) -> dict:
         macbook = macbook.lower().replace('2022', '').replace('2023', '')
+        macbook = Parser._recreate_string(macbook)
         res_dict = dict()
         res_dict['price'] = ''
 
@@ -402,9 +418,10 @@ class Parser:
     @staticmethod
     def is_macbook(data: str) -> bool:
         data = data.lower()
-        for serial_number in Macbooks.serial_numbers:
-            if serial_number in data:
-                return True
+        for k, v in item_patterns.Macbooks.serial_numbers.items():
+            for serial_number in v:
+                if serial_number in data:
+                    return True
         for model in Macbooks.models:
             for cpu in Macbooks.cpus:
                 if (model in data and cpu in data) or \

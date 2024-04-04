@@ -22,7 +22,7 @@ class Database:
         self.cursor.execute(f'CREATE TABLE IF NOT EXISTS Watches(model int , size str ,\
         color str , strap_size str , year int , price int)')
         self.cursor.execute(f'CREATE TABLE IF NOT EXISTS Airpods(model str, cas str ,\
-        year int , color str, price int)')
+        year int , price int)')
         self.cursor.execute(f'CREATE TABLE IF NOT EXISTS Macbooks(model str , cpu str ,\
         color str , storage int , price int)')
         self.cursor.execute(f'CREATE TABLE IF NOT EXISTS Ipads(model str , network str ,\
@@ -86,8 +86,8 @@ class Database:
                                 Ipad(str(item[0]), int(item[1]), str(item[2]), str(item[3]), int(item[4])),' ']
                 all_items[k][2] = all_items[k][1].priority
             elif items_name == 'Airpods':
-                all_items[k] = [str(item[0]) + str(item[1]) + str(item[2]) + str(item[3]), \
-                                Airpod(item[0], item[1], int(item[2]), item[3], int(item[4])), ' ']
+                all_items[k] = [str(item[0]) + str(item[1]) + str(item[2]), \
+                                Airpod(item[0], item[1], int(item[2]),  str(item[3]), int(item[4])), ' ']
                 all_items[k][2] = all_items[k][1].priority
             elif items_name == 'Macbooks':
                 all_items[k] = [str(item[0]) + str(item[1]) + str(item[2]) + str(item[3]), \
