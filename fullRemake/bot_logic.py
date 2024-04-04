@@ -64,6 +64,8 @@ def table_best(message: Message):
     version = ''
     storage = 00
     model = ''
+    size = ''
+    strap_size = ''
     for key in items.keys():
         if len(items[key]) > 0:
             text += key + '\n'
@@ -71,13 +73,15 @@ def table_best(message: Message):
 
                 if hasattr(item, 'model') and item.model != model or \
                    hasattr(item, 'storage') and storage != item.storage or \
-                   hasattr(item, 'version') and version != item.version:
+                   hasattr(item, 'version') and version != item.version or \
+                   hasattr(item, 'size') and size != item.size or \
+                   hasattr(item, 'strap_size') and strap_size != item.strap_size:
                     text += '\n'
 
                 if len(text) + len(item.generate_str()) > 4000:
                     bot.send_message(chat_id=message.chat.id, text=text.replace('None', ''))
                     text = ''
-                if hasattr(item, 'year') and int(item.year) == 10:
+                if hasattr(item, 'year') and str(item.year) == '10':
                     text += '\n' + item.generate_str().replace('10', '')
                 else:
                     text += '\n' + item.generate_str()
@@ -92,6 +96,11 @@ def table_best(message: Message):
                 if hasattr(item, 'model') and item.model != model:
                     model = item.model
 
+                if hasattr(item, 'size') and item.size != size:
+                    size = item.size
+
+                if hasattr(item, 'strap_size') and item.strap_size != strap_size:
+                    strap_size = item.strap_size
 
 
             text += '\n\n\n'
@@ -219,10 +228,6 @@ def table_retail(message: Message):
                 if len(text) + len(item.generate_retail()) > 4000:
                     bot.send_message(chat_id=message.chat.id, text=text.replace('None', ''))
                     text = ''
-                if hasattr(item, 'year') and int(item.year) == 10:
-                    text += '\n' + item.generate_retail().replace('10', '')
-                else:
-                    text += '\n' + item.generate_retail()
 
                 if hasattr(item, 'version') and version != item.version:
                     version = item.version
@@ -232,6 +237,8 @@ def table_retail(message: Message):
 
                 if hasattr(item, 'model') and item.model != model:
                     model = item.model
+
+                text += item.generate_retail() + '\n'
 
             text += '\n\n\n'
             version = ''
@@ -285,7 +292,6 @@ def _playstation(message: Message):
     print(data)
 
 
-
 @bot.message_handler(content_types=['text'])
 def parse(message: Message):
     if 'уценка' in message.text.lower():
@@ -314,8 +320,8 @@ def parse(message: Message):
 
             elif item_name == 'airpod':
                 airpods.append(
-                    items.Airpod(result['model'], result.get('case', 'None'), result.get('year', '10'),
-                                 result.get('color', '10'), result['price'])
+                    items.Airpod(result['model'], result.get('case', 'None'), result.get('year', '0'),
+                                 result.get('color', '0'), result['price'])
                 )
 
             elif item_name == 'macbook':
@@ -372,6 +378,3 @@ def parse(message: Message):
 
 print('Бот запущен')
 bot.polling(non_stop=True)
-
-
-

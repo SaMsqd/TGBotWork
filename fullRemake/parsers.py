@@ -9,13 +9,6 @@ class Parser:
     def get_data_from_string(phone_data: str) -> dict[str: str]:
         res_dict = dict()
         phone_data = phone_data.lower().replace("-", " ").replace('iphone', '').replace('apple', '')
-
-        for COLOR in COLORS:
-            if COLOR in phone_data.lower():
-                res_dict["color"] = COLOR.capitalize()
-                phone_data = phone_data.replace(COLOR, "")
-                break
-        phone_data = phone_data.strip()
         price_index = Parser.get_price_index(phone_data)
 
         for STORAGE in Phones.STORAGE:
@@ -23,6 +16,7 @@ class Parser:
                 if STORAGE == "1tb" or STORAGE == "1":
                     res_dict["storage"] = STORAGE.upper()
                     phone_data = phone_data.replace(STORAGE, "", 1)
+                    break
                 else:
                     res_dict["storage"] = STORAGE + "GB"
                     phone_data = phone_data.replace(STORAGE, "", 1)
@@ -34,7 +28,14 @@ class Parser:
             if NAME in phone_data.lower()[0: price_index]:
                 res_dict["model"] = NAME.capitalize()
                 phone_data = phone_data.replace(NAME, "", 1)
+                break
 
+        for COLOR in COLORS:
+            if COLOR in phone_data.lower():
+                res_dict["color"] = COLOR.capitalize()
+                phone_data = phone_data.replace(COLOR, "")
+                break
+        phone_data = phone_data.strip()
 
         for VERSION in Phones.VERSIONS:
             if VERSION in phone_data:
@@ -60,6 +61,10 @@ class Parser:
                         res_dict['price'] = buff
                     elif res_dict["country"] == '' and not buff.isdigit():
                         res_dict["country"] = i
+
+                    if res_dict['country'] == '':
+                        phone_data = ' '.join(phone_data)
+                        res_dict['country'] = phone_data.replace(Parser.delete_flag(phone_data), '')
                     buff = ''
 
             except IndexError:
@@ -70,8 +75,13 @@ class Parser:
                     for el in i:
                         if el.isdigit():
                             res_dict["price"] += el
+
                     if res_dict["country"] == '' and not i.isdigit():
                         res_dict["country"] = i
+
+                    if res_dict['country'] == '':
+                        phone_data = ' '.join(phone_data)
+                        res_dict['country'] = phone_data.replace(Parser.delete_flag(phone_data), '')
             except IndexError:
                 return {"exception": "indexError"}
         return res_dict
@@ -115,10 +125,6 @@ class Parser:
                 data["version"] = "Pro max"
             if data["storage"] == "1":
                 data["storage"] = "1024"
-            if data['country']:
-                for el in data['country'][::-1]:
-                    if el not in Phones.COUNTRIES or el.isdigit():
-                        data['country'] = data['country'].replace(el, '')
         except KeyError or ValueError:
             raise ParseException
             # О да! Я отлавливаю две ошибки и объединяю их в мою одну, чтобы
@@ -240,7 +246,8 @@ class Parser:
 
             except IndexError:
                 return {"exception": "indexError"}
-
+            if res_dict['price'] == '':
+                return {'exception': 'priceError'}
         return res_dict
     @staticmethod
     def parse_macbooks(macbook: str) -> dict:
@@ -294,7 +301,7 @@ class Parser:
 
     @staticmethod
     def parse_ipads(ipad: str) -> dict:
-        ipad = ipad.lower().replace('109', '10').replace('5th', '5').replace('cellular', 'lte')
+        ipad = ipad.lower().replace('109', '10').replace('5th', '5').replace('cellular', 'lte').replace('2022', '10').replace('(', ' ').replace(')', ' ')
         res_dict = dict()
         res_dict['price'] = ''
         for model in Ipads.models:

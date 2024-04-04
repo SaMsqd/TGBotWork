@@ -1,4 +1,4 @@
-COLORS = ["titanium olive", "black white", "deep purple", "light pink", "red", "purple", "green", "blue", "midnight", "starlight",
+COLORS = ["titanium olive", "black white", "deep purple", "light pink", "red", "purple", "green", "blue", "bluе", "midnight", "starlight",
           "pink", "yellow", "gold", "silver", "white", "titanium", "titan", "natural", "black", 'grey', 'gray', 'night', 'star'] # В макбуках серый написан как gray
 
 '''
@@ -11,7 +11,7 @@ COLORS = ["titanium olive", "black white", "deep purple", "light pink", "red", "
 class Phones:
     MODELS = ["se3", "11", "12", "13", "14", "15", '16']
     VERSIONS = ["plus", "pro max", "pro", "mini", "max"]
-    STORAGE = ["64", "128", "256", "512", "1024", "1tb", "1тб", "1"]
+    STORAGE = ["64", "128", "256", "512", "1024", "1tb", "1тб", "1 тб", "1 tb"]
     COUNTRIES = ['🇺🇳🇦🇫🇦🇽🇦🇱🇩🇿🇦🇸🇦🇩🇦🇴🇦🇮🇦🇶🇦🇿🇦🇹🇦🇺🇦🇼🇦🇲🇦🇷🇦🇬🇧🇸🇧🇭🇧🇩🇧🇧🇧🇾🇧🇪🇧🇿🇧🇷🇧🇼🇧🇦🇧🇴🇧🇹🇧🇲🇧🇯🇻🇬🇧🇳🇧🇬🇧🇫🇧🇮🇰🇭🇨🇲🇹🇩🇨🇫🇰🇾🇧🇶🇨🇻🇮🇨🇨🇦🇮🇴🇨🇱🇨🇳🇨🇽🇨🇨🇨🇴🇰🇲🇨🇺🇭🇷🇨🇮🇨🇷🇨🇰🇨🇩🇨🇬🇨🇼🇨🇾🇨🇿🇩🇰🇩🇯🇩🇲🇩🇴🇸🇿🇪🇪🇪🇷🇬🇶🇸🇻🇪🇬🇪🇨🇪🇹🇪🇺🇫🇰🇫🇴🇫🇯🇫🇮🇫🇷🇩🇪🇬🇪🇬🇲🇬🇦🇹🇫🇵🇫🇬🇫🇬🇭🇬🇮🇬🇷🇬🇱🇬🇩🇬🇵🇬🇺🇭🇳🇭🇹🇬🇾🇬🇼🇬🇳🇬🇬🇬🇹🇭🇰🇭🇺🇮🇸🇮🇳🇮🇩🇮🇷🇮🇶🎌🇯🇵🇯🇲🇮🇹🇮🇱🇮🇲🇮🇪🇯🇪🇯🇴🇰🇿🇰🇪🇰🇮🇽🇰🇰🇼🇱🇾🇱🇷🇱🇸🇱🇧🇱🇻🇱🇦🇰🇬🇱🇮🇱🇹🇱🇺🇲🇴🇲🇬🇲🇼🇲🇾🇲🇺🇲🇷🇲🇶🇲🇭🇲🇹🇲🇱🇲🇻🇾🇹🇲🇽🇫🇲🇲🇩🇲🇨🇲🇳🇲🇪🇳🇵🇳🇷🇳🇦🇲🇲🇲🇿🇲🇦🇲🇸🇳🇱🇳🇨🇳🇿🇳🇮🇳🇪🇳🇬🇳🇺🇵🇰🇴🇲🇲🇵🇳🇴🇲🇰🇰🇵🇳🇫🇵🇼🇵🇸🇵🇦🇵🇬🇵🇾🇵🇪🇵🇭🇷🇴🇷🇪🇶🇦🇵🇷🇵🇹🇵🇱🇵🇳🇷🇺🇷🇼🇼🇸🇸🇲🇸🇹🇸🇦🇸🇳🇸🇮🇸🇰🇸🇽🇸🇬🇸🇱🇸🇨🇷🇸🇬🇸🇸🇧🇸🇴🇿🇦🇰🇷🇸🇸🇪🇸🇻🇨🇵🇲🇱🇨🇰🇳🇸🇭🇧🇱🇱🇰🇸🇩🇸🇷🇸🇪🇨🇭🇸🇾🇹🇼🇹🇯🇹🇹🇹🇴🇹🇰🇹🇬🇹🇱🇹🇭🇹🇿🇹🇳🇹🇷🇹🇲🇹🇨🇹🇻🇺🇬🇺🇦🇺🇾🇺🇸🏴󠁧󠁢󠁷󠁬󠁳󠁿🏴󠁧󠁢󠁳󠁣󠁴󠁿🏴󠁧󠁢󠁥󠁮󠁧󠁿🇬🇧🇦🇪🇻🇮🇺🇿🇻🇺🇻🇦🇻🇪🇻🇳🇼🇫🇿🇼🇿🇲🇾🇪🇪🇭🇦🇪🇮🇳INIndia']
     COUNTRY_GROUPS = {"sim🇺🇸mini🇺🇸": "", "mini🇭🇰sim🇭🇰mini🇨🇳sim🇨🇳": "", "others": ""}
 

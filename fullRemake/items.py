@@ -67,15 +67,17 @@ priorities_macbook = {
     'model':
         {
             '13': 1,
-            '14': 2,
-            'pro 14': 2,
-            'air 14': 2,
-            '15': 3,
-            'air 15': 3,
-            'pro 15': 3,
-            '16': 4,
-            'pro 16': 4,
-            'air 16': 4,
+            'pro 13': 2,
+            'air 13': 2,
+            '14': 3,
+            'pro 14': 3,
+            'air 14': 3,
+            '15': 4,
+            'air 15': 4,
+            'pro 15': 4,
+            '16': 5,
+            'pro 16': 5,
+            'air 16': 5,
         },
     'cpu':
         {
@@ -103,7 +105,7 @@ priorities_watch = {
             's8': 2,
             's9': 3,
             'series 9': 4,
-            '9' : 4,
+            '9': 4,
             'ultra': 5,
             'ultra 2': 6
         },
@@ -132,6 +134,8 @@ priorities_watch = {
             '2023': 4,
             '2024': 4,
             '2025': 5,
+            '0': 6,
+
         }
 }
 
@@ -150,6 +154,7 @@ priorities_airpods = {
         },
     'year':
         {
+            '0': 9999,
             '10': 9999,
             '2018': 1,
             '2019': 2,
@@ -228,25 +233,28 @@ class Watch(Item):
         super().__init__(model, price)
 
         self.priority = int(str(priorities_watch['model'][model]) + str(priorities_watch['size'][size]) + str(priorities_watch['strap_size'][strap_size]) + str(priorities_watch['year'][str(year)]))
-
         self.size = size
         self.color = color
         self.strap_size = strap_size
-        self.year = year
-
+        if int(year) == 0:
+            self.year = ''
+            self.db_year = 0
+        else:
+            self.year = year
+            self.db_year = year
 
     def generate_str(self):
         return (f'{self.model} {self.year} {self.size} {self.strap_size} '
                 f'{self.color} - {self.price}')
 
     def generate_sql(self):
-        return f'("{self.model}","{self.size}", "{self.color}", "{self.strap_size}", {self.year}, {self.price})'
+        return f'("{self.model}","{self.size}", "{self.color}", "{self.strap_size}", {self.db_year}, {self.price})'
 
     def generate_opt(self):
         return (f'{self.model} {self.year} {self.size} {self.strap_size} '
                 f'{self.color} - {make_price_beautiful(self.price + 500)}')
 
-    def generate_opt(self):
+    def generate_1000(self):
         return (f'{self.model} {self.year} {self.size} {self.strap_size} '
                 f'{self.color} - {make_price_beautiful(self.price + 1000)}')
 
@@ -262,13 +270,24 @@ class Airpod(Item):
             case: str,
             year: int
         })
-
         self.priority = int(str(priorities_airpods['model'][str(model)]) + str(priorities_airpods['year'][str(year)]))
 
         super().__init__(model, price)
-        self.color = color
+        if color == '0' or color == 0:
+            self.color = ''
+            self.db_color = '0'
+        else:
+            self.color = color
+            self.db_color = color
+
         self.case = case
-        self.year = year
+
+        if int(year) == 0:
+            self.year = ''
+            self.db_year = 0
+        else:
+            self.year = year
+            self.db_year = year
 
     def generate_str(self):
         return f'{self.model} {self.year} {self.case} {self.color} - {self.price}'
@@ -280,14 +299,11 @@ class Airpod(Item):
         return f'{self.model} {self. year} {self.case} {self.color} - {make_price_beautiful(self.price + 1000)}'
 
     def generate_retail(self):
-        if self.color == '10':
-            return (f'{self.model} {self.year} {self.case} - {make_price_beautiful(self.price + 500)} '
-                    f'↔️ {make_price_beautiful(self.price + 1000)}')
         return (f'{self.model} {self.year} {self.case} {self.color} - {make_price_beautiful(self.price + 500)} '
                     f'↔️ {make_price_beautiful(self.price + 1000)}')
 
     def generate_sql(self):
-        return (f'("{self.model}","{self.case}", {self.year}, "{self.color}", {self.price})')
+        return (f'("{self.model}","{self.case}", {self.db_year}, "{self.db_color}", {self.price})')
 
 
 class Macbook(Item):
@@ -317,7 +333,6 @@ class Macbook(Item):
     def generate_retail(self):
         return (f'{self.model} {self.cpu} {self.storage} {self.color} - {make_price_beautiful(self.price + 500)} '
                 f'↔️ {make_price_beautiful(self.price + 1000)}')
-
 
     def generate_sql(self):
         return f'("{self.model}","{self.cpu}", "{self.color}", {self.storage},{self.price})'
@@ -349,8 +364,8 @@ class Phone(Item):
             self.market = 'others'
 
     def generate_str(self):
-        return (f'{self.model} {self.version} {self.color} {self.storage} '
-                f'- {self.country}{self.price}')
+        return (f'{self.model} {self.version} {self.color} {self.storage}'
+                f'{self.country} - {self.price}')
 
     def generate_opt(self):
         return (f'{self.model} {self.version} {self.color} {self.storage} {self.country} '
