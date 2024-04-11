@@ -127,7 +127,8 @@ priorities_watch = {
             's': 2,
             'm/l': 3,
             'ml': 3,
-            'sport loop': 4
+            'sport loop': 4,
+            'alpine loop': 5
         },
     'year':
         {
@@ -248,22 +249,22 @@ class Watch(Item):
 
     def generate_str(self):
         return (f'{self.model} {self.year} {self.size} {self.strap_size} '
-                f'{self.color} - {self.price}')
+                f'{self.color}🇺🇸 - {self.price}')
 
     def generate_sql(self):
         return f'("{self.model}","{self.size}", "{self.color}", "{self.strap_size}", {self.db_year}, {self.price})'
 
     def generate_opt(self):
         return (f'{self.model} {self.year} {self.size} {self.strap_size} '
-                f'{self.color} - {make_price_beautiful(self.price + 500)}')
+                f'{self.color}🇺🇸- {make_price_beautiful(self.price + 500)}')
 
     def generate_1000(self):
         return (f'{self.model} {self.year} {self.size} {self.strap_size} '
-                f'{self.color} - {make_price_beautiful(self.price + 1000)}')
+                f'{self.color}🇺🇸 - {make_price_beautiful(self.price + 1000)}')
 
     def generate_retail(self):
         return (f'{self.model} {self.year} {self.size} {self.strap_size} '
-                f'{self.color} - {make_price_beautiful(self.price + 500)} ↔️ {make_price_beautiful(self.price + 1000)}')
+                f'{self.color}🇺🇸 - {make_price_beautiful(self.price + 500)} ↔️ {make_price_beautiful(self.price + 1000)}')
 
 
 class Airpod(Item):
@@ -325,16 +326,16 @@ class Macbook(Item):
         self.priority = int(str(priorities_macbook['model'][model]) + str(priorities_macbook['cpu'][cpu]) + str(priorities_macbook['storage'][str(storage)]))
 
     def generate_str(self):
-        return f'{self.model} {self.cpu} {self.storage} {self.color} - {self.price}'
+        return f'{self.model} {self.cpu} {self.storage} {self.color}🇺🇸 - {self.price}'
 
     def generate_opt(self):
-        return f'{self.model} {self.cpu} {self.storage} {self.color} - {make_price_beautiful(self.price + 500)}'
+        return f'{self.model} {self.cpu} {self.storage} {self.color}🇺🇸 - {make_price_beautiful(self.price + 500)}'
 
     def generate_1000(self):
-        return f'{self.model} {self.cpu} {self.storage} {self.color} - {make_price_beautiful(self.price + 1000)}'
+        return f'{self.model} {self.cpu} {self.storage} {self.color}🇺🇸 - {make_price_beautiful(self.price + 1000)}'
 
     def generate_retail(self):
-        return (f'{self.model} {self.cpu} {self.storage} {self.color} - {make_price_beautiful(self.price + 500)} '
+        return (f'{self.model} {self.cpu} {self.storage} {self.color}🇺🇸 - {make_price_beautiful(self.price + 500)} '
                 f'↔️ {make_price_beautiful(self.price + 1000)}')
 
     def generate_sql(self):
@@ -406,16 +407,16 @@ class Ipad(Item):
 
 
     def generate_str(self):
-        return f'{self.model} {self.storage} {self.network} {self.color} - {self.price}'
+        return f'{self.model} {self.storage} {self.network} {self.color}🇺🇸 - {self.price}'
 
     def generate_opt(self):
-        return f'{self.model} {self.storage} {self.network} {self.color} - {make_price_beautiful(self.price + 500)}'
+        return f'{self.model} {self.storage} {self.network} {self.color}🇺🇸 - {make_price_beautiful(self.price + 500)}'
 
     def generate_1000(self):
-        return f'{self.model} {self.storage} {self.network} {self.color} - {make_price_beautiful(self.price + 1000)}'
+        return f'{self.model} {self.storage} {self.network} {self.color}🇺🇸 - {make_price_beautiful(self.price + 1000)}'
 
     def generate_retail(self):
-        return (f'{self.model} {self.storage} {self.network} {self.color} - {make_price_beautiful(self.price + 500)}'
+        return (f'{self.model} {self.storage} {self.network} {self.color}🇺🇸 - {make_price_beautiful(self.price + 500)}'
          f'↔️ {make_price_beautiful(self.price + 1000)}')
 
     def generate_sql(self):

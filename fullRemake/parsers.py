@@ -6,14 +6,35 @@ import re
 
 class Parser:
     @staticmethod
+    def change_price_view(data: str):
+        """Функция, которая убирает пробел между разрядами в цене: ... - 11 111 -> 11111"""
+        try:
+            res = ''
+            el = data[Parser.get_price_index(data)-1]
+            if el != ' ':
+                return data
+            counter = 0
+            while el.isdigit() or el == ' ' and counter == 0:
+                if el != ' ':
+                    res += el
+                counter += 1
+                el = data[Parser.get_price_index(data)-counter]
+            if el == ' ' and counter == 1:
+                return data
+            return data[:Parser.get_price_index(data)-counter] + res[::-1] + data[Parser.get_price_index(data):]
+        except Exception:
+            return data
+
+    @staticmethod
     def get_data_from_string(phone_data: str) -> dict[str: str]:
         res_dict = dict()
+        phone_data = phone_data
         phone_data = phone_data.lower().replace("-", " ").replace('iphone', '').replace('apple', '')
         price_index = Parser.get_price_index(phone_data)
 
         for STORAGE in Phones.STORAGE:
             if STORAGE in phone_data[0: price_index]:
-                if STORAGE == "1tb" or STORAGE == "1":
+                if STORAGE == "1tb" or STORAGE == "1" or STORAGE == '1 tb':
                     res_dict["storage"] = STORAGE.upper()
                     phone_data = phone_data.replace(STORAGE, "", 1)
                     break
@@ -25,7 +46,7 @@ class Parser:
         price_index = Parser.get_price_index(phone_data)
 
         for NAME in Phones.MODELS:
-            if NAME in phone_data.lower()[0: price_index]:
+            if NAME in phone_data.lower()[: price_index]:
                 res_dict["model"] = NAME.capitalize()
                 phone_data = phone_data.replace(NAME, "", 1)
                 break
@@ -38,7 +59,7 @@ class Parser:
         phone_data = phone_data.strip()
 
         for VERSION in Phones.VERSIONS:
-            if VERSION in phone_data:
+            if VERSION in phone_data[:Parser.get_price_index(phone_data)]:
                 res_dict["version"] = VERSION.capitalize()
                 phone_data = phone_data.replace(VERSION, "")
                 break
@@ -112,7 +133,7 @@ class Parser:
     def parse_phones(phone: str):
         try:
             data = Parser.get_data_from_string(phone)
-            data["storage"] = data["storage"].replace("тбGB", "TB").replace("GB", "").replace("TB", "")
+            data["storage"] = data["storage"].replace("тбGB", "TB").replace("GB", "").replace("TB", "").replace(' tb', '')
             # Заказчик попросил, произвести некоторые изменения
             if data["model"] == '13' and (data["color"] == "Black" or data["color"] == "White") and \
                     (data["version"] == "Plus" or data["version"] == "") or \
@@ -177,7 +198,7 @@ class Parser:
                 watch = watch.replace(year, '')
                 break
 
-        for symb in watch[Parser.get_price_index(watch):]:
+        for symb in watch[Parser.get_price_index(watch)-3:]:
             if symb.isdigit():
                 res_dict['price'] = res_dict['price'] + symb
 
@@ -255,7 +276,6 @@ class Parser:
         l = macbook.split('-')
         if len(l) == 3:
             for k, v in item_patterns.Macbooks.serial_numbers.items():
-                print(Parser.delete_flag(l[0].lower()))
                 if Parser.delete_flag(l[0].lower()) in v:
                     return k + l[2].replace('pro', '').replace('air', '').replace('max', '') + '-' + l[1]
         if len(l) > 3:
@@ -309,7 +329,7 @@ class Parser:
             raise ParseException('ошибка в парсинге хранилища')
 
         price_index = Parser.get_price_index(macbook)
-        for symb in macbook[price_index:]:
+        for symb in macbook[price_index-4:]:
             if symb.isdigit():
                 res_dict['price'] = res_dict['price'] + symb
 
@@ -354,7 +374,7 @@ class Parser:
             raise ParseException('ошибка в парсинге поддреживаемой сети')
 
         price_index = Parser.get_price_index(ipad)
-        for symb in ipad[price_index:]:
+        for symb in ipad[price_index-4:]:
             if symb.isdigit():
                 res_dict['price'] = res_dict['price'] + symb
 
@@ -371,6 +391,7 @@ class Parser:
         :param str position: Строка для парсинга товара
         :return dict, str: В словаре будут все данные + название товара
         """
+        position = Parser.change_price_view(position)
         try:
             if Parser.is_airpod(position):
                 return Parser.parse_airpods(position), 'airpod'
@@ -442,3 +463,6 @@ class Parser:
     @staticmethod
     def is_playstation(data: str) -> bool:
         pass
+
+if __name__ == '__main__':
+    print(Parser.change_price_view('asdklzxcjclh qwn lsodhfoz - 12 345'))

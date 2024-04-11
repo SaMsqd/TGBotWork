@@ -20,7 +20,7 @@ class Watches:
     models = ['se', 's8', 's9', 'series 9', 'ultra 2', 'ultra', '9']
     sizes = ['40', '41', '44', '45', '49']
     colors = COLORS
-    strap_sizes = ['s/m', 'm/l', 'sm', 'ml', 'sport loop', 's', 'm']
+    strap_sizes = ['s/m', 'm/l', 'sm', 'ml', 'sport loop', 'alpine loop', 's', 'm']
     year = [str(year) for year in range(2020, 2025)]
     # Страну игнорируем
 
@@ -45,7 +45,7 @@ class Macbooks:
     #                   'MRX53', 'MRX83', 'MK183', 'MK193', 'MRW13', 'MRW43', 'MRW23', 'MRW63', 'MRW63', 'MRW63', 'MUW63',
     #                   'MUW73']
     serial_numbers = {
-        'air 13': [x.lower() for x in ['z18t0000d', 'z18p0000k', 'Z1600000B', 'Z15S0000B', 'Z1600000L', 'Z15S0000P', 'Z15T00314', 'MLY33', 'MLY13', 'MLXW3', 'MLXY3', 'MLY43', 'MGN63', 'MRXN3', 'MRXQ3', '', 'MQKU3', 'MQKP3', 'MQKR3', 'MQKW3', 'MQKX3', 'MQKQ3', 'MQKV3', 'MQKT3', '', 'Z18T0', 'Z18P0']],
+        'air 13': [x.lower() for x in ['mly13', 'z18t0000d', 'z18p0000k', 'Z1600000B', 'Z15S0000B', 'Z1600000L', 'Z15S0000P', 'Z15T00314', 'MLY33', 'MLY13', 'MLXW3', 'MLXY3', 'MLY43', 'MGN63', 'MRXN3', 'MRXQ3', 'MQKU3', 'MQKP3', 'MQKR3', 'MQKW3', 'MQKX3', 'MQKQ3', 'MQKV3', 'MQKT3', 'Z18T0', 'Z18P0']],
         'pro 13': [x.lower() for x in['MNEH3', 'MNEQ3']],
         'pro 14': [x.lower() for x in ['MPHG3ZP/A', 'MR7J3', 'MTL73', 'MR7K3', 'MTL83', 'MRX33', 'MRX63', 'MRX43', 'MRX73', 'MRX53', 'MRX83']],
         'pro 16': [x.lower() for x in ['MRW13', 'MRW43', 'MRW23', 'MRW63', 'MRW73', 'MRW33', 'MUW63', 'MUW73']]
