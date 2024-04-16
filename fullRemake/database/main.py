@@ -37,6 +37,7 @@ class Database:
         :return:
         """
         if len(items) > 0:
+
             string_items = items[0].generate_sql()
             for i in range(len(items)-1):
                 string_items += ',' + items[i+1].generate_sql()
@@ -50,8 +51,8 @@ class Database:
         :return: list(Item)
         """
         f = self._get_sorted_items
-        return {'phones': f('Phones'), 'watches': f('Watches'), 'airpods': f('Airpods'), 'macbooks': f('Macbooks'),
-                'ipads': f('Ipads')}
+        return {'iPhone📱': f('Phones'), 'Airpods🎧': f('Airpods'), 'Apple Watch ⌚️': f('Watches'), 'macbooks': f('Macbooks'),
+                'iPad📱': f('Ipads')}
 
     def _get_sorted_items(self, items_name):
         """

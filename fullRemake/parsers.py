@@ -26,6 +26,16 @@ class Parser:
             return data
 
     @staticmethod
+    def change_parametres(data):
+        """Функция, которая будет менять одинаковые цвета, модели и тд"""
+
+        # Цвета
+        if data['color'] in ['grey', 'gray', 'space gray', 'space grey', 'space']:
+            data['color'] = 'space gray'
+
+
+
+    @staticmethod
     def get_data_from_string(phone_data: str) -> dict[str: str]:
         res_dict = dict()
         phone_data = phone_data
