@@ -150,11 +150,11 @@ priorities_airpods = {
             '2022': 1,
             'max': 2,
             'pro': 2,
-            'pro 2': 3,
             '2': 3,
             '3': 4,
-            'pro 2 type c': 5,
-            '2023': 5
+            'pro 2': 5,
+            'pro 2 type c': 6,
+            '2023': 6
         },
     'year':
         {

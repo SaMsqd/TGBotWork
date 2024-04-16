@@ -33,6 +33,20 @@ class Parser:
         if data['color'] in ['grey', 'gray', 'space gray', 'space grey', 'space']:
             data['color'] = 'space gray'
 
+        if data.get('model', None) and (data['model'] in ['pro 2 lightning', '2022']):
+            data['model'] = 'pro 2 lightning'
+
+        if data.get('model', None) and (data['model'] in ['pro 2 type c', '2023']):
+            data['model'] = 'pro 2 type c'
+
+        if data.get('strap_size', None) and (data['strap_size'] in ['sm', 'ml']):
+            data['strap_size'] = data['strap_size'][0] + '/' + data['strap_size'][1]
+
+
+        return data
+
+
+
 
 
     @staticmethod

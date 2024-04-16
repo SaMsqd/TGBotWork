@@ -70,6 +70,8 @@ def table_best(message: Message):
         if len(items[key]) > 0:
             text += key + '\n'
             for item in items[key]:
+                if hasattr(item, 'storage') and str(item.storage) in ['1', '1024', '2', '2048']:
+                    item.storage = ['1tb' if str(item.storage) in ['1', '1024'] else '2tb'][0]
 
                 if hasattr(item, 'model') and item.model != model or \
                    hasattr(item, 'storage') and storage != item.storage or \
