@@ -379,4 +379,8 @@ def parse(message: Message):
 
 
 print('Бот запущен')
-bot.polling(non_stop=True)
+while True:
+    try:
+        bot.polling(non_stop=True)
+    except Exception as e:
+        print(e.args)

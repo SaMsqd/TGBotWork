@@ -267,6 +267,10 @@ class Parser:
             if case in airpod[:Parser.get_price_index(airpod)]:
                 res_dict['case'] = case
                 break
+
+        if not res_dict['case']:
+            res_dict['case'] = 'lightning'
+
         airpod = re.sub(r'(\d)\s+(\d)', r'\1\2', airpod)
         airpod = airpod.replace("  ", " ").replace("-", " ").replace(".", "").replace(",", "").split()
         res_dict["price"] = ""
@@ -362,6 +366,7 @@ class Parser:
     @staticmethod
     def parse_ipads(ipad: str) -> dict:
         ipad = ipad.lower().replace('109', '10').replace('5th', '5').replace('cellular', 'lte').replace('2022', '10').replace('(', ' ').replace(')', ' ')
+
         res_dict = dict()
         res_dict['price'] = ''
         for model in Ipads.models:
@@ -401,7 +406,8 @@ class Parser:
         for symb in ipad[price_index-4:]:
             if symb.isdigit():
                 res_dict['price'] = res_dict['price'] + symb
-
+        if int(res_dict['price']) > 10**6 and '10' in str(res_dict['price'])[:5]:
+            res_dict['price'] = int(str(res_dict['price'].replace('10', '')))
         return res_dict
 
     @staticmethod

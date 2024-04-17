@@ -125,6 +125,7 @@ priorities_watch = {
             's/m': 1,
             'sm': 1,
             's': 2,
+            'm': 2,
             'm/l': 3,
             'ml': 3,
             'sport loop': 4,
@@ -249,7 +250,7 @@ class Watch(Item):
 
     def generate_str(self):
         return (f'{self.model} {self.year} {self.size} {self.strap_size} '
-                f'{self.color}🇺🇸 - {self.price}')
+                f'{self.color}🇺🇸 - {make_price_beautiful(self.price)}')
 
     def generate_sql(self):
         return f'("{self.model}","{self.size}", "{self.color}", "{self.strap_size}", {self.db_year}, {self.price})'
@@ -294,7 +295,7 @@ class Airpod(Item):
             self.db_year = year
 
     def generate_str(self):
-        return f'{self.model} {self.year} {self.case} {self.color} - {self.price}'
+        return f'{self.model} {self.year} {self.case} {self.color} - {make_price_beautiful(self.price)}'
 
     def generate_opt(self):
         return f'{self.model} {self. year} {self.case} {self.color} - {make_price_beautiful(self.price + 500)}'
@@ -326,7 +327,7 @@ class Macbook(Item):
         self.priority = int(str(priorities_macbook['model'][model]) + str(priorities_macbook['cpu'][cpu]) + str(priorities_macbook['storage'][str(storage)]))
 
     def generate_str(self):
-        return f'{self.model} {self.cpu} {self.storage} {self.color}🇺🇸 - {self.price}'
+        return f'{self.model} {self.cpu} {self.storage} {self.color}🇺🇸 - {make_price_beautiful(self.price)}'
 
     def generate_opt(self):
         return f'{self.model} {self.cpu} {self.storage} {self.color}🇺🇸 - {make_price_beautiful(self.price + 500)}'
@@ -369,7 +370,7 @@ class Phone(Item):
 
     def generate_str(self):
         return (f'{self.model} {self.version} {self.color} {self.storage}'
-                f'{self.country} - {self.price}')
+                f'{self.country} - {make_price_beautiful(self.price)}')
 
     def generate_opt(self):
         return (f'{self.model} {self.version} {self.color} {self.storage} {self.country} '
@@ -407,7 +408,7 @@ class Ipad(Item):
 
 
     def generate_str(self):
-        return f'{self.model} {self.storage} {self.network} {self.color}🇺🇸 - {self.price}'
+        return f'{self.model} {self.storage} {self.network} {self.color}🇺🇸 - {make_price_beautiful(self.price)}'
 
     def generate_opt(self):
         return f'{self.model} {self.storage} {self.network} {self.color}🇺🇸 - {make_price_beautiful(self.price + 500)}'

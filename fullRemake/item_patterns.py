@@ -27,9 +27,9 @@ class Watches:
 
 class Airpods:
     colors = COLORS
-    models = ['pro 2 lightning', 'pro 2 type c', 'pro 2', 'max', 'pro', '2', '3']
+    models = ['pro 2', 'pro 2 type c', 'pro 2', 'max', 'pro', '2', '3']
     # !!! max = pro, pro 2 lightning = 2022, pro 2 type c = 2023
-    cases = ['magsafe', 'charging']
+    cases = ['magsafe', 'lightning']
     year = [str(year) for year in range(2018, 2024)]
     # Страну игнорируем
 
