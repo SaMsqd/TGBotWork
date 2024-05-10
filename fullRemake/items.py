@@ -25,7 +25,7 @@ priorities_phone = {
             '': 0,
             'Mini': 1,
             'Pro': 2,
-            'Max':3,
+            'Max': 3,
             'Pro max': 4,
             'Plus': 5
         }
@@ -104,13 +104,13 @@ priorities_macbook = {
 priorities_watch = {
     'model':
         {
-            'se': 1,
-            's8': 2,
-            's9': 3,
-            'series 9': 4,
+            'SE': 1,
+            'S8': 2,
+            'S9': 3,
+            'Series 9': 4,
             '9': 4,
-            'ultra': 5,
-            'ultra 2': 6
+            'Ultra': 5,
+            'Ultra 2': 6
         },
     'size':
         {
@@ -122,14 +122,14 @@ priorities_watch = {
         },
     'strap_size':
         {
-            's/m': 1,
-            'sm': 1,
-            's': 2,
-            'm': 2,
-            'm/l': 3,
-            'ml': 3,
-            'sport loop': 4,
-            'alpine loop': 5
+            'S/m': 1,
+            'Sm': 1,
+            'S': 2,
+            'M': 2,
+            'M/l': 3,
+            'Ml': 3,
+            'Sport loop': 4,
+            'Alpine loop': 5
         },
     'year':
         {
@@ -170,6 +170,7 @@ priorities_airpods = {
             '2024': 7,
         }
 }
+
 
 def make_price_beautiful(price):
     rl_price = list(str(price))
@@ -249,23 +250,23 @@ class Watch(Item):
             self.db_year = year
 
     def generate_str(self):
-        return (f'{self.model} {self.year} {self.size} {self.strap_size} '
-                f'{self.color}🇺🇸 - {make_price_beautiful(self.price)}')
+        return (f'{self.model} {self.year} {self.size} {str(self.color).capitalize()} {self.strap_size} '
+                f'🇺🇸 - {make_price_beautiful(self.price)}')
 
     def generate_sql(self):
         return f'("{self.model}","{self.size}", "{self.color}", "{self.strap_size}", {self.db_year}, {self.price})'
 
     def generate_opt(self):
-        return (f'{self.model} {self.year} {self.size} {self.strap_size} '
-                f'{self.color}🇺🇸- {make_price_beautiful(self.price + 500)}')
+        return (f'{self.model} {self.year} {self.size} {str(self.color).capitalize()} {self.strap_size} '
+                f'🇺🇸- {make_price_beautiful(self.price + 500)}')
 
     def generate_1000(self):
-        return (f'{self.model} {self.year} {self.size} {self.strap_size} '
-                f'{self.color}🇺🇸 - {make_price_beautiful(self.price + 1000)}')
+        return (f'{self.model} {self.year} {self.size} {str(self.color).capitalize()} {self.strap_size} '
+                f'🇺🇸 - {make_price_beautiful(self.price + 1000)}')
 
     def generate_retail(self):
-        return (f'{self.model} {self.year} {self.size} {self.strap_size} '
-                f'{self.color}🇺🇸 - {make_price_beautiful(self.price + 500)} ↔️ {make_price_beautiful(self.price + 1000)}')
+        return (f'{self.model} {self.year} {self.size} {str(self.color).capitalize()} {self.strap_size}'
+                f'🇺🇸 - {make_price_beautiful(self.price + 500)} ↔️ {make_price_beautiful(self.price + 1000)}')
 
 
 class Airpod(Item):

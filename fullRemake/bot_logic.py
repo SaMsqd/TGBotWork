@@ -73,6 +73,9 @@ def table_best(message: Message):
                 if hasattr(item, 'storage') and str(item.storage) in ['1', '1024', '2', '2048']:
                     item.storage = ['1tb' if str(item.storage) in ['1', '1024'] else '2tb'][0]
 
+                if hasattr(item, 'storage') and str(item.storage) in ['64', '128', '256', '512']:
+                    item.storage = str(item.storage) + 'GB'
+
                 if hasattr(item, 'model') and item.model != model or \
                    hasattr(item, 'storage') and storage != item.storage or \
                    hasattr(item, 'version') and version != item.version or \
@@ -312,6 +315,7 @@ def parse(message: Message):
     errors = list()
 
     for pos in data:
+        item_name = None
         try:
             result, item_name = parsers.Parser.parse_router(pos)
             if item_name == 'watch':
@@ -379,6 +383,7 @@ def parse(message: Message):
 
 
 print('Бот запущен')
+bot.polling(non_stop=True)
 while True:
     try:
         bot.polling(non_stop=True)

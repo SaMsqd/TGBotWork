@@ -121,12 +121,8 @@ class Parser:
                         if el.isdigit():
                             res_dict["price"] += el
 
-                    if res_dict["country"] == '' and not i.isdigit():
+                    if i.lower() in Phones.COUNTRIES[0]:
                         res_dict["country"] = i
-
-                    if res_dict['country'] == '':
-                        phone_data = ' '.join(phone_data)
-                        res_dict['country'] = phone_data.replace(Parser.delete_flag(phone_data), '')
             except IndexError:
                 return {"exception": "indexError"}
         return res_dict
@@ -183,7 +179,9 @@ class Parser:
 
         for model in Watches.models:
             if model in watch[:Parser.get_price_index(watch)]:
-                res_dict['model'] = model
+                res_dict['model'] = model.capitalize()
+                if model.lower() == 'se':
+                    res_dict['model'] = model.upper()
                 watch = watch.replace(model, '', 1)
                 break
         else:
@@ -199,17 +197,17 @@ class Parser:
 
         for strap_size in Watches.strap_sizes:
             if strap_size in watch[:Parser.get_price_index(watch)]:
-                res_dict['strap_size'] = strap_size
+                res_dict['strap_size'] = strap_size.capitalize()
                 watch = watch.replace(strap_size, '')
                 if 'alpine loop' in watch:
-                    res_dict['strap_size'] = 'alpine loop ' + res_dict['strap_size']
+                    res_dict['strap_size'] = 'alpine loop' + res_dict['strap_size']
                 break
         else:
             raise ParseException('ошибка в парсинге размера ремешка')
 
         for color in Watches.colors:
             if color in watch[:Parser.get_price_index(watch)]:
-                res_dict['color'] = color
+                res_dict['color'] = color.capitalize()
                 watch = watch.replace(color, '')
                 break
 
@@ -237,7 +235,7 @@ class Parser:
         for model in Airpods.models:
             if (model != '2' or model != '3') and model in airpod[:Parser.get_price_index(airpod)] \
                     or Parser.len_model_el(airpod, model) == 1:
-                res_dict['model'] = model
+                res_dict['model'] = model.capitalize()
                 airpod = airpod.replace(model, '', 1)
                 break
         else:
@@ -245,7 +243,7 @@ class Parser:
 
         for color in COLORS:
             if color in airpod:
-                res_dict['color'] = color
+                res_dict['color'] = color.capitalize()
                 airpod = airpod.replace(color, '')
                 break
 
@@ -265,10 +263,10 @@ class Parser:
 
         for case in Airpods.cases:
             if case in airpod[:Parser.get_price_index(airpod)]:
-                res_dict['case'] = case
+                res_dict['case'] = case.capitalize()
                 break
 
-        if not res_dict['case']:
+        if res_dict.get('case', None):
             res_dict['case'] = 'lightning'
 
         airpod = re.sub(r'(\d)\s+(\d)', r'\1\2', airpod)
@@ -320,9 +318,9 @@ class Parser:
         res_dict['price'] = ''
 
         for model in Macbooks.models:
-            if model in macbook[:Parser.get_price_index(macbook)] and Parser.len_model_el(macbook, model) == 2:
+            if model in macbook[:Parser.get_price_index(macbook)]   :
                 if 'pro' in macbook:
-                    res_dict['model'] = 'pro ' + model
+                    res_dict['model'] = 'Pro ' + model
                     macbook = macbook.replace('pro ' + model, '', 1)
                     break
                 elif 'air' in macbook:
@@ -334,7 +332,7 @@ class Parser:
 
         for color in COLORS:
             if color in macbook:
-                res_dict['color'] = color
+                res_dict['color'] = color.capitalize()
                 macbook = macbook.replace(color, '')
                 break
         else:
@@ -342,7 +340,7 @@ class Parser:
 
         for cpu in Macbooks.cpus:
             if cpu in macbook:
-                res_dict['cpu'] = cpu
+                res_dict['cpu'] = cpu.capitalize()
                 macbook = macbook.replace(cpu, '')
                 break
         else:
@@ -357,7 +355,7 @@ class Parser:
             raise ParseException('ошибка в парсинге хранилища')
 
         price_index = Parser.get_price_index(macbook)
-        for symb in macbook[price_index-4:]:
+        for symb in macbook[price_index-3   :]:
             if symb.isdigit():
                 res_dict['price'] = res_dict['price'] + symb
 
@@ -371,7 +369,7 @@ class Parser:
         res_dict['price'] = ''
         for model in Ipads.models:
             if model + ' ' in ipad[:Parser.get_price_index(ipad)]:
-                res_dict['model'] = model
+                res_dict['model'] = model.capitalize()
                 ipad = ipad.replace(model, '', 1)
                 break
 
@@ -388,7 +386,7 @@ class Parser:
 
         for color in Ipads.COLORS:
             if color in ipad:
-                res_dict['color'] = color
+                res_dict['color'] = color.capitalize()
                 ipad = ipad.replace(storage, '')
                 break
         else:
@@ -396,7 +394,11 @@ class Parser:
 
         for network in Ipads.networks:
             if network in ipad:
-                res_dict['network'] = network
+                if network in ['wifi', 'wi-fi', 'wi fi']:
+                    res_dict['network'] = 'WIFI'
+                    ipad = ipad.replace(network, '')
+                    break
+                res_dict['network'] = network.upper()
                 ipad = ipad.replace(network, '')
                 break
         else:

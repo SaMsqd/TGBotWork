@@ -51,7 +51,7 @@ class Database:
         :return: list(Item)
         """
         f = self._get_sorted_items
-        return {'iPhone📱': f('Phones'), 'Airpods🎧': f('Airpods'), 'Apple Watch ⌚️': f('Watches'), 'macbooks': f('Macbooks'),
+        return { 'Airpods🎧': f('Airpods'), 'iPhone📱': f('Phones'), 'Apple Watch ⌚️': f('Watches'), 'macbooks': f('Macbooks'),
                 'iPad📱': f('Ipads')}
 
     def _get_sorted_items(self, items_name):
