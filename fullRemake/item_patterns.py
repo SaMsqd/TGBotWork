@@ -35,7 +35,7 @@ class Airpods:
 
 
 class Macbooks:
-    models = ['13', '14', '15', '15','16'] # Разделяются на pro и air, это проверяется в парсере
+    models = ['13', '14', '15', '15', '16']     # Разделяются на pro и air, это проверяется в парсере
     cpus = ['m1', 'm2', 'm3', 'м1', 'м2', 'м3']
     color = COLORS
     # serial_numbers = ['mgn63', 'mgn93', 'mlxw3', 'mlxy3', 'mly33', 'z1600000b', 'z1500000b', 'z15W0000b',
@@ -71,8 +71,8 @@ class Playstation:
     wheels = ['g29']
     vrs = ['vr2']
 
+
 def delete_flag(data: str) -> str:
     for el in Phones.COUNTRIES[0]:
         data = data.replace(el, "")
     return data
-

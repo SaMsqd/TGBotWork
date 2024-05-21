@@ -1,12 +1,11 @@
 import telebot
 from telebot.types import Message
 
-from fullRemake import parsers, items, item_patterns
-from fullRemake.database.main import Database
-
-
-from fullRemake.keyboard import Keyboard as keyboard
-
+import item_patterns
+import items
+import parsers
+from database.main import Database
+from keyboard import Keyboard as keyboard
 
 TOKEN = '2054290165:AAGNEgLlp1eUDWs_NRldLCnshWl4-5nx-ug'
 bot = telebot.TeleBot(token=TOKEN)
@@ -318,6 +317,8 @@ def parse(message: Message):
         item_name = None
         try:
             result, item_name = parsers.Parser.parse_router(pos)
+
+            result = parsers.Parser.change_parametres(result)
             if item_name == 'watch':
                 watches.append(
                     items.Watch(result['model'], result['size'], result['color'], result['strap_size'],

@@ -1,5 +1,5 @@
 from exceptions import ParseException
-from fullRemake import item_patterns
+import item_patterns
 from item_patterns import *
 import re
 
@@ -27,30 +27,37 @@ class Parser:
 
     @staticmethod
     def change_parametres(data):
+        data = {k: v.lower() for k, v in data.items()}
         """Функция, которая будет менять одинаковые цвета, модели и тд"""
-
         # Цвета
         if data['color'] in ['grey', 'gray', 'space gray', 'space grey', 'space']:
-            data['color'] = 'space gray'
+            data['color'] = 'Space Gray'
 
+        if data.get('color', None) and (data['color'] in ["blue", "bluе"]):
+            data['color'] = 'Blue'
+
+        # airpods
         if data.get('model', None) and (data['model'] in ['pro 2 lightning', '2022']):
             data['model'] = 'pro 2 lightning'
 
         if data.get('model', None) and (data['model'] in ['pro 2 type c', '2023']):
             data['model'] = 'pro 2 type c'
 
+        # Apple Watch
         if data.get('strap_size', None) and (data['strap_size'] in ['sm', 'ml']):
             data['strap_size'] = data['strap_size'][0] + '/' + data['strap_size'][1]
 
+        # ipads
+        if data.get('network', None) and (data['network'] in ['wi-fi', 'wifi', 'wi fi']):
+            data['network'] = 'wi-fi'
 
+        for k, v in data.items():
+            if type(v) is str:
+                data[k] = v.capitalize()
         return data
 
-
-
-
-
     @staticmethod
-    def get_data_from_string(phone_data: str) -> dict[str: str]:
+    def get_data_from_string(phone_data: str):
         res_dict = dict()
         phone_data = phone_data
         phone_data = phone_data.lower().replace("-", " ").replace('iphone', '').replace('apple', '')

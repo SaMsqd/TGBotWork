@@ -1,11 +1,11 @@
 import sqlite3
 
-from fullRemake.items import Item
-from fullRemake.items import Phone
-from fullRemake.items import Ipad
-from fullRemake.items import Airpod
-from fullRemake.items import Macbook
-from fullRemake.items import Watch
+from items import Item
+from items import Phone
+from items import Ipad
+from items import Airpod
+from items import Macbook
+from items import Watch
 
 from os import listdir
 
