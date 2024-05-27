@@ -27,7 +27,7 @@ class Parser:
 
     @staticmethod
     def change_parametres(data):
-        data = {k: v.lower() for k, v in data.items()}
+        data = {k: str(v.lower()) for k, v in data.items()}
         """Функция, которая будет менять одинаковые цвета, модели и тд"""
         # Цвета
         if data['color'] in ['grey', 'gray', 'space gray', 'space grey', 'space']:
