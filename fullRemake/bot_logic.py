@@ -137,7 +137,7 @@ def table_opt(message: Message):
                 if len(text) + len(item.generate_opt()) > 4000:
                     bot.send_message(chat_id=message.chat.id, text=text.replace('None', ''))
                     text = ''
-                if hasattr(item, 'year') and int(item.year) == 10:
+                if hasattr(item, 'year') and item.year != '' and int(item.year) == 10:
                     text += '\n' + item.generate_opt().replace('10', '')
                 else:
                     text += '\n' + item.generate_opt()

@@ -148,7 +148,8 @@ class Database:
         :param str database_name: Имя таблицы(пользователя), существование которого надо проверить
         :return bool: True, если пользователь есть, False в другом случае
         """
-        files = listdir('/fullRemake/database/files')
+        print(os.getcwd())
+        files = listdir('./fullRemake/database/files')
         for file in files:
             if database_name + '.db' in file:
                 return True
