@@ -26,3 +26,27 @@ jobs:
         with:
           push: true
           tags: samsqd/bot
+
+  server_update:
+    needs: docker
+    name: Update server buy ssh
+    runs-on: ubuntu-latest
+    steps:
+      - name: Connect and run script
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 185.41.160.212
+          port: 22
+          username: root
+          password: SaintSquad.12
+          script_stop: true
+          script: |
+            echo "Stop container"
+            docker stop message-center
+            docker rm message-center
+            docker image rm samsqd/message-center
+            echo "Pull image"
+            docker pull samsqd/message-center
+            echo "Start container"
+            docker run --name bot -e -t -d samsqd/bot
+            echo "Finish deploying!"
