@@ -13,7 +13,7 @@ from os import listdir
 
 class Database:
     def __init__(self, db_name):
-        self.connection = sqlite3.connect(f'./database/files/{db_name}.db')
+        self.connection = sqlite3.connect(f'fullRemake/database/files/{db_name}.db')
         self.cursor = self.connection.cursor()
         self.create_tables()
 
