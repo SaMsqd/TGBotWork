@@ -325,7 +325,9 @@ class Macbook(Item):
         self.color = color
         self.storage = storage
 
-        self.priority = int(str(priorities_macbook['model'][model]) + str(priorities_macbook['cpu'][cpu]) + str(priorities_macbook['storage'][str(storage)]))
+        self.priority = int(str(priorities_macbook['model'][model].lower()) +
+                            str(priorities_macbook['cpu'][cpu]).lower() +
+                            str(priorities_macbook['storage'][str(storage)]).lower())
 
     def generate_str(self):
         return f'{self.model} {self.cpu} {self.storage} {self.color}🇺🇸 - {make_price_beautiful(self.price)}'

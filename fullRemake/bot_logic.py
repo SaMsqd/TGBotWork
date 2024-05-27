@@ -336,7 +336,6 @@ def parse(message: Message):
                     items.Macbook(result['model'], result['cpu'], result['color'], result['storage'], result['price'])
                 )
 
-
             elif item_name == 'phone':
                 phones.append(
                     items.Phone(result['model'], result['version'], result['color'], int(result['storage']), result['country'],
