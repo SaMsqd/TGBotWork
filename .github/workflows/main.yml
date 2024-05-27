@@ -42,11 +42,11 @@ jobs:
           script_stop: true
           script: |
             echo "Stop container"
-            docker stop message-center
-            docker rm message-center
+            docker stop bot
+            docker rm bot
             docker image rm samsqd/message-center
             echo "Pull image"
             docker pull samsqd/message-center
             echo "Start container"
-            docker run --name bot -e -t -d samsqd/bot
+            docker run --name bot -t -d samsqd/bot
             echo "Finish deploying!"
