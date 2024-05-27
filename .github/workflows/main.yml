@@ -44,9 +44,9 @@ jobs:
             echo "Stop container"
             docker stop bot
             docker rm bot
-            docker image rm samsqd/message-center
+            docker image rm samsqd/message-bot
             echo "Pull image"
-            docker pull samsqd/message-center
+            docker pull samsqd/bot
             echo "Start container"
             docker run --name bot -t -d samsqd/bot
             echo "Finish deploying!"
