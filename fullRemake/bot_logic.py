@@ -298,6 +298,7 @@ def _playstation(message: Message):
 
 @bot.message_handler(content_types=['text'])
 def parse(message: Message):
+    check_user_id(message.chat.id)
     if 'уценка' in message.text.lower():
         data = message.text[:message.text.find('уценка')]
         data = data.replace('\n\n', '\n').replace('₽', '').replace('.', '').replace('🚛', '').replace('р', '').lower().split('\n')
