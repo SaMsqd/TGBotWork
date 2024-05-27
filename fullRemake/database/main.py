@@ -149,6 +149,7 @@ class Database:
         :return bool: True, если пользователь есть, False в другом случае
         """
         print(os.getcwd())
+        print(listdir('/'))
         files = listdir('./fullRemake/database/files')
         for file in files:
             if database_name + '.db' in file:
