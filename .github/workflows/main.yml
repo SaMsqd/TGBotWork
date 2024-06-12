@@ -24,7 +24,7 @@ jobs:
             echo "DOCKER"
             docker stop bot
             docker rm bot
-            docker image rm bot
+            docker image rm image_bot
             docker build -t image_bot .
             docker run --name bot -d -t image_bot
             echo "Finish deploying!"
