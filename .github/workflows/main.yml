@@ -19,7 +19,8 @@ jobs:
           script_stop: true
           script: |
             echo "Download from git"
-            git clone https://github.com/SaMsqd/TGBotWork
+            cd TGBotWork
+            git fetch
             echo "DOCKER build"
             docker build -t bot .
             echo "DOCKER run"
