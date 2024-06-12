@@ -13,7 +13,7 @@ from os import listdir
 
 class Database:
     def __init__(self, db_name):
-        self.connection = sqlite3.connect(f'fullRemake/database/files/{db_name}.db')
+        self.connection = sqlite3.connect(f'./database/files/{db_name}.db')
         self.cursor = self.connection.cursor()
         self.create_tables()
 
@@ -148,8 +148,7 @@ class Database:
         :param str database_name: Имя таблицы(пользователя), существование которого надо проверить
         :return bool: True, если пользователь есть, False в другом случае
         """
-        print(os.getcwd())
-        files = listdir('./fullRemake/database/files')
+        files = listdir('./database/files')
         for file in files:
             if database_name + '.db' in file:
                 return True

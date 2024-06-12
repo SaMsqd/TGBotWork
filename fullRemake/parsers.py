@@ -128,7 +128,7 @@ class Parser:
                         if el.isdigit():
                             res_dict["price"] += el
 
-                    if i.lower() in Phones.COUNTRIES[0]:
+                    if i.lower() in Phones.COUNTRIES[0] or (len(i) > 2 and all([el in Phones.COUNTRIES[0] for el in i])):
                         res_dict["country"] = i
             except IndexError:
                 return {"exception": "indexError"}
@@ -302,6 +302,8 @@ class Parser:
                 return {"exception": "indexError"}
             if res_dict['price'] == '':
                 return {'exception': 'priceError'}
+        if res_dict.get('color', True):
+            res_dict['color'] = 0
         return res_dict
 
     @staticmethod

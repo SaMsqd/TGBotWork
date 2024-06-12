@@ -105,6 +105,7 @@ priorities_watch = {
     'model':
         {
             'SE': 1,
+            'Se': 1,
             'S8': 2,
             'S9': 3,
             'Series 9': 4,
@@ -151,6 +152,8 @@ priorities_airpods = {
             '2022': 1,
             'max': 2,
             'pro': 2,
+            'Pro': 2,
+            'Pro 2': 3,
             '2': 3,
             '3': 4,
             'pro 2': 5,
@@ -296,16 +299,16 @@ class Airpod(Item):
             self.db_year = year
 
     def generate_str(self):
-        return f'{self.model} {self.year} {self.case} {self.color} - {make_price_beautiful(self.price)}'
+        return f'Airpods {self.model} {self.year} {self.case} {self.color} - {make_price_beautiful(self.price)}'
 
     def generate_opt(self):
-        return f'{self.model} {self. year} {self.case} {self.color} - {make_price_beautiful(self.price + 500)}'
+        return f'Airpods {self.model} {self. year} {self.case} {self.color} - {make_price_beautiful(self.price + 500)}'
 
     def generate_1000(self):
-        return f'{self.model} {self. year} {self.case} {self.color} - {make_price_beautiful(self.price + 1000)}'
+        return f'Airpods {self.model} {self. year} {self.case} {self.color} - {make_price_beautiful(self.price + 1000)}'
 
     def generate_retail(self):
-        return (f'{self.model} {self.year} {self.case} {self.color} - {make_price_beautiful(self.price + 500)} '
+        return (f'Airpods {self.model} {self.year} {self.case} {self.color} - {make_price_beautiful(self.price + 500)} '
                     f'↔️ {make_price_beautiful(self.price + 1000)}')
 
     def generate_sql(self):
