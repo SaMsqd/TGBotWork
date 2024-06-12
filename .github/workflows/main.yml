@@ -6,7 +6,6 @@ on:
 
 jobs:
   server_update:
-    needs: docker
     name: Update server buy ssh
     runs-on: ubuntu-latest
     steps:
