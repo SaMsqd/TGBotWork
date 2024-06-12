@@ -21,11 +21,10 @@ jobs:
             echo "Download from git"
             cd TGBotWork
             git fetch
-            echo "DOCKER build"
-            docker build -t bot .
-            echo "DOCKER run"
+            echo "DOCKER"
             docker stop bot
             docker rm bot
             docker image rm bot
+            docker build -t bot .
             docker run --name bot -t -d bot
             echo "Finish deploying!"
