@@ -70,7 +70,7 @@ class Database:
                 all_items_sorted[item[0]] = item[1]
         return all_items_sorted.values()
 
-    def get_all(self,items_name):
+    def get_all(self, items_name):
         """
         :param str items_name: предметы, который нужно получить и конвертировать в item
         :return: list[Item]
@@ -101,7 +101,6 @@ class Database:
                 all_items[k][2] = all_items[k][1].priority
             k+=1
         return self.__merge_sort(all_items)
-
 
     def __merge_sort(self,items):
         if len(items) > 1:
@@ -153,3 +152,6 @@ class Database:
             if database_name + '.db' in file:
                 return True
         return False
+
+    def get_all_items(self):
+        return {'Phones': self.get_all('Phones'), 'Ipads': self.get_all('Ipads'), 'Airpods': self.get_all('Airpods'), 'Watches': self.get_all('Watches'), 'Macbooks': self.get_all('Macbooks')}

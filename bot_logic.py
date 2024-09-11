@@ -37,12 +37,9 @@ def start(message: Message):
 @bot.message_handler(commands=['number'])
 def number(message: Message):
     db = Database('id'+str(message.chat.id))
-    text = (f'Количество всех итемов: ',
-            sum([len(db.get_all("Phones")), len(db.get_all("Ipads")),
-                 len(db.get_all("Airpods")), len(db.get_all("Macbooks")), len(db.get_all("Watches"))]))
     bot.send_message(
         chat_id=message.chat.id,
-        text=text,
+        text=f'Количество всех итемов: {sum([len(el) for el in list(db.get_all_items().values())])}',
         reply_markup=keyboard
         )
 
@@ -208,7 +205,44 @@ def table_1000(message: Message):
 
 @bot.message_handler(commands=['table'])
 def table(message: Message):
-    pass
+    db = Database('id' + str(message.chat.id))
+    items = db.get_all_items()
+    text = ''
+    version = ''
+    storage = 00
+    model = ''
+    for key in items.keys():
+        if len(items[key]) > 0:
+            text += key + '\n'
+            for i in items[key]:
+                item = i[1]
+                if hasattr(item, 'model') and item.model != model or \
+                        hasattr(item, 'storage') and storage != item.storage or \
+                        hasattr(item, 'version') and version != item.version:
+                    text += '\n'
+
+                if len(text) + len(item.generate_str()) > 4000:
+                    bot.send_message(chat_id=message.chat.id, text=text.replace('None', ''))
+                    text = ''
+
+                if hasattr(item, 'version') and version != item.version:
+                    version = item.version
+
+                if hasattr(item, 'storage') and storage != item.storage:
+                    storage = item.storage
+
+                if hasattr(item, 'model') and item.model != model:
+                    model = item.model
+
+                text += item.generate_str() + '\n'
+
+            text += '\n\n\n'
+            version = ''
+            storage = ''
+            model = ''
+    if len(text) != 0:
+        bot.send_message(chat_id=message.chat.id, text=text.replace(' None ', ''))
+
 
 
 @bot.message_handler(commands=['table_retail'])
@@ -250,50 +284,6 @@ def table_retail(message: Message):
             model = ''
     if len(text) != 0:
         bot.send_message(chat_id=message.chat.id, text=text.replace(' None ', ''))
-
-
-@bot.message_handler(commands=['playstation'])
-def playstation(message: Message):
-    bot.send_message(chat_id=message.chat.id, text='Загрузите прайс')
-    bot.register_next_step_handler(message, _playstation)
-
-
-def _playstation(message: Message):
-    data = message.text.lower()
-    play_stations = list()
-    headphones = list()
-    stations = list()
-    wheels = list()
-    vrs = list()
-
-    for play_station_model in item_patterns.Playstation.play_station_models:
-        if play_station_model in data:
-            play_stations.append(play_station_model)
-            data = data.replace(play_station_model, '')
-
-    for headphone in item_patterns.Playstation.headphones:
-        if headphone in data:
-            headphones.append(headphone)
-            data = data.replace(headphone, '')
-
-    for station in item_patterns.Playstation.stations:
-        if station in data:
-            stations.append(station)
-            data = data.replace(station, '')
-
-    for wheel in item_patterns.Playstation.wheels:
-        if wheel in data:
-            wheels.append(wheel)
-            data = data.replace(wheel, '')
-
-    for vr in item_patterns.Playstation.vrs:
-        if vr in data:
-            vrs.append(vr)
-            data = data.replace(vr, '')
-
-    data = data.replace('\n\n', '\n')
-    print(play_stations, headphones, stations, wheels, vrs)
-    print(data)
 
 
 @bot.message_handler(content_types=['text'])
@@ -347,10 +337,6 @@ def parse(message: Message):
                 ipads.append(
                     items.Ipad(result['model'], result['storage'], result['color'], result['network'], result['price'])
                 )
-            elif item_name == 'playstation':
-                playstations.append(
-                    items.Playstation(result['type'], result['name'], result['price'])
-                )
             else:
                 errors.append(pos)
 
@@ -383,10 +369,10 @@ def parse(message: Message):
         bot.send_message(chat_id=message.chat.id, text=f"Все {success} позиций были добавлены в таблицу!")
 
 
-print('Бот запущен')
-bot.polling(non_stop=True)
 while True:
+
     try:
+        print('Бот перезапущен')
         bot.polling(non_stop=True)
     except Exception as e:
         print(e.args)

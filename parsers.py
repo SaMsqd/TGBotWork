@@ -148,13 +148,12 @@ class Parser:
 
     @staticmethod
     def get_price_index(data: str) -> int:
-        base = data
-        data = data.replace(".", "").replace(",", "").replace('-', ' ').replace('(', '').replace(')', ' ')
-        price_index = 0
-        for el in data.split():
-            if el.isdigit() or Parser.delete_flag(el).isdigit():
-                price_index = data.index(el)
-        return price_index
+        try:
+            price = re.search(r'([\s—]\d{1,3}[.,\s]\d{3})|(\d{5,6})', data).group()
+            price_index = int(data.find(price))-1
+            return price_index
+        except AttributeError:
+            raise ValueError
 
     @staticmethod
     def parse_phones(phone: str):
@@ -422,10 +421,6 @@ class Parser:
         return res_dict
 
     @staticmethod
-    def parse_playstation(position):
-        pass
-
-    @staticmethod
     def parse_router(position):
         """
 
@@ -456,7 +451,6 @@ class Parser:
 
         except ParseException:
             return f'Ошибка в парсинге: {position}'
-
 
     @staticmethod
     def is_watch(data: str) -> bool:

@@ -37,7 +37,8 @@ priorities_ipad = {
             'wifi': 1,
             'wi fi': 1,
             'wi-fi': 1,
-            'lte': 2
+            'lte': 2,
+            'Lte': 2
         },
     'model':
         {
