@@ -23,11 +23,12 @@ priorities_phone = {
     'version':
         {
             '': 0,
+            'Plus': 1,
             'Mini': 1,
             'Pro': 2,
             'Max': 3,
             'Pro max': 4,
-            'Plus': 5
+
         }
 }
 
@@ -37,19 +38,22 @@ priorities_ipad = {
             'wifi': 1,
             'wi fi': 1,
             'wi-fi': 1,
+            'Wi-fi': 1,
             'lte': 2,
             'Lte': 2
         },
     'model':
         {
             'mini 6': 1,
+            'Mini 6': 1,
             'mini 7': 2,
             '5': 3,
             'air 5': 4,
             '9': 5,
             '10': 6,
             'pro 11': 7,
-            'pro 12': 8
+            'pro 12': 8,
+            'Air 13': 9,
         },
     'storage':
         {

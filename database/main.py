@@ -1,6 +1,7 @@
 import os
 import sqlite3
 
+from item_patterns import COLORS
 from items import Item
 from items import Phone
 from items import Ipad
@@ -88,8 +89,12 @@ class Database:
                                 Ipad(str(item[0]), int(item[1]), str(item[2]), str(item[3]), int(item[4])),' ']
                 all_items[k][2] = all_items[k][1].priority
             elif items_name == 'Airpods':
-                all_items[k] = [str(item[0]) + str(item[1]) + str(item[2]), \
-                                Airpod(item[0], item[1], int(item[2]),  str(item[3]), int(item[4])), ' ']
+                if str(item[3]).lower() in COLORS:
+                    all_items[k] = [str(item[0]) + str(item[1]) + str(item[2]) + str(item[3]), \
+                                    Airpod(item[0], item[1], int(item[2]),  str(item[3]), int(item[4])), ' ']
+                else:
+                    all_items[k] = [str(item[0]) + str(item[1]) + str(item[2]), \
+                                    Airpod(item[0], item[1], int(item[2]), str(item[3]), int(item[4])), ' ']
                 all_items[k][2] = all_items[k][1].priority
             elif items_name == 'Macbooks':
                 all_items[k] = [str(item[0]) + str(item[1]) + str(item[2]) + str(item[3]), \

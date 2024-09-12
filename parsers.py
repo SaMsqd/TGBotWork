@@ -99,7 +99,7 @@ class Parser:
 
         if "iphone" in phone_data:
             phone_data = phone_data.replace("iphone", "")
-        phone_data = phone_data.replace("  ", " ").replace("-", " ").replace(".", "").replace(",", "").split()
+        phone_data = phone_data.replace("  ", " ").replace("-", " ").replace(".", "").replace(",", "").replace('gb', '').replace('tb', '').split()
         res_dict["price"] = ""
         res_dict["country"] = ""
         buff = ''
@@ -149,9 +149,14 @@ class Parser:
     @staticmethod
     def get_price_index(data: str) -> int:
         try:
-            price = re.search(r'([\s—]\d{1,3}[.,\s]\d{3})|(\d{5,6})', data).group()
-            price_index = int(data.find(price))-1
-            return price_index
+            if re.search(r'([\s—]\d{1,3}[.,\s]\d{3})|(\d{4,6})', data).group() not in ['2023', '2024', '2025']:
+                price = re.search(r'([\s—]\d{1,3}[.,\s]\d{3})|(\d{4,6})', data).group()
+                price_index = int(data.find(price))-1
+                return price_index
+            else:
+                price = re.search(r'([\s—]\d{1,3}[.,\s]\d{3})|(\d{5,6})', data.replace('2023', '').
+                                  replace('2024', '')).group()
+                return int(data.find(price)) + 3
         except AttributeError:
             raise ValueError
 
@@ -272,7 +277,7 @@ class Parser:
                 res_dict['case'] = case.capitalize()
                 break
 
-        if res_dict.get('case', None):
+        if not res_dict.get('case', False):
             res_dict['case'] = 'lightning'
 
         airpod = re.sub(r'(\d)\s+(\d)', r'\1\2', airpod)
@@ -301,8 +306,8 @@ class Parser:
                 return {"exception": "indexError"}
             if res_dict['price'] == '':
                 return {'exception': 'priceError'}
-        if res_dict.get('color', True):
-            res_dict['color'] = 0
+        if not res_dict.get('color', False):
+            res_dict['color'] = '0'
         return res_dict
 
     @staticmethod
@@ -441,8 +446,8 @@ class Parser:
             elif Parser.is_watch(position):
                 return Parser.parse_watches(position), 'watch'
 
-            elif Parser.is_macbook(position):
-                return Parser.parse_macbooks(position), 'macbook'
+            # elif Parser.is_macbook(position):
+            #     return Parser.parse_macbooks(position), 'macbook'
 
             # Телефоны идут в else, так как я не смог придумать для них нормальную проверку. Но и так должно работать
             # нормально, так как для них создан очень чувствительный парсер

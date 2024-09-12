@@ -1,3 +1,5 @@
+import os
+
 import telebot
 from telebot.types import Message
 
@@ -297,10 +299,9 @@ def parse(message: Message):
 
     watches = list()
     airpods = list()
-    macbooks = list()
+    #macbooks = list()
     phones = list()
     ipads = list()
-    playstations = list()
 
     errors = list()
 
@@ -322,10 +323,10 @@ def parse(message: Message):
                                  result.get('color', '0'), result['price'])
                 )
 
-            elif item_name == 'macbook':
-                macbooks.append(
-                    items.Macbook(result['model'], result['cpu'], result['color'], result['storage'], result['price'])
-                )
+            # elif item_name == 'macbook':
+            #     macbooks.append(
+            #         items.Macbook(result['model'], result['cpu'], result['color'], result['storage'], result['price'])
+            #     )
 
             elif item_name == 'phone':
                 phones.append(
@@ -352,11 +353,11 @@ def parse(message: Message):
 
     db.add_items(watches, 'Watches')
     db.add_items(airpods, 'Airpods')
-    db.add_items(macbooks, 'Macbooks')
+    # db.add_items(macbooks, 'Macbooks')
     db.add_items(phones, 'Phones')
     db.add_items(ipads, 'Ipads')
 
-    success = sum([len(watches), len(airpods), len(macbooks), len(phones), len(ipads)])
+    success = sum([len(watches), len(airpods), len(phones), len(ipads)])    # Убрал len(macbooks)
     if len(errors) > 0:
         beautiful_error_message = ""
         for error in errors:
@@ -368,6 +369,9 @@ def parse(message: Message):
     else:
         bot.send_message(chat_id=message.chat.id, text=f"Все {success} позиций были добавлены в таблицу!")
 
+
+if os.getenv('DEBUG', False):
+    bot.polling(non_stop=True, restart_on_change=True)
 
 while True:
 
