@@ -101,7 +101,7 @@ class Database:
                                 Macbook(str(item[0]), str(item[1]), str(item[2]), int(item[3]), int(item[4])),' ']
                 all_items[k][2] = all_items[k][1].priority
             elif items_name == 'Watches':
-                all_items[k] = [str(item[0]) + str(item[1]) + str(item[2]) + str(item[3]) + str(item[4]), \
+                all_items[k] = [str(item[0]) + str(item[1]) + str(item[2]) + str(item[3]), \
                                 Watch(str(item[0]), str(item[1]), str(item[2]), str(item[3]), int(item[4]),int(item[5])), ' ']
                 all_items[k][2] = all_items[k][1].priority
             k+=1

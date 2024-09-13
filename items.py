@@ -47,12 +47,16 @@ priorities_ipad = {
             'mini 6': 1,
             'Mini 6': 1,
             'mini 7': 2,
+            'Mini 7': 2,
             '5': 3,
             'air 5': 4,
+            'Air 5': 4,
             '9': 5,
             '10': 6,
             'pro 11': 7,
+            'Pro 11': 7,
             'pro 12': 8,
+            'Pro 12': 8,
             'Air 13': 9,
         },
     'storage':
@@ -124,7 +128,9 @@ priorities_watch = {
             '41': 2,
             '44': 3,
             '45': 4,
-            '49': 5
+            '49': 5,
+            'Alpine loop': 6,
+            'Trail loop': 7
         },
     'strap_size':
         {
@@ -156,6 +162,7 @@ priorities_airpods = {
             'pro 2 lightning': 1,
             '2022': 1,
             'max': 2,
+            'Max': 2,
             'pro': 2,
             'Pro': 2,
             'Pro 2': 3,
@@ -380,19 +387,19 @@ class Phone(Item):
             self.market = 'others'
 
     def generate_str(self):
-        return (f'{self.model} {self.version} {self.color} {self.storage}'
-                f'{self.country} - {make_price_beautiful(self.price)}')
+        return (f'{self.model} {self.version} {self.storage}'
+                f'{self.country} {self.color} - {make_price_beautiful(self.price)}')
 
     def generate_opt(self):
-        return (f'{self.model} {self.version} {self.color} {self.storage} {self.country} '
+        return (f'{self.model} {self.version} {self.storage} {self.country} {self.color}'
                 f'- {make_price_beautiful(self.price + 500)}')
 
     def generate_1000(self):
-        return (f'{self.model} {self.version} {self.color} {self.storage} {self.country} '
+        return (f'{self.model} {self.version} {self.storage} {self.country} {self.color}'
                 f'- {make_price_beautiful(self.price + 1000)}')
 
     def generate_retail(self):
-        return (f'{self.model} {self.version} {self.color} {self.storage} {self.country} '
+        return (f'{self.model} {self.version} {self.storage} {self.country} {self.color} '
                 f'- {make_price_beautiful(self.price + 500)} ↔️ {make_price_beautiful(self.price + 1000)}')
 
     def generate_sql(self):

@@ -1,5 +1,5 @@
 COLORS = ["titanium olive", "black white", "deep purple", "light pink", "red", "purple", "green", "blue", "bluе", "midnight", "starlight",
-          "pink", "orange", "yellow", "gold", "silver", "white", "titanium", "titan", "natural", "black", 'space gray', 'space', 'grey', 'gray', 'night', 'star'] # В макбуках серый написан как gray
+          "pink", "rose", "orange", "yellow", "gold", "silver", "white", "titanium", "titan", "natural", "black", 'space gray', 'space', 'grey', 'gray', 'night', 'star'] # В макбуках серый написан как gray
 
 '''
     Далее идут классы, описывающие свойства, которые могут быть у каждого из товаров.
@@ -17,10 +17,10 @@ class Phones:
 
 
 class Watches:
-    models = ['se', 's8', 's9', 'series 9', 'ultra 2', 'ultra', '9']
-    sizes = ['40', '41', '44', '45', '49']
+    models = ['se2', 'se', 's8', 's9', 'series 9', 'ultra 2', 'ultra', '9']
+    sizes = ['40', '41', '44', '45', '49', 'sport loop', 'alpine loop', 'trail loop']
     colors = COLORS
-    strap_sizes = ['s/m', 'm/l', 'sm', 'ml', 'sport loop', 'alpine loop', 's', 'm']
+    strap_sizes = ['sport loop', 'alpine loop', 'trail loop', 's/m', 'm/l', 'sm', 'ml', 's', 'm']
     year = [str(year) for year in range(2020, 2025)]
     # Страну игнорируем
 

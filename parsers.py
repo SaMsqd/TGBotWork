@@ -7,7 +7,8 @@ import re
 class Parser:
     @staticmethod
     def change_price_view(data: str):
-        """Функция, которая убирает пробел между разрядами в цене: ... - 11 111 -> 11111"""
+        """Функция, которая убирает пробел между разрядами в цене: ... - 11 111 -> 11111 и меняет , на " " """
+
         try:
             res = ''
             el = data[Parser.get_price_index(data)-1]
@@ -150,7 +151,7 @@ class Parser:
     def get_price_index(data: str) -> int:
         try:
             if re.search(r'([\s—]\d{1,3}[.,\s]\d{3})|(\d{4,6})', data).group() not in ['2023', '2024', '2025']:
-                price = re.search(r'([\s—]\d{1,3}[.,\s]\d{3})|(\d{4,6})', data).group()
+                price = re.search(r'([\s—]\d{1,3}[.,\s]\d{3}\s)|(\d{4,6})', data).group()   # Добавил \s в конце первой скобки могут быть ошибки
                 price_index = int(data.find(price))-1
                 return price_index
             else:
@@ -173,7 +174,7 @@ class Parser:
                 data["color"] = ["Midnight" if data["color"] == "Black" else "Starlight"][0]
             if data["color"] == "Silver":
                 data["color"] = "White"
-            if data["version"] == "Max" or data["version"] == "Pro":
+            if data["version"] == "Max":
                 data["version"] = "Pro max"
             if data["storage"] == "1":
                 data["storage"] = "1024"
@@ -239,12 +240,12 @@ class Parser:
 
     @staticmethod
     def parse_airpods(airpod: str) -> dict:
-        airpod = airpod.replace('max', 'pro').lower()
+        airpod = airpod.lower()
         res_dict = dict()
         res_dict['price'] = ''
 
         for model in Airpods.models:
-            if (model != '2' or model != '3') and model in airpod[:Parser.get_price_index(airpod)] \
+            if model in airpod[:Parser.get_price_index(airpod)] \
                     or Parser.len_model_el(airpod, model) == 1:
                 res_dict['model'] = model.capitalize()
                 airpod = airpod.replace(model, '', 1)
@@ -278,7 +279,7 @@ class Parser:
                 break
 
         if not res_dict.get('case', False):
-            res_dict['case'] = 'lightning'
+            res_dict['case'] = ''
 
         airpod = re.sub(r'(\d)\s+(\d)', r'\1\2', airpod)
         airpod = airpod.replace("  ", " ").replace("-", " ").replace(".", "").replace(",", "").split()
@@ -381,7 +382,7 @@ class Parser:
         res_dict = dict()
         res_dict['price'] = ''
         for model in Ipads.models:
-            if model + ' ' in ipad[:Parser.get_price_index(ipad)]:
+            if model in ipad[:Parser.get_price_index(ipad)]:
                 res_dict['model'] = model.capitalize()
                 ipad = ipad.replace(model, '', 1)
                 break
@@ -432,6 +433,7 @@ class Parser:
         :param str position: Строка для парсинга товара
         :return dict, str: В словаре будут все данные + название товара
         """
+        position = position.replace(',', '')
         position = Parser.change_price_view(position)
         try:
             if Parser.is_airpod(position):
