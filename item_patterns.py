@@ -20,7 +20,7 @@ class Watches:
     models = ['se2', 'se', 's8', 's9', 'series 9', 'ultra 2', 'ultra', '9']
     sizes = ['40', '41', '44', '45', '49', 'sport loop', 'alpine loop', 'trail loop']
     colors = COLORS
-    strap_sizes = ['sport loop', 'alpine loop', 'trail loop', 's/m', 'm/l', 'sm', 'ml', 's', 'm']
+    strap_sizes = ['sport loop', 'alpine loop', 'trail loop', 's/m', 'm/l', 'sm', 'ml', 's', 'm', 'l']
     year = [str(year) for year in range(2020, 2025)]
     # Страну игнорируем
 

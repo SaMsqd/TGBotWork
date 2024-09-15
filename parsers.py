@@ -150,12 +150,12 @@ class Parser:
     @staticmethod
     def get_price_index(data: str) -> int:
         try:
-            if re.search(r'([\s—]\d{1,3}[.,\s]\d{3})|(\d{4,6})', data).group() not in ['2023', '2024', '2025']:
+            if re.search(r'([\s—]\d{1,3}[.,\s]\d{3})|(\d{4,6})', data).group() not in ['2022', '2023', '2024', '2025']:
                 price = re.search(r'([\s—]\d{1,3}[.,\s]\d{3}\s)|(\d{4,6})', data).group()   # Добавил \s в конце первой скобки могут быть ошибки
                 price_index = int(data.find(price))-1
                 return price_index
             else:
-                price = re.search(r'([\s—]\d{1,3}[.,\s]\d{3})|(\d{5,6})', data.replace('2023', '').
+                price = re.search(r'([\s—]\d{1,3}[.,\s]\d{3})|(\d{5,6})', data.replace('2022', '').replace('2023', '').
                                   replace('2024', '')).group()
                 return int(data.find(price)) + 3
         except AttributeError:
@@ -198,19 +198,19 @@ class Parser:
                 break
         else:
             raise ParseException('ошибка в парсинге модели')
-
+        price_index = Parser.get_price_index(watch)
         for size in Watches.sizes:
-            if size in watch[:Parser.get_price_index(watch)]:
+            if size in watch[:price_index]:
                 res_dict['size'] = size
                 watch = watch.replace(size, '')
                 break
         else:
             raise ParseException('ошибка в парсинге размера')
-
+        price_index = Parser.get_price_index(watch)
         for strap_size in Watches.strap_sizes:
-            if strap_size in watch[:Parser.get_price_index(watch)]:
+            if ' ' + strap_size + ' ' in watch[:price_index+1]:
                 res_dict['strap_size'] = strap_size.capitalize()
-                watch = watch.replace(strap_size, '')
+                watch = watch.replace(strap_size + ' ', '', 1)
                 if 'alpine loop' in watch:
                     res_dict['strap_size'] = 'alpine loop' + res_dict['strap_size']
                 break

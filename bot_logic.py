@@ -9,6 +9,8 @@ import parsers
 from database.main import Database
 from keyboard import Keyboard as keyboard
 
+
+my_id = str(1112643543)
 TOKEN = '2054290165:AAGNEgLlp1eUDWs_NRldLCnshWl4-5nx-ug'
 bot = telebot.TeleBot(token=TOKEN)
 
@@ -288,6 +290,11 @@ def table_retail(message: Message):
         bot.send_message(chat_id=message.chat.id, text=text.replace(' None ', ''))
 
 
+@bot.message_handler(commands=['get_id'])
+def get_id(message: Message):
+    bot.send_message(chat_id=message.chat.id, text=str(message.chat.id))
+
+
 @bot.message_handler(content_types=['text'])
 def parse(message: Message):
     check_user_id(message.chat.id)
@@ -370,13 +377,12 @@ def parse(message: Message):
         bot.send_message(chat_id=message.chat.id, text=f"Все {success} позиций были добавлены в таблицу!")
 
 
-if os.getenv('DEBUG', False):
-    bot.polling(non_stop=True, restart_on_change=True)
+# if os.getenv('DEBUG', False):
+#     bot.polling(non_stop=True, restart_on_change=True)
 
 while True:
-
     try:
-        print('Бот перезапущен')
+        bot.send_message(chat_id=my_id, text='Бот перезапущен')
         bot.polling(non_stop=True)
     except Exception as e:
-        print(e.args)
+        bot.send_message(chat_id=my_id, text=e.args[0])

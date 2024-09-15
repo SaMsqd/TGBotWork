@@ -115,12 +115,13 @@ priorities_watch = {
         {
             'SE': 1,
             'Se': 1,
-            'S8': 2,
-            'S9': 3,
-            'Series 9': 4,
-            '9': 4,
-            'Ultra': 5,
-            'Ultra 2': 6
+            'Se2': 2,
+            'S8': 3,
+            'S9': 4,
+            'Series 9': 5,
+            '9': 6,
+            'Ultra': 7,
+            'Ultra 2': 8
         },
     'size':
         {
@@ -140,8 +141,9 @@ priorities_watch = {
             'M': 2,
             'M/l': 3,
             'Ml': 3,
-            'Sport loop': 4,
-            'Alpine loop': 5
+            'L': 4,
+            'Sport loop': 5,
+            'Alpine loop': 6
         },
     'year':
         {
