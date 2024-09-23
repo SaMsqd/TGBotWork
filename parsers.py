@@ -191,9 +191,13 @@ class Parser:
 
         for model in Watches.models:
             if model in watch[:Parser.get_price_index(watch)]:
-                res_dict['model'] = model.capitalize()
                 if model.lower() == 'se':
-                    res_dict['model'] = model.upper()
+                    res_dict['model'] = model + '2'
+
+                if model.lower() == '9':
+                    res_dict['model'] = 's' + model
+
+                res_dict['model'] = model.capitalize()
                 watch = watch.replace(model, '', 1)
                 break
         else:
