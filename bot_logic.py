@@ -383,6 +383,7 @@ def parse(message: Message):
 while True:
     try:
         bot.send_message(chat_id=my_id, text='Бот перезапущен')
-        bot.polling(non_stop=True)
+        #bot.polling(non_stop=True)
+        bot.infinity_polling()
     except Exception as e:
         bot.send_message(chat_id=my_id, text=e.args[0])

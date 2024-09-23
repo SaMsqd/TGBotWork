@@ -202,7 +202,7 @@ class Parser:
         for size in Watches.sizes:
             if size in watch[:price_index]:
                 res_dict['size'] = size
-                watch = watch.replace(size, '')
+                watch = watch.replace(size, '').replace('  ', ' ')
                 break
         else:
             raise ParseException('ошибка в парсинге размера')
@@ -258,6 +258,9 @@ class Parser:
                 res_dict['color'] = color.capitalize()
                 airpod = airpod.replace(color, '')
                 break
+
+        if res_dict.get('color', None) and res_dict['color'].lower() == 'splace grey':
+            res_dict['color'] = 'Black'
 
         for year in Airpods.year:
             if year in airpod and 2010 <= int(year) <= 2024:
@@ -381,6 +384,14 @@ class Parser:
 
         res_dict = dict()
         res_dict['price'] = ''
+        for storage in Ipads.storages:
+            if storage in ipad:
+                res_dict['storage'] = int(storage.replace('тб', '').replace('tb', '').replace('gb', '').replace('гб', ''))
+                ipad = ipad.replace(storage, '')
+                break
+        else:
+            raise ParseException('ошибка в парсинге хранилища')
+
         for model in Ipads.models:
             if model in ipad[:Parser.get_price_index(ipad)]:
                 res_dict['model'] = model.capitalize()
@@ -390,13 +401,10 @@ class Parser:
         else:
             raise ParseException('ошибка в парсинге модели')
 
-        for storage in Ipads.storages:
-            if storage in ipad:
-                res_dict['storage'] = int(storage.replace('тб', '').replace('tb', '').replace('gb', '').replace('гб', ''))
-                ipad = ipad.replace(storage, '')
-                break
-        else:
-            raise ParseException('ошибка в парсинге хранилища')
+        if res_dict['model'] == '11':
+            res_dict['model'] = 'Air 11'
+
+
 
         for color in Ipads.COLORS:
             if color in ipad:

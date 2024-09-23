@@ -1,4 +1,4 @@
-COLORS = ["titanium olive", "black white", "deep purple", "light pink", "red", "purple", "green", "blue", "bluе", "midnight", "starlight",
+COLORS = ["titanium olive", 'olive', "black white", "deep purple", "light pink", "red", "purple", "green", "blue", "bluе", "midnight", "starlight", 'indigo',
           "pink", "rose", "orange", "yellow", "gold", "silver", "white", "titanium", "titan", "natural", "black", 'space gray', 'space', 'grey', 'gray', 'night', 'star'] # В макбуках серый написан как gray
 
 '''
@@ -55,7 +55,7 @@ class Macbooks:
 
 
 class Ipads:
-    models = ['mini 6', 'pro 12', 'pro 11', 'air 5', '5', '9', '10', '102', '129', 'air 13', 'pro 13']
+    models = ['mini 6', 'pro 12', 'pro 11', 'air 11', 'air 5', '5', '9', '10', '102', '129', 'air 13', 'pro 13', '11']
     storages = ['64', '128', '256', '512', '1tb', '1тб', '1']
     COLORS = COLORS
     networks = ['wifi', 'wi-fi', 'wi fi', 'lte']

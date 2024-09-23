@@ -51,13 +51,14 @@ priorities_ipad = {
             '5': 3,
             'air 5': 4,
             'Air 5': 4,
-            '9': 5,
-            '10': 6,
-            'pro 11': 7,
-            'Pro 11': 7,
-            'pro 12': 8,
-            'Pro 12': 8,
-            'Air 13': 9,
+            'Air 11': 5,
+            '9': 6,
+            '10': 7,
+            'pro 11': 8,
+            'Pro 11': 8,
+            'pro 12': 9,
+            'Pro 12': 9,
+            'Air 13': 10,
         },
     'storage':
         {
@@ -255,7 +256,7 @@ class Watch(Item):
         })
         super().__init__(model, price)
 
-        self.priority = int(str(priorities_watch['model'][model]) + str(priorities_watch['size'][size]) + str(priorities_watch['strap_size'][strap_size]) + str(priorities_watch['year'][str(year)]))
+        self.priority = int(str(priorities_watch['model'][model]) + str(priorities_watch['size'][size]) + str(priorities_watch['strap_size'][strap_size]))
         self.size = size
         self.color = color
         self.strap_size = strap_size
@@ -267,22 +268,22 @@ class Watch(Item):
             self.db_year = year
 
     def generate_str(self):
-        return (f'{self.model} {self.year} {self.size} {str(self.color).capitalize()} {self.strap_size} '
+        return (f'{self.model} {self.size} {str(self.color).capitalize()} {self.strap_size} '
                 f'🇺🇸 - {make_price_beautiful(self.price)}')
 
     def generate_sql(self):
         return f'("{self.model}","{self.size}", "{self.color}", "{self.strap_size}", {self.db_year}, {self.price})'
 
     def generate_opt(self):
-        return (f'{self.model} {self.year} {self.size} {str(self.color).capitalize()} {self.strap_size} '
+        return (f'{self.model} {self.size} {str(self.color).capitalize()} {self.strap_size} '
                 f'🇺🇸- {make_price_beautiful(self.price + 500)}')
 
     def generate_1000(self):
-        return (f'{self.model} {self.year} {self.size} {str(self.color).capitalize()} {self.strap_size} '
+        return (f'{self.model} {self.size} {str(self.color).capitalize()} {self.strap_size} '
                 f'🇺🇸 - {make_price_beautiful(self.price + 1000)}')
 
     def generate_retail(self):
-        return (f'{self.model} {self.year} {self.size} {str(self.color).capitalize()} {self.strap_size}'
+        return (f'{self.model} {self.size} {str(self.color).capitalize()} {self.strap_size}'
                 f'🇺🇸 - {make_price_beautiful(self.price + 500)} ↔️ {make_price_beautiful(self.price + 1000)}')
 
 
@@ -393,15 +394,15 @@ class Phone(Item):
                 f'{self.country} {self.color} - {make_price_beautiful(self.price)}')
 
     def generate_opt(self):
-        return (f'{self.model} {self.version} {self.storage} {self.country} {self.color}'
+        return (f'{self.model} {self.version} {self.storage} {self.color} {self.country} '
                 f'- {make_price_beautiful(self.price + 500)}')
 
     def generate_1000(self):
-        return (f'{self.model} {self.version} {self.storage} {self.country} {self.color}'
+        return (f'{self.model} {self.version} {self.storage}  {self.color} {self.country}'
                 f'- {make_price_beautiful(self.price + 1000)}')
 
     def generate_retail(self):
-        return (f'{self.model} {self.version} {self.storage} {self.country} {self.color} '
+        return (f'{self.model} {self.version} {self.storage}  {self.color} {self.country} '
                 f'- {make_price_beautiful(self.price + 500)} ↔️ {make_price_beautiful(self.price + 1000)}')
 
     def generate_sql(self):
