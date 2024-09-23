@@ -232,7 +232,7 @@ class Parser:
                 watch = watch.replace(year, '')
                 break
 
-        for symb in watch[Parser.get_price_index(watch)-3:]:
+        for symb in watch[Parser.get_price_index(watch):]:
             if symb.isdigit():
                 res_dict['price'] = res_dict['price'] + symb
 

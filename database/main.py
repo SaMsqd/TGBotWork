@@ -101,10 +101,12 @@ class Database:
                                 Macbook(str(item[0]), str(item[1]), str(item[2]), int(item[3]), int(item[4])),' ']
                 all_items[k][2] = all_items[k][1].priority
             elif items_name == 'Watches':
+                print(item)
+                print(all_items[k])
                 all_items[k] = [str(item[0]) + str(item[1]) + str(item[2]) + str(item[3]), \
-                                Watch(str(item[0]), str(item[1]), str(item[2]), str(item[3]), int(item[4]),int(item[5])), ' ']
+                                Watch(str(item[0]), str(item[1]), str(item[2]), str(item[3]), int(item[4]), int(item[5])), ' ']
                 all_items[k][2] = all_items[k][1].priority
-            k+=1
+            k += 1
         return self.__merge_sort(all_items)
 
     def __merge_sort(self,items):
