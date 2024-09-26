@@ -11,7 +11,7 @@ from keyboard import Keyboard as keyboard
 
 
 my_id = str(1112643543)
-TOKEN = '2054290165:AAGNEgLlp1eUDWs_NRldLCnshWl4-5nx-ug'
+TOKEN = '6690029911:AAHw31g4FbAHNFMc5u3p_NigYBeqk-nz_4s'
 bot = telebot.TeleBot(token=TOKEN)
 
 
