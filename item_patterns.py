@@ -1,4 +1,4 @@
-COLORS = ["titanium olive", 'olive', "black white", "deep purple", "light pink", "red", "purple", "green", "blue", "bluе", "midnight", "starlight", 'indigo',
+COLORS = ['teal', 'ultramarine', 'desert', "titanium olive", 'titanium blue', 'orange/beige', 'orange-beige', 'indigo alpine loop', 'olive alpine loop', 'trail green/gray', 'trail green-gray', 'trail blue/black', 'trail blue-black', 'olive', "black white", "deep purple", "light pink", "red", "purple", "green", "blue", "bluе", "midnight", "starlight", 'indigo',
           "pink", "rose", "orange", "yellow", "gold", "silver", "white", "titanium", "titan", "natural", "black", 'space gray', 'space', 'grey', 'gray', 'night', 'star'] # В макбуках серый написан как gray
 
 '''
@@ -18,7 +18,7 @@ class Phones:
 
 class Watches:
     models = ['se2', 'se', 's8', 's9', 'series 9', 'ultra 2', 'ultra', '9']
-    sizes = ['40', '41', '44', '45', '49', 'sport loop', 'alpine loop', 'trail loop']
+    sizes = ['40', '41', '44', '45', '49']
     colors = COLORS
     strap_sizes = ['sport loop', 'alpine loop', 'trail loop', 's/m', 'm/l', 'sm', 'ml', 's', 'm', 'l']
     year = [str(year) for year in range(2020, 2025)]
@@ -27,7 +27,7 @@ class Watches:
 
 class Airpods:
     colors = COLORS
-    models = ['pro 2', 'pro 2 type c', 'pro 2', 'max', 'pro', '2', '3']
+    models = ['pro 2', 'pro 2 type c', 'pro 2', 'max', 'pro', '2', '3', '4']
     # !!! max = pro, pro 2 lightning = 2022, pro 2 type c = 2023
     cases = ['magsafe', 'lightning']
     year = [str(year) for year in range(2018, 2024)]
