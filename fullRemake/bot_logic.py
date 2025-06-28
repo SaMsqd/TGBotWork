@@ -1,3 +1,5 @@
+import traceback
+
 import telebot
 from telebot.types import Message
 
@@ -8,7 +10,7 @@ from database.main import Database
 from keyboard import Keyboard as keyboard
 
 print('Попал в основной файл')
-TOKEN = '2054290165:AAGNEgLlp1eUDWs_NRldLCnshWl4-5nx-ug'
+TOKEN = '6690029911:AAHw31g4FbAHNFMc5u3p_NigYBeqk-nz_4s'
 bot = telebot.TeleBot(token=TOKEN)
 
 
@@ -384,9 +386,9 @@ def parse(message: Message):
         bot.send_message(chat_id=message.chat.id, text=f"Все {success} позиций были добавлены в таблицу!")
 
 
-print('Бот запущен')
 while True:
     try:
+        print('Бот запущен')
         bot.polling(non_stop=True)
     except Exception as e:
-        print(e.args)
+        print(traceback.format_exc(e))

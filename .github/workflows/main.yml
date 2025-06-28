@@ -20,7 +20,7 @@ jobs:
           script: |
             echo "Download from git"
             cd TGBotWork
-            git fetch
+            git pull
             echo "DOCKER"
             docker stop bot
             docker rm bot
