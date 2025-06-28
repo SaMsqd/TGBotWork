@@ -7,6 +7,7 @@ import parsers
 from database.main import Database
 from keyboard import Keyboard as keyboard
 
+print('Попал в основной файл')
 TOKEN = '2054290165:AAGNEgLlp1eUDWs_NRldLCnshWl4-5nx-ug'
 bot = telebot.TeleBot(token=TOKEN)
 
@@ -384,7 +385,6 @@ def parse(message: Message):
 
 
 print('Бот запущен')
-bot.polling(non_stop=True)
 while True:
     try:
         bot.polling(non_stop=True)
